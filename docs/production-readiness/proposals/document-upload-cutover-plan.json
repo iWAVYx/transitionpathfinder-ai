@@ -608,11 +608,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "3ac5a3945e21fbff77412a438d8dd874cde8d4bbc4cc1bc072496e32400cce0b"
+      "sha256": "8195f64d2785cbb2021ad3e0d770eeba7851eee4db604bdf24abc10b4b783f29"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "935f44bcf6ac00c40a1c87fc5a53346fcf279852600ce23902f9ba7c40bf9c42"
+      "sha256": "70bc182d17a74532fb8f4d6a24cc72abb2e2ec257ac9721adb2657f9bcc564ed"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -708,7 +708,7 @@
     },
     {
       "path": "src/hooks/use-planning-lifetime.ts",
-      "sha256": "e6bdcb160f40b9c6f1de439125082fb22f5dec8d05c133decb72bdf960107f7a"
+      "sha256": "eddfd269f11b62a1f6e7a1e4a85e3851e5865f6978decbaaff27a39b6c0b4750"
     },
     {
       "path": "src/lib/action-item-values.ts",
@@ -749,6 +749,50 @@
     {
       "path": "docs/database-proposals/action-item-value-compatibility/README.md",
       "sha256": "6fc7d0b6f4cf06c0b037db8db87e26ebaf6d72a9f6f7a59816958bbc55f79bc3"
+    },
+    {
+      "path": "src/components/documents/PptAgendaDocument.tsx",
+      "sha256": "89ecd27506ce66cd40560c02c77ab862c3af5cf36edf7add7b9bfacb1588117a"
+    },
+    {
+      "path": "src/components/pathway/ConnectToPlan.tsx",
+      "sha256": "dbadb7fd0888b1a934645afd7c95f3fc4aa38e4acd02225352e496a284502cd3"
+    },
+    {
+      "path": "src/components/students/PartnerSuggestedActions.tsx",
+      "sha256": "b8829302161cb49df3fb1b14bc4c4c28cd0ffeef61b7d1ca077a87388c4777f3"
+    },
+    {
+      "path": "src/routes/_authenticated/ppt-prep.tsx",
+      "sha256": "d1285ef2c255b635443ce0fe8ee77c03d6ed09c842a6ee1525d9d6c8e4399eb0"
+    },
+    {
+      "path": "src/routes/resources.tsx",
+      "sha256": "00b3aceeeda1ac262bcf1454e7590c3a14989e4f0e40087f6c9287a90cf09b5c"
+    },
+    {
+      "path": "tests/unit/ppt-agenda-document.test.tsx",
+      "sha256": "1561ef75d7dafe45cb6fa9a7d0acc36a97634a2b1807e08e3451d0d7987114e4"
+    },
+    {
+      "path": "tests/unit/ppt-prep-context.test.tsx",
+      "sha256": "ebced8ad09755d394a845af4f68012a8ab98ba4fc6526150ed0887fc3cfda897"
+    },
+    {
+      "path": "src/components/resources/AddToPathwayButton.tsx",
+      "sha256": "40efc1f6703ce0a7d09a1aacd60f600b18090eeae69427ccee4aba4d03ffdcd7"
+    },
+    {
+      "path": "src/hooks/use-create-planning-action.ts",
+      "sha256": "8bac336319903b7c8d273efdd0e4956f1b527e9e4a7016f75f82e59b87f1bf7f"
+    },
+    {
+      "path": "tests/unit/create-planning-action-lifetime.test.tsx",
+      "sha256": "ddfc6e26fb55d79e050a4a7d90266cdfae505e80f98dfc0cb6883f98a19fd5ae"
+    },
+    {
+      "path": "tests/unit/planning-action-creators.test.tsx",
+      "sha256": "a85c7c41a430fcf159945221a9ffa073f8e4f8c423af49bd3847fa38fefa12b3"
     }
   ],
   "batch": {
@@ -1353,7 +1397,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 186,
+    "declared_entries_checked": 197,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

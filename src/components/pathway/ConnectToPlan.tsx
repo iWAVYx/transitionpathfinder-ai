@@ -12,7 +12,8 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { createStudentActionItem } from "@/lib/action-items.functions";
+import {useCreatePlanningAction} from "@/hooks/use-create-planning-action";
+import {useAuth} from "@/hooks/use-auth";
 import { createCalendarEvent } from "@/lib/calendar.functions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 
@@ -119,16 +120,12 @@ function collectItems(report: PathwayReport): ConnectableItem[] {
 
 type Status = "idle" | "saving-action" | "saving-event" | "added-action" | "added-event";
 
-export function ConnectToPlan({
-  report,
-  studentId,
-  reportId,
-}: {
-  report: PathwayReport;
-  studentId?: string;
-  reportId?: string;
-}) {
-  const addAction = useServerFn(createStudentActionItem);
+type ConnectProps={report:PathwayReport;studentId?:string;reportId?:string};
+export function ConnectToPlan(props:ConnectProps){
+ const{user}=useAuth();const revision=useMemo(()=>crypto.randomUUID(),[props.report]);return <ConnectToPlanSession key={`${user?.id??'anonymous'}:${props.studentId??''}:${props.reportId??''}:${revision}`} {...props}/>;
+}
+function ConnectToPlanSession({report,studentId,reportId}:ConnectProps){
+ const action=useCreatePlanningAction(`${studentId??''}:${reportId??''}`);
   const addEvent = useServerFn(createCalendarEvent);
   const items = useMemo(() => collectItems(report), [report]);
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
@@ -140,14 +137,13 @@ export function ConnectToPlan({
 
   if (items.length === 0) return null;
 
-  const linked = Boolean(studentId);
+  const linked = Boolean(studentId&&action.available);
 
   async function handleAddAction(item: ConnectableItem) {
-    if (!studentId) return;
+    if (!studentId||action.pending||action.uncertain) return;
     setStatuses((s) => ({ ...s, [item.id]: "saving-action" }));
     try {
-      await addAction({
-        data: {
+      const saved=await action.run({
           student_id: studentId,
           title: item.text.slice(0, 200),
           description: `From pathway report · ${item.source}`,
@@ -155,18 +151,19 @@ export function ConnectToPlan({
           priority: "medium",
           due_date: todayPlus(item.dueOffsetDays),
           pathway_report_id: safeReportId,
-        },
       });
+      if(!saved){if(action.current())setStatuses(s=>({...s,[item.id]:"idle"}));return;}
       setStatuses((s) => ({ ...s, [item.id]: "added-action" }));
       toast.success("Added to Action Items");
     } catch (e) {
+      if(!action.current())return;
       setStatuses((s) => ({ ...s, [item.id]: "idle" }));
       toast.error(e instanceof Error ? e.message : "Could not add action item");
     }
   }
 
   async function handleAddEvent(item: ConnectableItem) {
-    if (!studentId) return;
+    if (!studentId||!action.current()) return;
     setStatuses((s) => ({ ...s, [item.id]: "saving-event" }));
     try {
       await addEvent({
@@ -182,9 +179,11 @@ export function ConnectToPlan({
           all_day: true,
         },
       });
+      if(!action.current())return;
       setStatuses((s) => ({ ...s, [item.id]: "added-event" }));
       toast.success("Added to Calendar");
     } catch (e) {
+      if(!action.current())return;
       setStatuses((s) => ({ ...s, [item.id]: "idle" }));
       toast.error(e instanceof Error ? e.message : "Could not add calendar event");
     }
@@ -218,6 +217,7 @@ export function ConnectToPlan({
           )}
         </div>
 
+        {action.uncertain&&<p role="status" className="mb-4 text-sm">Check saved action items, then refresh this page before trying again.</p>}
         <ul className="grid gap-3">
           {items.map((item) => {
             const st = statuses[item.id] ?? "idle";
@@ -245,7 +245,7 @@ export function ConnectToPlan({
                   <Button
                     size="sm"
                     variant={addedAction ? "secondary" : "outline"}
-                    disabled={!linked || st === "saving-action" || addedAction}
+                    disabled={!linked || action.pending || action.uncertain || st === "saving-action" || addedAction}
                     onClick={() => handleAddAction(item)}
                   >
                     {st === "saving-action" ? (

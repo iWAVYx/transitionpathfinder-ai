@@ -29,7 +29,8 @@ import {
   type PptAgenda,
   type PptPrepSummary,
 } from "@/lib/ppt.functions";
-import { createStudentActionItem } from "@/lib/action-items.functions";
+import {useAuth} from "@/hooks/use-auth";
+import {useCreatePlanningAction} from "@/hooks/use-create-planning-action";
 import { MeetingPrepPartners } from "@/components/pathway/MeetingPrepPartners";
 import { PreMeetingChecklist } from "@/components/pathway/PreMeetingChecklist";
 
@@ -57,7 +58,8 @@ type LoadedAgenda = {
   meetingDate: string | null;
 };
 
-function PptPrepPage() {
+function PptPrepPage(){const{user,loading}=useAuth();if(loading)return <p>Loading meeting prep…</p>;if(!user)return <p>Sign in to view meeting prep.</p>;return <PptPrepSession key={user.id}/>;}
+function PptPrepSession() {
   const search = Route.useSearch();
   const navigate = useNavigate();
 
@@ -66,7 +68,6 @@ function PptPrepPage() {
   const loadPrep = useServerFn(getPptPrep);
   const listPreps = useServerFn(listPptPreps);
   const removePrep = useServerFn(deletePptPrep);
-  const addAction = useServerFn(createStudentActionItem);
 
   const [reports, setReports] = useState<ReportSummary[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -83,6 +84,7 @@ function PptPrepPage() {
   const [generating, setGenerating] = useState(false);
   const [agenda, setAgenda] = useState<LoadedAgenda | null>(null);
   const [hydrating, setHydrating] = useState(false);
+  const action=useCreatePlanningAction(`${agenda?.studentId??''}:${agenda?.id??''}:${search.id??''}`);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,6 +156,7 @@ function PptPrepPage() {
       const res = await prep({
         data: { report_id: reportId, meeting_date: meetingDate, top_concerns: topConcerns, desired_outcomes: desiredOutcomes },
       });
+      if(!action.current())return;
       // Refresh saved list so the new one appears when they come back.
       setPrepsAttempt(current => current + 1);
       if (res.id) {
@@ -170,6 +173,7 @@ function PptPrepPage() {
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
+      if(!action.current())return;
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setGenerating(false);
@@ -185,10 +189,12 @@ function PptPrepPage() {
     if (!confirm("Delete this saved meeting prep? This can't be undone.")) return;
     try {
       await removePrep({ data: { id } });
+      if(!action.current())return;
       setSavedPreps((prev) => prev.filter((p) => p.id !== id));
       if (agenda?.id === id) onReset();
       toast.success("Deleted.");
     } catch (e) {
+      if(!action.current())return;
       toast.error(e instanceof Error ? e.message : "Couldn't delete.");
     }
   };
@@ -212,12 +218,16 @@ function PptPrepPage() {
           studentId={agenda.studentId}
           meetingDate={agenda.meetingDate}
           partnerContent={<MeetingPrepPartners studentId={agenda.studentId} meetingDate={agenda.meetingDate} />}
+          actionDisabled={!action.available||action.pending||action.uncertain}
+          actionNotice={action.uncertain?"Check saved action items, then refresh this page before trying again.":undefined}
           onAddAction={async (title) => {
             if (!agenda.studentId) return;
             try {
-              await addAction({ data: { student_id: agenda.studentId, title: title.slice(0, 200), category: "team", priority: "medium" } });
+              const saved=await action.run({ student_id: agenda.studentId, title: title.slice(0, 200), category: "team", priority: "medium" });
+              if(!saved)return;
               toast.success("Added to action items.");
             } catch (error) {
+              if(!action.current())return;
               toast.error(error instanceof Error ? error.message : "Could not add.");
             }
           }}

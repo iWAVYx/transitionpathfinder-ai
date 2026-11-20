@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-const state = vi.hoisted(() => ({ id: "prep-a" as string | undefined, get: vi.fn(), list: vi.fn(), preps: vi.fn(), navigate: vi.fn(), error: vi.fn(), deniedWrite: vi.fn(() => { throw new Error("No writes during reader checks"); }) }));
+const state = vi.hoisted(() => ({ user:{id:"viewer-a"}as{id:string}|null,success:vi.fn(),id: "prep-a" as string | undefined, get: vi.fn(), list: vi.fn(), preps: vi.fn(), navigate: vi.fn(), error: vi.fn(), deniedWrite: vi.fn(() => { throw new Error("No writes during reader checks"); }) }));
+vi.mock("@/hooks/use-auth",()=>({useAuth:()=>({user:state.user,loading:false})}));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", () => ({ createFileRoute: () => (options: unknown) => ({ options, useSearch: () => ({ id: state.id }) }), useNavigate: () => state.navigate, Link: ({ children, to }: any) => <a href={to}>{children}</a> }));
 vi.mock("@/components/RoleGuard", () => ({ RoleGuard: ({ children }: any) => children }));
@@ -11,15 +12,15 @@ vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
 vi.mock("@/components/site/Term", () => ({ Term: ({ children }: any) => children, GLOSSARY: {} }));
 vi.mock("@/components/pathway/PreMeetingChecklist", () => ({ PreMeetingChecklist: () => null }));
 vi.mock("@/components/pathway/MeetingPrepPartners", () => ({ MeetingPrepPartners: () => null }));
-vi.mock("@/components/documents/PptAgendaDocument", () => ({ PptAgendaDocument: ({ name, agenda }: any) => <section><h1>{name}</h1><p>{agenda.opening_note}</p><button>Print Guide</button></section> }));
+vi.mock("@/components/documents/PptAgendaDocument", () => ({ PptAgendaDocument: ({ name, agenda,onAddAction,actionDisabled,actionNotice }: any) => <section><h1>{name}</h1><p>{agenda.opening_note}</p><button>Print Guide</button><button disabled={actionDisabled} onClick={()=>void onAddAction?.("Fictional next step")}>+ Action</button>{actionNotice&&<p role="status">{actionNotice}</p>}</section> }));
 vi.mock("@/lib/pathway.functions", () => ({ listMyReports: state.list }));
 vi.mock("@/lib/ppt.functions", () => ({ getPptPrep: state.get, listPptPreps: state.preps, createPptPrep: state.deniedWrite, deletePptPrep: state.deniedWrite }));
 vi.mock("@/lib/action-items.functions", () => ({ createStudentActionItem: state.deniedWrite }));
-vi.mock("sonner", () => ({ toast: { error: state.error, success: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: state.error, success: state.success } }));
 import { Route } from "@/routes/_authenticated/ppt-prep";
 const Component = Route.options.component!;
 const record = (id: string) => ({ id, agenda: { opening_note: `Notes for ${id}` }, studentName: `Student ${id}`, studentId: `student-${id}`, meetingDate: null });
-beforeEach(() => { state.id = "prep-a"; state.list.mockResolvedValue({ reports: [] }); state.preps.mockResolvedValue({ preps: [] }); });
+beforeEach(() => { state.user={id:"viewer-a"};state.id = "prep-a"; state.list.mockResolvedValue({ reports: [] }); state.preps.mockResolvedValue({ preps: [] }); });
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 it.each([false, true])("keeps the selected guide when an older load settles (failure=%s)", async failure => {
   let resolveOld!: (value: unknown) => void; let rejectOld!: (error: Error) => void;
@@ -114,3 +115,6 @@ it("a successful empty report library retains its honest first-report action", a
   expect(screen.queryByRole("button", { name: "Reload Pathway Reports" })).toBeNull();
   expect(screen.queryByRole("button", { name: "Generate meeting prep" })).toBeNull();
 });
+
+it("PPT actions use the loaded student and current account and block ambiguous replies",async()=>{state.get.mockResolvedValue(record('prep-a'));state.deniedWrite.mockResolvedValue({}as never);render(<Component/>);fireEvent.click(await screen.findByRole('button',{name:'+ Action'}));await screen.findByRole('status');expect(state.deniedWrite).toHaveBeenCalledOnce();expect((state.deniedWrite.mock.calls as any)[0]).toEqual([{data:expect.objectContaining({student_id:'student-prep-a',expected_viewer_id:'viewer-a',title:'Fictional next step',category:'team',request_id:expect.any(String)})}]);expect(state.success).not.toHaveBeenCalled();expect((screen.getByRole('button',{name:'+ Action'})as HTMLButtonElement).disabled).toBe(true);});
+it("PPT account departure hides the old guide and suppresses late action success",async()=>{let resolve!:(value:any)=>void;state.get.mockResolvedValue(record('prep-a'));state.deniedWrite.mockImplementation((() => new Promise(yes=>resolve=yes))as any);const view=render(<Component/>);fireEvent.click(await screen.findByRole('button',{name:'+ Action'}));const args=(state.deniedWrite.mock.calls as any)[0][0];state.user={id:'viewer-b'};state.get.mockReturnValue(new Promise(()=>{}));view.rerender(<Component/>);expect(screen.queryByText('Notes for prep-a')).toBeNull();await act(async()=>resolve({item:{...args.data,id:args.data.request_id,created_by_user_id:args.data.expected_viewer_id,status:'not_started'}}));expect(state.success).not.toHaveBeenCalled();});

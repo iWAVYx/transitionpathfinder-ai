@@ -36,3 +36,5 @@ it("sample mode blocks live action callbacks even if a student is accidentally s
   expect(screen.getByText("Fictional Sample")).toBeTruthy();
   expect(add).not.toHaveBeenCalled();
 });
+
+it("disables pending or uncertain linked action controls without changing the document",()=>{const add=vi.fn();render(<PptAgendaDocument name="Student" agenda={agenda} studentId="student-a" meetingDate={null} actionDisabled actionNotice="Review saved actions before another change." onAddAction={add}/>);for(const button of screen.getAllByRole('button',{name:'+ Action'})){expect((button as HTMLButtonElement).disabled).toBe(true);fireEvent.click(button);}expect(add).not.toHaveBeenCalled();expect(screen.getByRole('status').textContent).toBe('Review saved actions before another change.');expect(screen.getByText(agenda.opening_note)).toBeTruthy();});

@@ -16,6 +16,7 @@ export function usePlanningLifetime(studentId?: string) {
   }, [scope, loading]);
   return {
     viewerId: scope.viewerId,
+    available: !loading && !!scope.viewerId,
     current: () => scope.active,
     begin: () => {
       if (!scope.active || scope.busy || scope.blocked) return false;

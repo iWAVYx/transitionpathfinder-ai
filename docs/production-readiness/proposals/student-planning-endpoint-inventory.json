@@ -86,8 +86,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and all remaining consumers are verified. Separate additive action-value draft is not hosted.",
-      "component_progress": "Application receipts/current actor-student checks, complete goal/action reads, loaded-row comparisons, explicit failures and affected consumer guards prepared and locally verified; no transaction-held authority claim."
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
     },
     {
       "id": "src/lib/students.functions.ts#createGoal",
@@ -97,8 +97,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and all remaining consumers are verified. Separate additive action-value draft is not hosted.",
-      "component_progress": "Application receipts/current actor-student checks, complete goal/action reads, loaded-row comparisons, explicit failures and affected consumer guards prepared and locally verified; no transaction-held authority claim."
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
     },
     {
       "id": "src/lib/students.functions.ts#updateGoalStatus",
@@ -108,8 +108,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and all remaining consumers are verified. Separate additive action-value draft is not hosted.",
-      "component_progress": "Application receipts/current actor-student checks, complete goal/action reads, loaded-row comparisons, explicit failures and affected consumer guards prepared and locally verified; no transaction-held authority claim."
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
     },
     {
       "id": "src/lib/students.functions.ts#deleteGoal",
@@ -119,8 +119,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and all remaining consumers are verified. Separate additive action-value draft is not hosted.",
-      "component_progress": "Application receipts/current actor-student checks, complete goal/action reads, loaded-row comparisons, explicit failures and affected consumer guards prepared and locally verified; no transaction-held authority claim."
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
     },
     {
       "id": "src/lib/students.functions.ts#createShareToken",
@@ -160,8 +160,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and all remaining consumers are verified. Separate additive action-value draft is not hosted.",
-      "component_progress": "Application receipts/current actor-student checks, complete goal/action reads, loaded-row comparisons, explicit failures and affected consumer guards prepared and locally verified; no transaction-held authority claim."
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
     },
     {
       "id": "src/lib/action-items.functions.ts#createStudentActionItem",
@@ -171,8 +171,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and all remaining consumers are verified. Separate additive action-value draft is not hosted.",
-      "component_progress": "Application receipts/current actor-student checks, complete goal/action reads, loaded-row comparisons, explicit failures and affected consumer guards prepared and locally verified; no transaction-held authority claim."
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
     },
     {
       "id": "src/lib/action-items.functions.ts#updateStudentActionItem",
@@ -182,8 +182,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and all remaining consumers are verified. Separate additive action-value draft is not hosted.",
-      "component_progress": "Application receipts/current actor-student checks, complete goal/action reads, loaded-row comparisons, explicit failures and affected consumer guards prepared and locally verified; no transaction-held authority claim."
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
     },
     {
       "id": "src/lib/action-items.functions.ts#deleteStudentActionItem",
@@ -193,8 +193,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and all remaining consumers are verified. Separate additive action-value draft is not hosted.",
-      "component_progress": "Application receipts/current actor-student checks, complete goal/action reads, loaded-row comparisons, explicit failures and affected consumer guards prepared and locally verified; no transaction-held authority claim."
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
     },
     {
       "id": "src/lib/counselor-notes.functions.ts#listCounselorNotes",

@@ -17,6 +17,8 @@ export function PptAgendaDocument({
   meetingDate,
   partnerContent,
   onAddAction,
+  actionDisabled=false,
+  actionNotice,
   onReset,
   sample = false,
 }: {
@@ -26,11 +28,14 @@ export function PptAgendaDocument({
   meetingDate: string | null;
   partnerContent?: ReactNode;
   onAddAction?: (title: string) => Promise<void>;
+  actionDisabled?:boolean;
+  actionNotice?:string;
   onReset?: () => void;
   sample?: boolean;
 }) {
   return (
     <section data-generated-document data-print-document data-ppt-print-packet className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
+      {actionNotice&&!sample&&<p role="status" className="print:hidden mb-4 text-sm">{actionNotice}</p>}
       <DocumentWatermark />
       <DocumentViewStyles />
       <DocumentPrintStyles />
@@ -74,11 +79,11 @@ export function PptAgendaDocument({
 
       <div data-document-columns>
       <Block title="Questions to ask">
-        <BulletList items={agenda.questions_to_ask} onAddAction={!sample && studentId ? onAddAction : undefined} />
+        <BulletList actionDisabled={actionDisabled} items={agenda.questions_to_ask} onAddAction={!sample && studentId ? onAddAction : undefined} />
       </Block>
 
       <Block title="What to bring">
-        <BulletList items={agenda.evidence_to_bring} onAddAction={!sample && studentId ? onAddAction : undefined} />
+        <BulletList actionDisabled={actionDisabled} items={agenda.evidence_to_bring} onAddAction={!sample && studentId ? onAddAction : undefined} />
       </Block>
 
       </div>
@@ -114,7 +119,7 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function BulletList({ items, onAddAction }: { items: string[]; onAddAction?: (title: string) => Promise<void> }) {
+function BulletList({ items, onAddAction,actionDisabled=false }: { items: string[]; onAddAction?: (title: string) => Promise<void>;actionDisabled?:boolean }) {
   return (
     <ul className="mt-2 space-y-2 text-sm leading-relaxed text-muted-foreground">
       {items.map((item, i) => (
@@ -124,7 +129,7 @@ function BulletList({ items, onAddAction }: { items: string[]; onAddAction?: (ti
             <span>{item}</span>
           </div>
           {onAddAction && (
-            <button type="button" onClick={() => void onAddAction(item)} className="print:hidden shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted">+ Action</button>
+            <button type="button" disabled={actionDisabled} onClick={() => void onAddAction(item)} className="print:hidden shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted">+ Action</button>
           )}
         </li>
       ))}
