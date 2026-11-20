@@ -1,3 +1,5 @@
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
+import {useAuth} from "@/hooks/use-auth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useMemo, useState } from "react";
@@ -34,7 +36,10 @@ export const Route = createFileRoute("/_authenticated/educator/action-items")({
   ),
 });
 
-function EducatorActionItemsPage() {
+function EducatorActionItemsPage(){const{user,loading}=useAuth();if(loading)return <p>Loading action items…</p>;if(!user)return <p>Sign in to view action items.</p>;return <EducatorActionItemsPageSession key={user.id}/>;}
+function EducatorActionItemsPageSession() {
+  const scope=usePlanningLifetime();
+  const [loadError,setLoadError]=useState(false);
   const load = useServerFn(listCaseloadActionItems);
   const update = useServerFn(updateStudentActionItem);
   const [items, setItems] = useState<CaseloadActionRow[]>([]);
@@ -44,8 +49,9 @@ function EducatorActionItemsPage() {
 
   useEffect(() => {
     load()
-      .then(({ items }) => setItems(items))
-      .finally(() => setLoading(false));
+      .then(({items})=>{if(scope.current()){setItems(items);setLoadError(false);scope.confirmRead();}})
+      .catch(()=>{if(scope.current())setLoadError(true);})
+      .finally(()=>{if(scope.current())setLoading(false);});
   }, [load]);
 
   const { open, done } = useMemo(() => {
@@ -61,21 +67,24 @@ function EducatorActionItemsPage() {
   async function toggle(item: CaseloadActionRow) {
     const nextStatus =
       item.status === "completed" ? "not_started" : "completed";
+    if(!scope.begin())return;
     setSavingId(item.id);
     try {
-      await update({ data: { id: item.id, status: nextStatus } });
+      const receipt=await update({data:{id:item.id,student_id:item.student_id,expected_updated_at:item.updated_at,expected_viewer_id:scope.viewerId,status:nextStatus}});
+      if(!scope.current())return;
       setItems((prev) =>
         prev.map((it) =>
-          it.id === item.id ? { ...it, status: nextStatus } : it,
+          it.id === item.id ? {...it,...receipt.item} : it,
         ),
       );
       toast.success(
         nextStatus === "completed" ? "Marked complete" : "Reopened",
       );
     } catch (e) {
+      if(!scope.current())return;scope.markUncertain();
       toast.error(e instanceof Error ? e.message : "Update failed");
     } finally {
-      setSavingId(null);
+      scope.finish();if(scope.current())setSavingId(null);
     }
   }
 
@@ -99,7 +108,7 @@ function EducatorActionItemsPage() {
           </p>
         </header>
 
-        {loading ? (
+        {loadError||scope.uncertain?<div role="alert" className="rounded-xl border p-4 text-sm">Saved action items are unavailable or changed. Refresh this page before another change.</div>:loading ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>

@@ -147,6 +147,7 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
   const [student, setStudent] = useState<Student | null>(null);
   const [docs, setDocs] = useState<DocumentRow[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [goalsUnavailable,setGoalsUnavailable]=useState(false);
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [parsing, setParsing] = useState<string | null>(null);
   const [proposed, setProposed] = useState<{ docId: string; goals: ExtractedGoal[] } | null>(null);
@@ -157,13 +158,13 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
     const [s, d, g, e] = await Promise.all([
       fetchStudent({ data: { id: studentId } }).catch(() => null),
       fetchDocs({ data: { student_id: studentId } }).catch(() => ({ documents: [] })),
-      fetchGoals({ data: { student_id: studentId } }).catch(() => ({ goals: [] })),
+      fetchGoals({ data: { student_id: studentId,expected_viewer_id:viewerId } }).then(result=>({...result,loadFailed:false})).catch(() => ({goals:[],loadFailed:true})),
       fetchCanEdit({ data: { student_id: studentId } }).catch(() => ({ canEdit: false })),
     ]);
     if (!active.current) return;
     setStudent(s);
     setDocs(d.documents);
-    setGoals(g.goals);
+    setGoals(g.goals);setGoalsUnavailable(g.loadFailed);
     setCanEdit(e.canEdit);
   }
 
@@ -327,7 +328,7 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
             <StatTile
               icon={<Target className="h-4 w-4" />}
               label="Active goals"
-              value={String(goals.length)}
+              value={goalsUnavailable?"Unavailable":String(goals.length)}
             />
             <StatTile
               icon={<FileText className="h-4 w-4" />}
@@ -471,7 +472,7 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
             <TabsContent key={section} value={section}>
               <StudentPanelBoundary name="planning-tools">
                 <Suspense fallback={<StudentPanelLoading />}>
-                  <StudentPlanningTools section={section} student={student} studentId={studentId} goals={goals} onChange={reload} />
+                  <StudentPlanningTools canEdit={canEdit} goalsUnavailable={goalsUnavailable} section={section} student={student} studentId={studentId} goals={goals} onChange={reload} />
                 </Suspense>
               </StudentPanelBoundary>
             </TabsContent>

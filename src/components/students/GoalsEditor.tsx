@@ -1,4 +1,5 @@
-import { useState } from "react";
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Target, Loader2, Trash2, Plus } from "lucide-react";
@@ -50,12 +51,16 @@ export function GoalsEditor({
   studentFirstName,
   goals,
   onChange,
+  canEdit=false,
 }: {
+  canEdit?:boolean;
   studentId: string;
   studentFirstName: string | null;
   goals: Goal[];
   onChange: () => void | Promise<void>;
 }) {
+  const scope=usePlanningLifetime(studentId);
+  useEffect(()=>{scope.confirmRead();},[goals]);
   const create = useServerFn(createGoal);
   const updateStatus = useServerFn(updateGoalStatus);
   const remove = useServerFn(deleteGoal);
@@ -80,12 +85,13 @@ export function GoalsEditor({
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!canEdit||!title.trim()||!scope.begin()) return;
     setSaving(true);
     try {
       await create({
         data: {
           student_id: studentId,
+          expected_viewer_id:scope.viewerId,
           title: title.trim(),
           description: description.trim() || undefined,
           category,
@@ -94,38 +100,50 @@ export function GoalsEditor({
           target_date: targetDate || undefined,
         },
       });
+      if(!scope.current())return;
       toast.success("Goal added.");
       resetForm();
       setOpen(false);
+      if(!scope.current())return;
       await onChange();
     } catch (err) {
+      if(!scope.current())return;scope.markUncertain();
       toast.error(err instanceof Error ? err.message : "Could not save goal.");
     } finally {
+      scope.finish();
       setSaving(false);
     }
   }
 
   async function handleStatus(g: Goal, next: string) {
+    if(!canEdit||g.student_id!==studentId||!scope.begin())return;
     setBusyId(g.id);
     try {
-      await updateStatus({ data: { id: g.id, status: next as any } });
+      await updateStatus({ data: { id:g.id,student_id:studentId,expected_updated_at:g.updated_at,expected_viewer_id:scope.viewerId,status:next as any } });
+      if(!scope.current())return;
       await onChange();
     } catch (err) {
+      if(!scope.current())return;scope.markUncertain();
       toast.error(err instanceof Error ? err.message : "Could not update goal.");
     } finally {
+      scope.finish();
       setBusyId(null);
     }
   }
 
   async function handleDelete(g: Goal) {
     if (!confirm(`Delete "${g.title}"?`)) return;
+    if(!canEdit||g.student_id!==studentId||!scope.begin())return;
     setBusyId(g.id);
     try {
-      await remove({ data: { id: g.id } });
+      await remove({ data: { id:g.id,student_id:studentId,expected_updated_at:g.updated_at,expected_viewer_id:scope.viewerId } });
+      if(!scope.current())return;
       await onChange();
     } catch (err) {
+      if(!scope.current())return;scope.markUncertain();
       toast.error(err instanceof Error ? err.message : "Could not delete goal.");
     } finally {
+      scope.finish();
       setBusyId(null);
     }
   }
@@ -141,13 +159,14 @@ export function GoalsEditor({
         </div>
         <div className="flex items-center gap-2">
           <Target className="h-5 w-5 text-muted-foreground" />
-          <Button size="sm" variant={open ? "ghost" : "default"} onClick={() => setOpen((v) => !v)}>
+          <Button disabled={!canEdit||scope.uncertain} size="sm" variant={open ? "ghost" : "default"} onClick={() => setOpen((v) => !v)}>
             {open ? "Cancel" : (<><Plus className="h-4 w-4" /> Add goal</>)}
           </Button>
         </div>
       </div>
 
-      {open && (
+      {scope.uncertain&&<p role="status" className="mt-4 text-sm">Refresh saved goals before another change. <Button size="sm" variant="outline" onClick={()=>void onChange()}>Refresh Saved Goals</Button></p>}
+      {open && canEdit && (
         <form
           onSubmit={handleAdd}
           className="mt-5 grid gap-3 rounded-xl border bg-background p-4"
@@ -207,7 +226,7 @@ export function GoalsEditor({
             />
           </div>
           <div className="flex justify-end">
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving||scope.uncertain}>
               {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : "Save goal"}
             </Button>
           </div>
@@ -247,7 +266,7 @@ export function GoalsEditor({
                   <Select
                     value={g.status}
                     onValueChange={(v) => handleStatus(g, v)}
-                    disabled={busyId === g.id}
+                    disabled={!canEdit||!!busyId||scope.uncertain}
                   >
                     <SelectTrigger className="h-8 w-[140px] text-xs">
                       <SelectValue />
@@ -258,7 +277,7 @@ export function GoalsEditor({
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button size="sm" variant="ghost" onClick={() => handleDelete(g)} disabled={busyId === g.id}>
+                  <Button size="sm" variant="ghost" onClick={() => handleDelete(g)} disabled={!canEdit||!!busyId||scope.uncertain}>
                     <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                   </Button>
                 </div>

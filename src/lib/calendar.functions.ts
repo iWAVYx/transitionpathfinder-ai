@@ -61,7 +61,7 @@ export type TeamCalendarEvent = {
   owner_user_id: string | null;
   owner_name: string | null;
   priority: "low" | "medium" | "high" | null;
-  status: "not_started" | "in_progress" | "complete" | "blocked" | null;
+  status: "not_started" | "in_progress" | "complete" | "completed" | "blocked" | null;
   is_mine: boolean;
 };
 
@@ -203,7 +203,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
         description: string | null;
         due_date: string;
         priority: "low" | "medium" | "high";
-        status: "not_started" | "in_progress" | "complete" | "blocked";
+        status: "not_started" | "in_progress" | "complete" | "completed" | "blocked";
         category: string;
       }>) {
         events.push({

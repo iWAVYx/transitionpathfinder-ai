@@ -1,3 +1,4 @@
+import {isActionItemComplete} from "@/lib/action-item-values";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import {
@@ -591,7 +592,7 @@ export const getSchoolReadiness = createServerFn({ method: "POST" })
     );
     const openByStudent = new Map<string, number>();
     for (const action of actions) {
-      if (action.student_id && action.status !== "complete")
+      if (action.student_id && !isActionItemComplete(action.status))
         openByStudent.set(action.student_id, (openByStudent.get(action.student_id) ?? 0) + 1);
     }
     const withActiveGoals = new Set(
@@ -715,7 +716,7 @@ export const getSchoolReportMetrics = createServerFn({ method: "POST" })
     const reportsByStudent = reportRecordsByStudent(reportRows);
     const openActionsByStudent = new Map<string, number>();
     for (const a of actionRows) {
-      if (!a.student_id || a.status === "complete") continue;
+      if (!a.student_id || isActionItemComplete(a.status)) continue;
       openActionsByStudent.set(a.student_id, (openActionsByStudent.get(a.student_id) ?? 0) + 1);
     }
     const activeGoalsByStudent = new Map<string, number>();

@@ -1,3 +1,4 @@
+import {isActionItemComplete} from "@/lib/action-item-values";
 import { formatGradeBand } from "@/lib/grade-band-label";
 import { upcomingRecordedMeeting } from "@/lib/dashboard/recorded-status";
 import { studentToolPreviewDetails } from "@/lib/dashboard/tool-preview-details";
@@ -58,9 +59,9 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
   const studentName = [student.preferred_name ?? student.first_name, student.last_name]
     .filter(Boolean)
     .join(" ");
-  const activeActions = snapshot.actionItems.filter((item) => item.status !== "complete");
+  const activeActions = snapshot.actionItems.filter((item) => !isActionItemComplete(item.status));
   const completedActions = snapshot.actionItems.length - activeActions.length;
-  const activeGoals = snapshot.goals.filter((goal) => goal.status !== "complete").length;
+  const activeGoals = snapshot.goals.filter((goal) => goal.status !== "met").length;
   const observedAt = Date.now();
   const meeting = upcomingRecordedMeeting(snapshot.upcomingMeeting, observedAt);
   const savedResources = snapshot.recommendedResources.filter((resource) => resource.saved).length;

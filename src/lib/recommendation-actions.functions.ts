@@ -1,3 +1,4 @@
+import {ACTION_OPEN_FILTER} from "./action-item-values";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -107,7 +108,7 @@ export const addRecommendationToNextMeetingPrep = createServerFn({ method: "POST
       .select("id, scheduled_at, status")
       .eq("student_id", data.student_id)
       .gte("scheduled_at", nowIso)
-      .neq("status", "completed")
+      .not("status", "in", ACTION_OPEN_FILTER)
       .order("scheduled_at", { ascending: true })
       .limit(1);
     if (mErr) throw new Error(mErr.message);

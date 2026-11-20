@@ -1,3 +1,4 @@
+import {isActionItemComplete} from "@/lib/action-item-values";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -94,7 +95,7 @@ export const getCaseload = createServerFn({ method: "GET" })
     for (const a of actions ?? []) {
       if (!a.student_id) continue;
       const row = map.get(a.student_id);
-      if (row && a.status !== "complete") row.open_action_items += 1;
+      if (row && !isActionItemComplete(a.status)) row.open_action_items += 1;
     }
     for (const g of goals ?? []) {
       if (!g.student_id) continue;

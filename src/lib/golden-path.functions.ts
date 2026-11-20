@@ -15,9 +15,9 @@ export type ActionItemRow = {
   student_id: string;
   title: string;
   description: string | null;
-  category: "family" | "student" | "teacher" | "school" | "partner";
+  category: "family" | "student" | "teacher" | "educator" | "team" | "school" | "partner";
   priority: "low" | "medium" | "high";
-  status: "not_started" | "in_progress" | "complete" | "blocked";
+  status: "not_started" | "in_progress" | "complete" | "completed" | "blocked";
   due_date: string | null;
   related_goal_area: string | null;
   pathway_report_id: string | null;

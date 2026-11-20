@@ -1,3 +1,4 @@
+import {isActionItemComplete} from "@/lib/action-item-values";
 import { readOrganizationPages, readOrganizationBatches, organizationReadError } from "./organization-query-pages";
 import { readReportPages, readReportBatches } from "./report-query-pages";
 import { reportRecordsByStudent, reportCountsForStudents } from "./report-record-counts";
@@ -312,7 +313,7 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
       );
       const actionsByStudent = new Map<string, number>();
       for (const a of actionRows ?? []) {
-        if (!a.student_id || a.status === "complete") continue;
+        if (!a.student_id || isActionItemComplete(a.status)) continue;
         actionsByStudent.set(a.student_id, (actionsByStudent.get(a.student_id) ?? 0) + 1);
       }
 
@@ -765,7 +766,7 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
     );
     const actionsByStudent = new Map<string, number>();
     for (const a of actionRows) {
-      if (!a.student_id || a.status === "complete") continue;
+      if (!a.student_id || isActionItemComplete(a.status)) continue;
       actionsByStudent.set(a.student_id, (actionsByStudent.get(a.student_id) ?? 0) + 1);
     }
 

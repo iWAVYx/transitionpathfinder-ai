@@ -1,3 +1,4 @@
+import {isActionItemComplete} from "@/lib/action-item-values";
 import { formatGradeBand } from "@/lib/grade-band-label";
 import { isCurrentConsentRecord, upcomingRecordedMeeting } from "@/lib/dashboard/recorded-status";
 import { RELATED_TOOLS } from "@/lib/dashboard/related-tools";
@@ -76,7 +77,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
     .filter(Boolean)
     .join(" ");
   const grade = formatGradeBand(student.grade_band);
-  const activeActions = snapshot.actionItems.filter((item) => item.status !== "complete");
+  const activeActions = snapshot.actionItems.filter((item) => !isActionItemComplete(item.status));
   const completedActions = snapshot.actionItems.length - activeActions.length;
   const observedAt = Date.now();
   const meeting = upcomingRecordedMeeting(snapshot.upcomingMeeting, observedAt);

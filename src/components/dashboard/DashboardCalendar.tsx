@@ -1,3 +1,4 @@
+import {isActionItemComplete} from "@/lib/action-item-values";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -553,7 +554,7 @@ function DashboardCalendarSession({
                 month: "short",
                 day: "numeric",
               });
-              const isDone = ev.status === "complete";
+              const isDone = isActionItemComplete(ev.status);
               return (
                 <li
                   key={ev.id}

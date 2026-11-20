@@ -13,6 +13,19 @@ The selected review covers **52 endpoints in 12 named modules**. Ten have scoped
 
 Known findings are attached to their source families in [the machine-readable inventory](student-planning-endpoint-inventory.json). Entries requiring review do not all represent newly confirmed vulnerabilities. Existing document/storage/worker/rights/report/PPT, organization, directory, channel, licensing/billing and provider work remains in the full roadmap and its own evidence; this selected inventory does not silently close those scopes.
 
+## P1 Goals and Actions — November 19 Component
+
+- [x] Confirm exact creation/update/deletion replies, actor/student identities and supplied loaded revisions before reporting success; no service fallback or write retries.
+- [x] Read all goal/action pages with exact counts; expose unavailable data and current edit capability instead of false empty success.
+- [x] Guard the student action panel and family/general/educator action-page replies against departed contexts; preserve read-only controls where current capability is available. Uncertain writes require saved-record refresh.
+- [x] Recognize both legacy `complete` and current `completed` values in affected role counters; display legacy teacher actions as Educator without rewriting stored records.
+- [x] Prepare the additive tenth review draft for existing/current action values. All 44 local constraint cases pass. Disposable native/full-schema verification is pending.
+- [ ] Finish transaction-held access and competing/cached/trusted-writer review. Application prechecks and conditional REST writes are separate requests and do not prove this boundary.
+- [ ] Make completion feed/report-staleness effects atomic or explicitly reconciled; current partial failures are visible, but a completed row can precede a failed effect.
+- [ ] Finish remaining action-creation consumers, educator caseload completeness/capability, student/profile handlers and BridgeForward review.
+
+The eight goal/action endpoint entries remain **review-required** until those database and remaining-consumer gates close. P1 as a whole remains open. The tenth draft changes only two CHECK constraints, not RLS, routine grants or existing records. It is separate from the nine-draft routine catalogue below and is not a canonical migration or a hosted change.
+
 ## Verified Review-Draft Order
 
 The 225 canonical migrations and 41 prior control drafts remain separate from these nine drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.

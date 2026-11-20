@@ -212,7 +212,7 @@
     },
     {
       "path": "src/lib/golden-path.functions.ts",
-      "sha256": "d2e04ad9029d5efd1347021aa75a63886e6eacc16cd83f25de6c7a78416c85a4"
+      "sha256": "55287cb4f59ffd164c7e81bda1b8e68f4c9782ccce1a30713b667d711607da47"
     },
     {
       "path": "src/routes/_authenticated/dashboard.tsx",
@@ -348,7 +348,7 @@
     },
     {
       "path": "src/routes/_authenticated/students.$studentId.tsx",
-      "sha256": "257110860b163967cedf9615f7bab5f4cb1e728afda319e9e28216c60255f4fc"
+      "sha256": "13cd54c035ccc4063383607003dc1167194e8cedd1a7a7684718f42ee41fdae1"
     },
     {
       "path": "tests/unit/student-summary-reader.test.ts",
@@ -608,11 +608,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "5d932ebf82ed0fbbf5370c4217b2771172b0fc6c3522b7d4cf9d75db8df40c00"
+      "sha256": "3ac5a3945e21fbff77412a438d8dd874cde8d4bbc4cc1bc072496e32400cce0b"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "6c534ebdb2d556ba0b10d47d604276b8d10cfefe0d881b4e5e98ec3ea939874d"
+      "sha256": "fd05cff6bdf6053c9b31e2d693881ebcf657cec63ed001b3cb5e3454e2653d40"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -629,6 +629,122 @@
     {
       "path": "tests/database/run-planning-review-package-base.mjs",
       "sha256": "73f35bd3d1feaa0b0fa6893a17857b0e42f7182df0cbe33899663ba56dec225c"
+    },
+    {
+      "path": "src/components/dashboard/DashboardCalendar.tsx",
+      "sha256": "db96d17de9204593cd75ce01ca822e5a5aa8e571e58076ce2b60c8b6ca3eb94e"
+    },
+    {
+      "path": "src/components/dashboard/LiveFamilyWorkspaceOverview.tsx",
+      "sha256": "52946f827acdc7c5e8f90b5db46f853555c4a002865f389fc357b2d2d1d01011"
+    },
+    {
+      "path": "src/components/dashboard/LiveStudentWorkspaceOverview.tsx",
+      "sha256": "0fe726c1217954e3c0c2f869b04292c4e149eb70c44fcb3b0c8a3c1974b72f47"
+    },
+    {
+      "path": "src/components/students/ActionItemsPanel.tsx",
+      "sha256": "8315addc6ec4f33e1428f58f4e3e770296968964bd84585a2f088a6ee3cc8a88"
+    },
+    {
+      "path": "src/components/students/GoalsEditor.tsx",
+      "sha256": "af2578c095f86034f3e51191a150033e1ea324ffecaa1997325e86b9bcb48780"
+    },
+    {
+      "path": "src/components/students/StudentPlanningTools.tsx",
+      "sha256": "60a665e24ce779f96b6cc87ddd890cfd9cc82853f1bc67fd1f71bfc7d655e1ff"
+    },
+    {
+      "path": "src/lib/action-items.functions.ts",
+      "sha256": "ccefdc8a0f49d3708cc5d1c945c415364aa8381aeaf988eb72644cedcb7016c4"
+    },
+    {
+      "path": "src/lib/analytics.functions.ts",
+      "sha256": "2f6cdcc7f91e64860a656ba04fff33116078288d476782bda9070e07144fdc0d"
+    },
+    {
+      "path": "src/lib/calendar.functions.ts",
+      "sha256": "fd3634375e9c3ffbdac6a8895e9cfee2ebb8f800a058f6ba177f9c412566dda0"
+    },
+    {
+      "path": "src/lib/caseload.functions.ts",
+      "sha256": "f5547196656bbe6fbb57e0e35ef11320eafcee4cb3e21f8a714aaaecb8c7951a"
+    },
+    {
+      "path": "src/lib/district-admin.functions.ts",
+      "sha256": "4a4fb0288f0c4b0829928724996191b921ea15e08724f3d396939d5674244907"
+    },
+    {
+      "path": "src/lib/educator.functions.ts",
+      "sha256": "983ef8026f89a16bec8a5f06fda964048409e65956d0115e5488ba4f4dac6769"
+    },
+    {
+      "path": "src/lib/next-best-action.functions.ts",
+      "sha256": "218c6b6e7f2986bbe0f52a1de3c0a9fb3268035ff8bcee893ef760ad83b99334"
+    },
+    {
+      "path": "src/lib/recommendation-actions.functions.ts",
+      "sha256": "b4e8b368a33f789785fb32399808a441512414f28294987f1a3db21dffb6c7c7"
+    },
+    {
+      "path": "src/lib/school-admin.functions.ts",
+      "sha256": "65e985383a9a1b0c57becbc3751da4d15af1e19415e0ed9081c8af236c37af19"
+    },
+    {
+      "path": "src/lib/students.functions.ts",
+      "sha256": "466058f0df82c3ad8d6de108f3c4cf8ace40e1bde35ba47c2e960da42345a034"
+    },
+    {
+      "path": "src/routes/_authenticated/action-items.tsx",
+      "sha256": "0e98a3c091f7e798354c7ddeea225fd2dbe4265ca9b402ce7f29501d3926e3ce"
+    },
+    {
+      "path": "src/routes/_authenticated/educator.action-items.tsx",
+      "sha256": "c50b52933975517b136be2ae8bb2c5193f2e72532cc14be37311a251d3578664"
+    },
+    {
+      "path": "src/routes/_authenticated/family.action-items.tsx",
+      "sha256": "913320b7e1b4e5b3653016f115b253c7468dab8d4b99b60c5c47db4f276fbd08"
+    },
+    {
+      "path": "src/hooks/use-planning-lifetime.ts",
+      "sha256": "e6bdcb160f40b9c6f1de439125082fb22f5dec8d05c133decb72bdf960107f7a"
+    },
+    {
+      "path": "src/lib/action-item-values.ts",
+      "sha256": "d32916778e1b3cf66562cf78fc294a237c68991455f64714bebe9d7342cb5ede"
+    },
+    {
+      "path": "src/lib/planning-records.server.ts",
+      "sha256": "c7e1b11686b029e1b9b0b4bfed099ef408cf67da37970fc2c7c97c57155dc51c"
+    },
+    {
+      "path": "tests/unit/planning-record-receipts.test.ts",
+      "sha256": "3afdb0e32219c002893a7a6602202fbd35205e71d9dda979a255502884ed5789"
+    },
+    {
+      "path": "tests/unit/planning-side-effects.test.ts",
+      "sha256": "218b86c3dd9e81ac1cf00a38b5696252b0ad8d9a7528d7e6b03ad435f5e075db"
+    },
+    {
+      "path": "tests/unit/planning-lifetime.test.tsx",
+      "sha256": "94adf41bc213c7d57a24e6d86388575d0f0c1d1e24fcc0bc331cf5aa38983915"
+    },
+    {
+      "path": "tests/unit/action-items-panel-receipts.test.tsx",
+      "sha256": "786c94d726fc52b892d50c9f5050f5f03d02a0407b2f0e6b0fd393f84efdc868"
+    },
+    {
+      "path": "tests/database/action-item-value-compatibility.test.mjs",
+      "sha256": "868cce7ce7bf7bc51001eaf29551feadbdda30ef349c898a62ee4c3f48582f11"
+    },
+    {
+      "path": "tests/database/run-action-item-value-compatibility-schema.mjs",
+      "sha256": "2050210d780dcd38516799b28d6f8e8d5c16f55166be89f65620ed0e2cf4a672"
+    },
+    {
+      "path": "docs/database-proposals/action-item-value-compatibility/allow-current-action-values.review.sql",
+      "sha256": "ed9e4cf80cf759c97535218031c0ec27bfc2752431de98d5c03aadd46e854e23"
     }
   ],
   "batch": {
@@ -1233,7 +1349,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 156,
+    "declared_entries_checked": 185,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,
