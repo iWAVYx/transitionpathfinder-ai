@@ -49,8 +49,9 @@ describe("student /dashboard render contract", () => {
     expect(studentIdx).toBeLessThan(parentEmptyIdx);
   });
 
-  it("treatAsStudent honors both isStudentOnly and the dashboard hint", () => {
+  it("verified role decisions choose Student; dashboard hints only preserve loading landmarks", () => {
     expect(dashboard).toMatch(/isStudentOnly === true/);
+    expect(dashboard).toContain("const treatAsStudent = isStudentOnly === true;");
     expect(dashboard).toMatch(/hintedDashboardTestId === ROLE_DASHBOARD_TEST_IDS\.student/);
   });
 

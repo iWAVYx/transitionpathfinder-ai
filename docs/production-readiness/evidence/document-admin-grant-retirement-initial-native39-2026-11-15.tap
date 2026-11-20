@@ -1,0 +1,663 @@
+# Fresh disposable grant case 1/39
+TAP version 13
+# Subtest: baseline: platform admin can self-grant unrelated active document metadata and Storage access
+ok 1 - baseline: platform admin can self-grant unrelated active document metadata and Storage access
+  ---
+  duration_ms: 142.127495
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 316.604247
+# Fresh disposable grant case 2/39
+TAP version 13
+# Subtest: baseline: an unexpired Owner grant works without any student relationship
+ok 1 - baseline: an unexpired Owner grant works without any student relationship
+  ---
+  duration_ms: 149.582169
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 220.726234
+# Fresh disposable grant case 3/39
+TAP version 13
+# Subtest: retirement: pre-existing unexpired active grant no longer reads metadata or Storage
+ok 1 - retirement: pre-existing unexpired active grant no longer reads metadata or Storage
+  ---
+  duration_ms: 128.885288
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 200.010511
+# Fresh disposable grant case 4/39
+TAP version 13
+# Subtest: retirement: pre-existing unexpired archived grant no longer reads metadata or Storage
+ok 1 - retirement: pre-existing unexpired archived grant no longer reads metadata or Storage
+  ---
+  duration_ms: 136.777043
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 208.960432
+# Fresh disposable grant case 5/39
+TAP version 13
+# Subtest: retirement: pre-existing unexpired deleted grant no longer reads metadata or Storage
+ok 1 - retirement: pre-existing unexpired deleted grant no longer reads metadata or Storage
+  ---
+  duration_ms: 138.619665
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 208.725344
+# Fresh disposable grant case 6/39
+TAP version 13
+# Subtest: retirement: cached authenticated owner grant INSERT is refused
+ok 1 - retirement: cached authenticated owner grant INSERT is refused
+  ---
+  duration_ms: 319.590683
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 388.983851
+# Fresh disposable grant case 7/39
+TAP version 13
+# Subtest: retirement: cached authenticated platform_admin grant INSERT is refused
+ok 1 - retirement: cached authenticated platform_admin grant INSERT is refused
+  ---
+  duration_ms: 263.499378
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 333.199497
+# Fresh disposable grant case 8/39
+TAP version 13
+# Subtest: retirement: accidental future permissive INSERT policy/privilege cannot reopen grants
+ok 1 - retirement: accidental future permissive INSERT policy/privilege cannot reopen grants
+  ---
+  duration_ms: 119.709922
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 189.679367
+# Fresh disposable grant case 9/39
+TAP version 13
+# Subtest: retirement preserves explicit active document/Storage access for family
+ok 1 - retirement preserves explicit active document/Storage access for family
+  ---
+  duration_ms: 308.116506
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 375.241412
+# Fresh disposable grant case 10/39
+TAP version 13
+# Subtest: retirement preserves explicit active document/Storage access for guardian
+ok 1 - retirement preserves explicit active document/Storage access for guardian
+  ---
+  duration_ms: 115.327642
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 184.70434
+# Fresh disposable grant case 11/39
+TAP version 13
+# Subtest: retirement preserves explicit active document/Storage access for student
+ok 1 - retirement preserves explicit active document/Storage access for student
+  ---
+  duration_ms: 192.658393
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 261.924133
+# Fresh disposable grant case 12/39
+TAP version 13
+# Subtest: retirement preserves explicit active document/Storage access for educator
+ok 1 - retirement preserves explicit active document/Storage access for educator
+  ---
+  duration_ms: 171.859034
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 244.816713
+# Fresh disposable grant case 13/39
+TAP version 13
+# Subtest: retirement preserves explicit active document/Storage access for school
+ok 1 - retirement preserves explicit active document/Storage access for school
+  ---
+  duration_ms: 400.413473
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 696.710695
+# Fresh disposable grant case 14/39
+TAP version 13
+# Subtest: retirement preserves explicit active document/Storage access for district
+ok 1 - retirement preserves explicit active document/Storage access for district
+  ---
+  duration_ms: 303.369882
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 374.698064
+# Fresh disposable grant case 15/39
+TAP version 13
+# Subtest: retirement preserves genuine student collaboration for owner
+ok 1 - retirement preserves genuine student collaboration for owner
+  ---
+  duration_ms: 113.193306
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 184.714425
+# Fresh disposable grant case 16/39
+TAP version 13
+# Subtest: retirement preserves genuine student collaboration for platform_admin
+ok 1 - retirement preserves genuine student collaboration for platform_admin
+  ---
+  duration_ms: 120.891885
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 204.318836
+# Fresh disposable grant case 17/39
+TAP version 13
+# Subtest: retirement preserves a directly assigned document permission without an admin-role shortcut
+ok 1 - retirement preserves a directly assigned document permission without an admin-role shortcut
+  ---
+  duration_ms: 133.678718
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 204.064999
+# Fresh disposable grant case 18/39
+TAP version 13
+# Subtest: partner-only membership cannot use a student collaboration to read documents
+ok 1 - partner-only membership cannot use a student collaboration to read documents
+  ---
+  duration_ms: 131.82164
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 241.595228
+# Fresh disposable grant case 19/39
+TAP version 13
+# Subtest: unrelated and removed collaborators stay denied after retirement
+ok 1 - unrelated and removed collaborators stay denied after retirement
+  ---
+  duration_ms: 133.105066
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 208.87901
+# Fresh disposable grant case 20/39
+TAP version 13
+# Subtest: legitimate pre-registration Storage reads for the editing uploader are preserved
+ok 1 - legitimate pre-registration Storage reads for the editing uploader are preserved
+  ---
+  duration_ms: 114.005913
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 183.500822
+# Fresh disposable grant case 21/39
+TAP version 13
+# Subtest: existing quarantine and no-client-overwrite/delete fences remain installed
+ok 1 - existing quarantine and no-client-overwrite/delete fences remain installed
+  ---
+  duration_ms: 131.019581
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 219.245831
+# Fresh disposable grant case 22/39
+TAP version 13
+# Subtest: retirement preserves every historical grant row and existing Storage helper body
+ok 1 - retirement preserves every historical grant row and existing Storage helper body
+  ---
+  duration_ms: 446.949671
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 516.169051
+# Fresh disposable grant case 23/39
+TAP version 13
+# Subtest: retired helper preserves its OID/ACL, uses invoker mode and never treats service-written grants as access
+ok 1 - retired helper preserves its OID/ACL, uses invoker mode and never treats service-written grants as access
+  ---
+  duration_ms: 133.841457
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 211.359009
+# Fresh disposable grant case 24/39
+TAP version 13
+# Subtest: changed legacy function body refuses installation without partial retirement
+ok 1 - changed legacy function body refuses installation without partial retirement
+  ---
+  duration_ms: 169.808415
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 239.032437
+# Fresh disposable grant case 25/39
+TAP version 13
+# Subtest: repeat installation refuses the unreviewed state instead of blindly rerunning
+ok 1 - repeat installation refuses the unreviewed state instead of blindly rerunning
+  ---
+  duration_ms: 118.654244
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 349.329859
+# Fresh disposable grant case 26/39
+TAP version 13
+# Subtest: retirement preserves archived editor access and denies an archived viewer
+ok 1 - retirement preserves archived editor access and denies an archived viewer
+  ---
+  duration_ms: 179.631079
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 248.624481
+# Fresh disposable grant case 27/39
+TAP version 13
+# Subtest: retirement rollback restores the original policy/privilege/helper atomically
+ok 1 - retirement rollback restores the original policy/privilege/helper atomically
+  ---
+  duration_ms: 119.601817
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 189.786888
+# Fresh disposable grant case 28/39
+TAP version 13
+# Subtest: native grant-first COMMIT
+ok 1 - native grant-first COMMIT
+  ---
+  duration_ms: 243.676982
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 406.165252
+# Fresh disposable grant case 29/39
+TAP version 13
+# Subtest: native grant-first ROLLBACK
+ok 1 - native grant-first ROLLBACK
+  ---
+  duration_ms: 173.737633
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 269.353554
+# Fresh disposable grant case 30/39
+TAP version 13
+# Subtest: native retirement-first COMMIT
+ok 1 - native retirement-first COMMIT
+  ---
+  duration_ms: 216.927433
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 292.373539
+# Fresh disposable grant case 31/39
+TAP version 13
+# Subtest: native retirement-first ROLLBACK
+ok 1 - native retirement-first ROLLBACK
+  ---
+  duration_ms: 408.556699
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 486.74383
+# Fresh disposable grant case 32/39
+TAP version 13
+# Subtest: native read-first COMMIT
+ok 1 - native read-first COMMIT
+  ---
+  duration_ms: 347.49774
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 417.443534
+# Fresh disposable grant case 33/39
+TAP version 13
+# Subtest: native read-first ROLLBACK
+ok 1 - native read-first ROLLBACK
+  ---
+  duration_ms: 231.954054
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 304.123342
+# Fresh disposable grant case 34/39
+TAP version 13
+# Subtest: native read-during-retirement COMMIT
+ok 1 - native read-during-retirement COMMIT
+  ---
+  duration_ms: 349.547452
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 418.694502
+# Fresh disposable grant case 35/39
+TAP version 13
+# Subtest: native read-during-retirement ROLLBACK
+ok 1 - native read-during-retirement ROLLBACK
+  ---
+  duration_ms: 157.233729
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 233.403886
+# Fresh disposable grant case 36/39
+TAP version 13
+# Subtest: native cached metadata statement invalidates after retirement
+ok 1 - native cached metadata statement invalidates after retirement
+  ---
+  duration_ms: 194.626823
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 268.928143
+# Fresh disposable grant case 37/39
+TAP version 13
+# Subtest: native cached Storage statement invalidates after retirement
+ok 1 - native cached Storage statement invalidates after retirement
+  ---
+  duration_ms: 137.342989
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 211.008044
+# Fresh disposable grant case 38/39
+TAP version 13
+# Subtest: native cached grant INSERT is refused for owner
+ok 1 - native cached grant INSERT is refused for owner
+  ---
+  duration_ms: 219.574851
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 327.698724
+# Fresh disposable grant case 39/39
+TAP version 13
+# Subtest: native cached grant INSERT is refused for platform_admin
+ok 1 - native cached grant INSERT is refused for platform_admin
+  ---
+  duration_ms: 638.579856
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 709.729622

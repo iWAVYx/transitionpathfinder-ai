@@ -1,0 +1,139 @@
+{
+  "schema": "document-text-bound-save-local-v1",
+  "date": "2026-11-08",
+  "source_base": "0d057bcd",
+  "workstream_actions": [
+    "2.5",
+    "2.4",
+    "2.6",
+    "4"
+  ],
+  "scope": "Prepared caller-RLS bound save, immutable actual-row/transaction completion proof and completion-aware accounting. Public provider begin/hold and full consumer protocol remain unfinished.",
+  "completed_locally": [
+    "Nonce/digest/actor/source/revision/status-bound save requires a prior committed reservation and current editing proof",
+    "Generated content is saved through unchanged SECURITY INVOKER save_document_text_review; metadata helpers never write document content",
+    "Actual saved-row xmin, changed revision and UTC full-row hash must match the save transaction; preparation alone or a suppressed write cannot commit",
+    "Immutable deferred completion proof and same-transaction source fences prevent later edits from invalidating proof, including after SET CONSTRAINTS IMMEDIATE",
+    "Completion credit shares the existing32/4/2 pool and is visible to competing transactions only on commit; rollback preserves the original unfinished slot and review",
+    "Completed audit remains; a lost successful reply cannot hold/replay/reset it. Held/uncertain claims remain counted. New source reservations require a fresh revision and no unfinished predecessor",
+    "Preserved count-only bridge for a distinct trusted metadata owner; browser/service callers get no raw bookkeeping access",
+    "New completion-aware read-only inventory excludes only completed proof; old unified reader refuses installation of the completion table rather than reporting false totals"
+  ],
+  "local_results": {
+    "combined": {
+      "tests": 107,
+      "pass": 89,
+      "fail": 0,
+      "skipped": 18
+    },
+    "new_cases": 48,
+    "new_passed": 38,
+    "new_native_only_skipped": 10,
+    "capacity_regression_cases": 38,
+    "capacity_regression_passed": 30,
+    "capacity_native_only_skipped": 8,
+    "legacy_inventory_passed": 21,
+    "log_sha256": "3f27e82916f774f29ee00d58f2c2d3553b640328c57a5517e16d231378900502"
+  },
+  "required_native_cases": [
+    "last-slot admission versus save commit/rollback (two)",
+    "uncertainty hold versus save, both orderings, commit/rollback (four)",
+    "prior source writer commit/rollback (two)",
+    "duplicate completion commit/rollback (two)"
+  ],
+  "routine_body_manifest": [
+    {
+      "signature": "public.guard_document_text_save_completion()",
+      "body_md5": "c1f9e966a86753b9ddcda5ecfde443ac",
+      "definer": true,
+      "utc": true,
+      "actor_exec": false
+    },
+    {
+      "signature": "public.verify_document_text_save_commit()",
+      "body_md5": "d0ae2d6b7bea8cf6c8aa20829fc7c1da",
+      "definer": true,
+      "utc": true,
+      "actor_exec": false
+    },
+    {
+      "signature": "public.guard_bound_document_text_source()",
+      "body_md5": "2312833f0a9da3b241bbd659e4f35bf8",
+      "definer": true,
+      "utc": false,
+      "actor_exec": false
+    },
+    {
+      "signature": "public.prepare_bound_document_text_save(uuid,uuid,text,uuid,uuid,uuid,timestamptz,timestamptz,text)",
+      "body_md5": "7f02219669c91b7f6ecc6ad3651dbbef",
+      "definer": true,
+      "utc": false,
+      "actor_exec": true
+    },
+    {
+      "signature": "public.complete_bound_document_text_save(uuid,uuid,jsonb)",
+      "body_md5": "75bd94fa3174894a6c12d6741504ef92",
+      "definer": true,
+      "utc": true,
+      "actor_exec": true
+    },
+    {
+      "signature": "public.save_bound_document_text_review(uuid,uuid,text,uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)",
+      "body_md5": "eb49131e983ff85cc7323064c086b625",
+      "definer": false,
+      "utc": true,
+      "actor_exec": true
+    },
+    {
+      "signature": "public.count_internal_document_text_capacity(uuid,uuid,text)",
+      "body_md5": "522274f8d24db0b5651b7e5ceadd49d8",
+      "definer": true,
+      "utc": false,
+      "actor_exec": false
+    },
+    {
+      "signature": "public.guard_document_text_capacity()",
+      "body_md5": "913806fa4f0331c653abe6259d959074",
+      "definer": false,
+      "utc": true,
+      "actor_exec": false
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+      "sha256": "f0a019d92cc8c2058bac12f1cbc4cebe12842dbc75dead528c8e95875cf6b3c5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql",
+      "sha256": "4cca38a575a9a8ee3f133f4c89bb487d97c367cec66e89bba9dd5034580c39ce"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql",
+      "sha256": "19bf4f2f3079dbec60997faaaefbdb26b4e0d87aec3aab80859b06fd3e633437"
+    },
+    {
+      "path": "tests/database/document-text-bound-save.test.mjs",
+      "sha256": "a9741c82e8f980a409161f2667a26effbe288e445a7455171909ad53bfd6d636"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "120168b9cf3f48e8f680450e4afefac1e60d0ee33d4772e36a8a8ebbe878a1e9"
+    }
+  ],
+  "native_full_schema_verified": false,
+  "provider_admission_verified": false,
+  "backend_protocol_implemented": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false,
+  "release_contracts": {
+    "passed": 45,
+    "failed": 0,
+    "skipped": 0,
+    "workflow_shell_blocks": 78
+  },
+  "hosting_boundary_followup": "Reviewed the existing server-only text admission consumer, corrected64-to65 privileged-file inventory and preserved all production no-go/authorization controls. No runtime source changed."
+}

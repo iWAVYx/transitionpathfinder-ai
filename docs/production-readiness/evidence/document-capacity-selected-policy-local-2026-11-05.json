@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.2",
+  "status": "Selected-policy installer locally verified; native/full-schema verification prepared, not run yet",
+  "proposal": "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
+  "proposal_sha256": "163e0e01f98a4dadfce64f1a09addd6b623aa0f15b5703723374cb9831cd3f21",
+  "selected_profile": {
+    "global_units": 32,
+    "actor_units": 4,
+    "student_units": 2
+  },
+  "validation": {
+    "policy_installer_cases": 13,
+    "passed": 13,
+    "failed": 0,
+    "harness_readiness_portability_cases": 50,
+    "combined_passed": 63,
+    "workflow_shell_blocks_checked": 56,
+    "log_sha256": "9fd64b7732165c708eb57133c1b2ac8de17cfc8e6a38d06b1c9f646c25a81ed9"
+  },
+  "properties": [
+    "Only exact reviewed private counter implementation, ownership, RLS and enabled trigger are accepted",
+    "Full unfiltered trusted visibility is required before counting existing work",
+    "Admissions stay paused and existing policy/work stops installation for reconciliation",
+    "All three selected values update atomically and returned values must match actual saved row",
+    "Suppressed/altered updates roll back; repeat installation refuses",
+    "No new execution grants, capacity release, admission reopening or hosted setting change"
+  ],
+  "fixture_limit": "Reduced metadata/transaction fixture verifies installer behavior; domain admission arithmetic is covered separately by the existing1560-case suite. Complete-schema/native policy verification is still pending.",
+  "prepared_ci": [
+    "13-case local model and native PostgreSQL installer tests",
+    "Selected-policy installation after complete225+24 schema replay, with retained32/4/2 and paused-state proof"
+  ],
+  "remaining": [
+    "Current-source native and complete-schema policy proof",
+    "Review counter enforcement and trusted reconciliation/pause/drain together before activation",
+    "Final canonical/ledger packaging and fresh exact staging rollout authorization"
+  ],
+  "hosted_actions": false,
+  "environment_settings_changed": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false,
+  "test_module_sha256": "381a3f677131fe00ce0315183c9b518204d405d1e7bac6e5923e5a5b80ecffb0"
+}

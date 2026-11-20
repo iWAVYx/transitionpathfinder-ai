@@ -1,0 +1,12 @@
+{
+  "scope": "reviewed atomic text-save RPC only",
+  "paused": true,
+  "schema": "document-text-review-authority-schema-proof-v1",
+  "role_body_md5": "15b2fa145f63b5612ba71394d5b503dc",
+  "save_body_md5": "e44e6dc8a4d7b27c89a72519f6473478",
+  "hosted_applied": false,
+  "ready_for_cutover": false,
+  "authority_body_md5": "f437d1d92e80319c437aaba69590685e",
+  "provider_admission_verified": false,
+  "raw_or_cached_old_writers_verified": false
+}

@@ -1,3 +1,9 @@
+import{deletePlanningRecordAtomically}from"./planning-record-delete.server";
+import {readPlanningRecords,createPlanningRecord,mutatePlanningRecord} from "./planning-records.server";
+import {viewerIntentSchema} from "./viewer-intent";
+import { revokeOwnedShareToken } from "./revoke-share-token.server";
+import { readOrganizationPages } from "@/lib/organization-query-pages";
+import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -36,7 +42,9 @@ export type Student = {
  */
 export const ensureOwnStudentProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { data: row, error } = await context.supabase.rpc(
       "ensure_student_self_profile" as never,
     );
@@ -49,17 +57,19 @@ export const ensureOwnStudentProfile = createServerFn({ method: "POST" })
 
 export const listStudents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
-    const { data, error } = await supabase
-      .from("students")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
-      console.error("listStudents failed", error);
-      return { students: [] as Student[] };
+    try {
+      const students = await readOrganizationPages<Student>((from, to) =>
+        supabase.from("students").select("*", { count: "exact" })
+          .order("created_at", { ascending: false }).order("id").range(from, to),
+      );
+      return { students, loadFailed: false };
+    } catch {
+      return { students: [] as Student[], loadFailed: true };
     }
-    return { students: (data ?? []) as Student[] };
   });
 
 export const getStudent = createServerFn({ method: "POST" })
@@ -200,6 +210,8 @@ export const deleteStudent = createServerFn({ method: "POST" })
 /* ---------- GOALS ---------- */
 
 const GoalInput = z.object({
+  ...viewerIntentSchema.shape,
+  request_id: z.string().uuid().optional(),
   student_id: z.string().uuid(),
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().max(2000).optional(),
@@ -224,73 +236,17 @@ export type Goal = {
   updated_at: string;
 };
 
-export const listGoals = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: rows, error } = await supabase
-      .from("goals")
-      .select("*")
-      .eq("student_id", data.student_id)
-      .order("created_at", { ascending: true });
-    if (error) {
-      console.error("listGoals failed", error);
-      return { goals: [] as Goal[] };
-    }
-    return { goals: (rows ?? []) as Goal[] };
-  });
-
-export const createGoal = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => GoalInput.parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: row, error } = await supabase
-      .from("goals")
-      .insert({
-        student_id: data.student_id,
-        created_by: userId,
-        title: data.title,
-        description: data.description ?? null,
-        category: data.category,
-        status: data.status,
-        target_date: data.target_date ?? null,
-        measurable_criteria: data.measurable_criteria ?? null,
-      })
-      .select("*")
-      .single();
-    if (error || !row) {
-      console.error("createGoal failed", error);
-      throw new Error("Could not save goal.");
-    }
-    return row as Goal;
-  });
-
-export const updateGoalStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({
-      id: z.string().uuid(),
-      status: z.enum(["not-started", "in-progress", "met", "paused"]),
-    }).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase.from("goals").update({ status: data.status }).eq("id", data.id);
-    if (error) throw new Error("Could not update goal.");
-    return { ok: true };
-  });
-
-export const deleteGoal = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase.from("goals").delete().eq("id", data.id);
-    if (error) throw new Error("Could not delete goal.");
-    return { ok: true };
-  });
+export const listGoals=createServerFn({method:"POST"}).middleware([requireSupabaseAuth])
+ .validator((input:unknown)=>z.object({student_id:z.string().uuid(),...viewerIntentSchema.shape}).parse(input))
+ .handler(async({data,context})=>{const result=await readPlanningRecords(context.supabase,context.userId,'goals',data);return{goals:result.records as unknown as Goal[],canEdit:result.canEdit};});
+export const createGoal=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).validator((input:unknown)=>GoalInput.parse(input))
+ .handler(async({data,context})=>createPlanningRecord(context.supabase,context.userId,'goals',{...data,description:data.description??null,target_date:data.target_date??null,measurable_criteria:data.measurable_criteria??null}) as unknown as Promise<Goal>);
+const GoalMutation=z.object({id:z.string().uuid(),student_id:z.string().uuid().optional(),expected_updated_at:z.string().datetime({offset:true}).optional(),...viewerIntentSchema.shape});
+export const updateGoalStatus=createServerFn({method:"POST"}).middleware([requireSupabaseAuth])
+ .validator((input:unknown)=>GoalMutation.extend({status:z.enum(["not-started","in-progress","met","paused"])}).parse(input))
+ .handler(async({data,context})=>{const result=await mutatePlanningRecord(context.supabase,context.userId,'goals',data,{status:data.status});return{ok:true as const,goal:result.row as unknown as Goal};});
+export const deleteGoal=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).validator((input:unknown)=>GoalMutation.extend({student_id:z.string().uuid(),expected_updated_at:z.string().datetime({offset:true})}).parse(input))
+ .handler(async({data,context})=>{return deletePlanningRecordAtomically(context.supabase,context.userId,'goals',data);});
 
 /* ---------- SHARE TOKENS ---------- */
 
@@ -386,11 +342,6 @@ export const revokeShareToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
-      .from("share_tokens")
-      .update({ revoked: true })
-      .eq("id", data.id);
-    if (error) throw new Error("Could not revoke link.");
+    await revokeOwnedShareToken(context.supabase, context.userId, data.id);
     return { ok: true };
   });

@@ -1,3 +1,5 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { Rocket, Sprout, Waypoints, TrendingUp } from "lucide-react";
 
@@ -8,9 +10,11 @@ import type { DistrictSchool, DistrictDashboard } from "@/lib/district-admin.fun
 import { RolloutMilestonesCard, type RolloutMilestone } from "@/components/implementation/RolloutMilestonesCard";
 import { TrainingScheduleCard } from "@/components/implementation/TrainingScheduleCard";
 import { ReportingDeadlinesCard } from "@/components/implementation/ReportingDeadlinesCard";
-import { StaffProgressTable, type StaffProgressRow } from "@/components/implementation/StaffProgressTable";
+import { StaffProgressTable, membershipAccessStatus, type StaffProgressRow } from "@/components/implementation/StaffProgressTable";
 
 export const Route = createFileRoute("/_authenticated/district/implementation")({
+  ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/district/implementation"),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [
@@ -18,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/district/implementation")(
       {
         name: "description",
         content:
-          "Where each school in your district sits in the rollout — onboarding, active, or mature.",
+          "Recorded staff access and report coverage across connected schools.",
       },
     ],
   }),
@@ -29,7 +33,7 @@ type Stage = "onboarding" | "active" | "mature";
 
 function stageFor(s: DistrictSchool): Stage {
   if (s.active_members === 0 || s.students_count === 0) return "onboarding";
-  const ratio = s.students_count > 0 ? s.reports_count / s.students_count : 0;
+  const ratio = s.students_count > 0 ? s.students_with_report / s.students_count : 0;
   if (ratio >= 0.6 && s.active_members >= 3) return "mature";
   return "active";
 }
@@ -39,36 +43,37 @@ const STAGE_META: Record<
   { label: string; blurb: string; icon: typeof Sprout; tone: string }
 > = {
   onboarding: {
-    label: "Onboarding",
-    blurb: "Staff invited or first students being added — not yet generating reports.",
+    label: "Getting Started",
+    blurb: "Staff access or student connections are still needed.",
     icon: Sprout,
     tone: "bg-amber-100 text-amber-900",
   },
   active: {
-    label: "Active",
-    blurb: "Staff and students engaged, reports are being generated regularly.",
+    label: "Staff and Students Connected",
+    blurb: "Active staff access and recorded students; report coverage is shown below.",
     icon: Waypoints,
     tone: "bg-sky-100 text-sky-900",
   },
   mature: {
-    label: "Mature",
-    blurb: "Majority of students have a Pathway Report and a full staff team.",
+    label: "Broad Report Coverage",
+    blurb: "At least three active staff memberships and recorded reports for at least 60% of students.",
     icon: TrendingUp,
     tone: "bg-emerald-100 text-emerald-900",
   },
 };
 
 function DistrictImplementationPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/implementation"
       title="Implementation Progress"
-      subtitle="Rollout stage for every school connected to your district."
+      subtitle="Recorded staff access and report coverage across connected schools."
       data={data}
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(district, d) => {
         const byStage: Record<Stage, DistrictSchool[]> = {
@@ -140,8 +145,8 @@ function DistrictImplementationPage() {
             </div>
 
             <StaffProgressTable
-              title="District Team Progress"
-              subtitle="Onboarding progress for district-level admins and coordinators."
+              title="District Team Access"
+              subtitle="Recorded membership status. Training completion is not recorded here."
               rows={staffRows}
               emptyLabel="No district team members yet. Invite school admins and coordinators to get started."
             />
@@ -175,32 +180,32 @@ function districtMilestones(d: DistrictDashboard): RolloutMilestone[] {
     },
     {
       key: "school-admins",
-      label: "School administrators invited",
-      detail: "Each connected school has an active admin driving local rollout.",
+      label: "School Staff Access Established",
+      detail: "At least one connected school has active staff access.",
       done: anyActiveSchool,
     },
     {
       key: "students-added",
-      label: "Students added to caseloads",
-      detail: "Educators have added students to begin transition planning.",
+      label: "Students Connected",
+      detail: "At least one student is assigned to a connected school.",
       done: anyStudents,
     },
     {
       key: "first-report",
-      label: "First Pathway Report generated",
-      detail: "At least one student has a completed Pathway Report.",
+      label: "First Pathway Report Recorded",
+      detail: "At least one Pathway Report record is available in this district scope.",
       done: anyReports,
     },
     {
       key: "majority-reports",
       label: "60%+ of students have a Pathway Report",
-      detail: "The district is at meaningful adoption across schools.",
+      detail: "At least 60% of connected students have a recorded Pathway Report.",
       done: majority,
     },
     {
       key: "district-team",
-      label: "District team fully staffed",
-      detail: "At least 3 district-level members are active in the workspace.",
+      label: "District Team Access Established",
+      detail: "At least three district-level members have active workspace access.",
       done: teamComplete,
     },
   ];
@@ -212,18 +217,16 @@ function districtStaffRows(d: DistrictDashboard): StaffProgressRow[] {
       key: `t:${t.membership_id}`,
       name: t.full_name || t.email || "Unnamed member",
       role: t.role_within_org,
-      status: "active" as const,
+      status: membershipAccessStatus(t.status),
       joined: t.joined_at,
-      progress: 100,
       detail: t.email ?? undefined,
     })),
     ...d.pending_team.map((t) => ({
       key: `p:${t.membership_id}`,
-      name: t.full_name || t.email || "Pending invite",
+      name: t.full_name || t.email || "Unnamed member",
       role: t.role_within_org,
-      status: "pending" as const,
+      status: membershipAccessStatus(t.status),
       joined: t.joined_at,
-      progress: 25,
       detail: t.email ?? undefined,
     })),
   ];

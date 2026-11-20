@@ -1,0 +1,9 @@
+{
+  "paused": true,
+  "schema": "document-selected-policy-proof-v1",
+  "actor_units": 4,
+  "global_units": 32,
+  "student_units": 2,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

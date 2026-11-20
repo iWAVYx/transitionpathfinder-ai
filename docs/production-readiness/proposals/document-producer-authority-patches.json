@@ -1,0 +1,46 @@
+{
+  "schema": "document-producer-authority-patches-v1",
+  "review_only": true,
+  "patches": [
+    {
+      "signature": "public.assert_internal_document_rescan_source(uuid,uuid,text,timestamptz)",
+      "body_md5": "535eec88a7abb5695252922280c3d01b",
+      "definer": false,
+      "actor_execute": false,
+      "anchor": " SELECT * INTO d FROM public.documents WHERE id=b.document_id;",
+      "prefix": " PERFORM public.lock_internal_document_producer_authority(b.actor_id,b.student_id);\n"
+    },
+    {
+      "signature": "public.guard_document_rescan_source_binding()",
+      "body_md5": "9cde41dda57eaaac0ac7aacb666e27a2",
+      "definer": false,
+      "actor_execute": false,
+      "anchor": " -- Match the established attempt -> document -> object order.",
+      "prefix": " PERFORM public.lock_internal_document_producer_authority(NEW.actor_id,d.student_id);\n"
+    },
+    {
+      "signature": "public.guard_document_upload_registration()",
+      "body_md5": "ec1020d6a943332c2fb1716e4512adbc",
+      "definer": true,
+      "actor_execute": false,
+      "anchor": "  -- Lock the attempt before any object-metadata lock taken by later triggers.",
+      "prefix": "  PERFORM public.lock_internal_document_producer_authority(NEW.uploaded_by,NEW.student_id);\n"
+    },
+    {
+      "signature": "public.read_document_upload_registration(uuid,text)",
+      "body_md5": "8bed2c13998cb9749d5a793d14cec62a",
+      "definer": true,
+      "actor_execute": true,
+      "anchor": "  SELECT * INTO doc FROM public.documents WHERE id=attempt.registered_document_id",
+      "prefix": "  PERFORM public.lock_internal_document_producer_authority(actor,attempt.student_id);\n"
+    },
+    {
+      "signature": "public.reserve_document_upload(uuid,uuid,text,text)",
+      "body_md5": "dc8972ceac29738817b32b74ad411e1b",
+      "definer": true,
+      "actor_execute": true,
+      "anchor": "  SELECT * INTO attempt FROM public.document_upload_attempts WHERE id=_attempt_id FOR UPDATE;",
+      "prefix": "  PERFORM public.lock_internal_document_producer_authority(actor,_student_id);\n"
+    }
+  ]
+}

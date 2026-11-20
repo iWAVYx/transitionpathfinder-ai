@@ -1,0 +1,194 @@
+-- DRAFT ONLY: preserve caller-RLS atomic Apply writes with a source-bound gate.
+-- Install only with the complete completion/release chain. No hosted installation.
+BEGIN;
+SET LOCAL lock_timeout='5s';
+SET LOCAL statement_timeout='30s';
+DO $preflight$ BEGIN
+ IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused)
+  OR to_regclass('public.document_apply_source_bindings') IS NULL
+  OR to_regprocedure('public.lock_internal_document_capacity_completion()') IS NULL
+  OR NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)'::regprocedure
+   AND NOT prosecdef AND md5(prosrc)='931e2c8dda387bacd5829d3f5b81749d' AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN
+  RAISE EXCEPTION 'Reviewed paused Apply source/save prerequisites required'; END IF;
+END; $preflight$;
+DO $apply_install_boundary$
+DECLARE item record; caller text; relation_name text;
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) THEN
+  RAISE EXCEPTION 'Paused reviewed Apply installation required' USING ERRCODE='55000'; END IF;
+ FOR item IN SELECT * FROM (VALUES
+ ('public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)','6f601210e16ce169478e8277e9263228',true,true,'service_role'),
+ ('public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)','931e2c8dda387bacd5829d3f5b81749d',false,false,'authenticated'),
+ ('public.guard_document_apply_source_binding()','5c64a025bbdff1fe50a44c3bd40cd0d8',false,false,'')
+ ) expected(signature,body_md5,definer,utc,allowed_caller) LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature)
+   AND proowner=current_user::regrole::oid AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer
+   AND proconfig=CASE WHEN item.utc THEN ARRAY['search_path=pg_catalog','TimeZone=UTC'] ELSE ARRAY['search_path=pg_catalog'] END) THEN
+   RAISE EXCEPTION 'Exact Apply routine owner/body/settings required' USING ERRCODE='55000'; END IF;
+  FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+   IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller=item.allowed_caller) THEN
+    RAISE EXCEPTION 'Reviewed Apply routine permissions required' USING ERRCODE='55000'; END IF;
+  END LOOP;
+ END LOOP;
+ FOREACH relation_name IN ARRAY ARRAY['public.document_apply_source_bindings'] LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name)
+   AND relkind='r' AND relowner=current_user::regrole::oid AND relrowsecurity)
+   OR EXISTS(SELECT 1 FROM pg_policy WHERE polrelid=to_regclass(relation_name)) THEN
+   RAISE EXCEPTION 'Private Apply relation ownership/RLS required' USING ERRCODE='55000'; END IF;
+  FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+   IF has_table_privilege(caller,relation_name,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+    OR has_any_column_privilege(caller,relation_name,'SELECT,INSERT,UPDATE,REFERENCES') THEN
+    RAISE EXCEPTION 'Private Apply relation permissions required' USING ERRCODE='55000'; END IF;
+  END LOOP;
+ END LOOP;
+ FOR item IN SELECT * FROM (VALUES
+ ('public.document_apply_source_bindings','document_apply_binding_retained','public.guard_document_apply_source_binding()',27,false)
+ ) expected(relation_name,trigger_name,signature,trigger_type,deferred) LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(item.relation_name)
+   AND tgname=item.trigger_name AND tgfoid=to_regprocedure(item.signature) AND tgtype=item.trigger_type
+   AND tgenabled='O' AND NOT tgisinternal AND tgdeferrable=item.deferred AND tginitdeferred=item.deferred
+   AND (tgconstraint<>0)=item.deferred AND tgqual IS NULL AND tgattr::text='') THEN
+   RAISE EXCEPTION 'Exact enabled Apply trigger required' USING ERRCODE='55000'; END IF;
+ END LOOP;
+END; $apply_install_boundary$;
+CREATE FUNCTION public.assert_bound_document_apply(_extraction_id uuid,_student_id uuid,_document_id uuid,_expected_revision timestamptz,_expected_sections jsonb,_emit_evidence boolean)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog SET TimeZone='UTC'
+AS $bound_apply_gate$
+DECLARE actor uuid:=auth.uid();binding public.document_apply_source_bindings%ROWTYPE;e public.document_extractions%ROWTYPE;d public.documents%ROWTYPE;
+BEGIN
+ PERFORM public.lock_internal_document_capacity_completion();
+ IF actor IS NULL OR public.can_edit_student(actor,_student_id) IS DISTINCT FROM true
+  OR public.can_view_document(actor,_document_id) IS DISTINCT FROM true OR public.is_partner_only(actor) IS DISTINCT FROM false THEN
+  RAISE EXCEPTION 'This reviewed source could not be confirmed.' USING ERRCODE='42501'; END IF;
+ SELECT b.* INTO binding FROM public.document_apply_source_bindings b JOIN public.document_operation_leases l USING(operation_id)
+  JOIN public.document_capacity_reservations c USING(operation_id)
+  WHERE b.actor_id=actor AND b.extraction_id=_extraction_id AND b.student_id=_student_id AND b.document_id=_document_id
+   AND b.emit_evidence=_emit_evidence AND b.source_revision=_expected_revision AND b.sections_sha256=encode(sha256(convert_to(_expected_sections::text,'UTF8')),'hex')
+   AND l.actor_id=actor AND l.operation_kind='apply' AND l.state='active'
+   AND c.actor_id=actor AND c.student_id=_student_id AND c.producer_kind='apply' AND c.reserved_units=1;
+ IF NOT FOUND THEN RAISE EXCEPTION 'A current source-bound Apply reservation is required.' USING ERRCODE='42501'; END IF;
+ SELECT * INTO e FROM public.document_extractions WHERE id=_extraction_id FOR SHARE;
+ IF NOT FOUND OR e.student_id IS DISTINCT FROM binding.student_id OR e.document_id IS DISTINCT FROM binding.document_id
+  OR e.updated_at IS DISTINCT FROM binding.source_revision OR e.sections IS DISTINCT FROM _expected_sections
+  OR e.status::text NOT IN('pending','needs_review','in_review') THEN
+  RAISE EXCEPTION 'This review has changed.' USING ERRCODE='42501'; END IF;
+ SELECT * INTO d FROM public.documents WHERE id=_document_id AND student_id=_student_id FOR SHARE;
+ IF NOT FOUND OR encode(sha256(convert_to(to_jsonb(d)::text,'UTF8')),'hex') IS DISTINCT FROM binding.document_sha256 THEN
+  RAISE EXCEPTION 'This document has changed.' USING ERRCODE='42501'; END IF;
+END; $bound_apply_gate$;
+REVOKE ALL ON FUNCTION public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb,boolean) FROM PUBLIC,anon,authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb,boolean) TO authenticated;
+CREATE OR REPLACE FUNCTION public.apply_reviewed_document_extraction(
+  _extraction_id uuid,_student_id uuid,_document_id uuid,
+  _expected_updated_at timestamptz,_expected_sections jsonb,_emit_evidence boolean
+) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog
+AS $apply$
+DECLARE
+  actor uuid:=auth.uid(); e public.document_extractions%ROWTYPE;
+  doc public.documents%ROWTYPE; student_patch jsonb:='{}'; transition_patch jsonb:='{}';
+  mapping record; section jsonb; val text; changed integer; evidence_id uuid;
+  applied_at timestamptz:=clock_timestamp(); revision timestamptz; metadata jsonb;
+BEGIN
+  PERFORM public.assert_bound_document_apply(_extraction_id,_student_id,_document_id,_expected_updated_at,_expected_sections,_emit_evidence);
+  IF actor IS NULL OR _extraction_id IS NULL OR _student_id IS NULL OR _document_id IS NULL
+    OR _expected_updated_at IS NULL OR _expected_sections IS NULL
+    OR jsonb_typeof(_expected_sections)<>'object' OR char_length(_expected_sections::text)>100000
+    OR _emit_evidence IS NULL OR current_setting('transaction_isolation')<>'read committed' THEN
+    RAISE EXCEPTION 'This review could not be confirmed. Reload it before applying changes.' USING ERRCODE='42501';
+  END IF;
+  SELECT * INTO e FROM public.document_extractions WHERE id=_extraction_id FOR UPDATE;
+  IF NOT FOUND OR e.student_id IS DISTINCT FROM _student_id OR e.document_id IS DISTINCT FROM _document_id
+    OR e.updated_at IS DISTINCT FROM _expected_updated_at OR e.sections IS DISTINCT FROM _expected_sections
+    OR e.status::text NOT IN('pending','needs_review','in_review') THEN
+    RAISE EXCEPTION 'This review has changed. Reload it before applying changes.' USING ERRCODE='42501';
+  END IF;
+  SELECT * INTO doc FROM public.documents WHERE id=e.document_id AND student_id=e.student_id FOR SHARE;
+  IF NOT FOUND OR doc.archived_at IS NOT NULL OR doc.deleted_at IS NOT NULL
+    OR doc.scan_status IS DISTINCT FROM 'clean' OR doc.review_status IS NULL OR doc.review_status='rejected' THEN
+    RAISE EXCEPTION 'This document is not available for applying changes.' USING ERRCODE='42501';
+  END IF;
+  PERFORM 1 FROM public.students WHERE id=e.student_id FOR UPDATE;
+  IF NOT FOUND OR public.is_partner_only(actor) IS DISTINCT FROM false
+    OR public.can_edit_student(actor,e.student_id) IS DISTINCT FROM true
+    OR public.can_view_document(actor,e.document_id) IS DISTINCT FROM true THEN
+    RAISE EXCEPTION 'Editing access is required to apply this review.' USING ERRCODE='42501';
+  END IF;
+  FOR mapping IN SELECT * FROM (VALUES
+    ('student_first_name','student','first_name'),('grade_band','student','grade_band'),
+    ('strengths','student','strengths_summary'),('interests','student','interests_summary'),
+    ('needs','student','support_needs_summary'),('student_voice','student','student_voice_statement'),
+    ('family_concerns','student','family_priorities'),('transportation','transition','transportation_goal'),
+    ('supports','transition','current_services_summary'),('current_goals','transition','education_training_goal')
+  ) m(section_key,target,field) LOOP
+    section:=e.sections->mapping.section_key;
+    IF section->>'state' IN('accepted','edited') THEN
+      IF jsonb_typeof(section->'value') IS DISTINCT FROM 'string' OR char_length(section->>'value')>4000 THEN
+        RAISE EXCEPTION 'A reviewed section could not be confirmed.' USING ERRCODE='42501';
+      END IF;
+      val:=btrim(section->>'value');
+      IF val<>'' THEN
+        IF mapping.section_key='grade_band' AND val NOT IN('6-8','9-10','11-12','post-secondary','not-applicable') THEN
+          RAISE EXCEPTION 'Choose a supported grade before applying this review.' USING ERRCODE='42501';
+        END IF;
+        IF mapping.target='student' THEN student_patch:=student_patch||jsonb_build_object(mapping.field,val);
+        ELSE transition_patch:=transition_patch||jsonb_build_object(mapping.field,val); END IF;
+      END IF;
+    END IF;
+  END LOOP;
+  IF student_patch='{}'::jsonb AND transition_patch='{}'::jsonb THEN
+    RAISE EXCEPTION 'Review at least one profile section before applying changes.' USING ERRCODE='42501';
+  END IF;
+  IF student_patch<>'{}'::jsonb THEN
+    UPDATE public.students s SET
+      first_name=coalesce(student_patch->>'first_name',s.first_name),
+      grade_band=coalesce(student_patch->>'grade_band',s.grade_band),
+      strengths_summary=coalesce(student_patch->>'strengths_summary',s.strengths_summary),
+      interests_summary=coalesce(student_patch->>'interests_summary',s.interests_summary),
+      support_needs_summary=coalesce(student_patch->>'support_needs_summary',s.support_needs_summary),
+      student_voice_statement=coalesce(student_patch->>'student_voice_statement',s.student_voice_statement),
+      family_priorities=coalesce(student_patch->>'family_priorities',s.family_priorities)
+      WHERE s.id=e.student_id;
+    GET DIAGNOSTICS changed=ROW_COUNT;
+    IF changed<>1 THEN RAISE EXCEPTION 'The student profile was not saved.' USING ERRCODE='42501'; END IF;
+  END IF;
+  IF transition_patch<>'{}'::jsonb THEN
+    INSERT INTO public.transition_profiles(student_id,transportation_goal,current_services_summary,education_training_goal)
+      VALUES(e.student_id,transition_patch->>'transportation_goal',transition_patch->>'current_services_summary',transition_patch->>'education_training_goal')
+      ON CONFLICT(student_id) DO UPDATE SET
+        transportation_goal=coalesce(EXCLUDED.transportation_goal,transition_profiles.transportation_goal),
+        current_services_summary=coalesce(EXCLUDED.current_services_summary,transition_profiles.current_services_summary),
+        education_training_goal=coalesce(EXCLUDED.education_training_goal,transition_profiles.education_training_goal);
+    GET DIAGNOSTICS changed=ROW_COUNT;
+    IF changed<>1 THEN RAISE EXCEPTION 'The transition profile was not saved.' USING ERRCODE='42501'; END IF;
+  END IF;
+  metadata:=jsonb_build_object(
+    'applied_student_fields',(SELECT coalesce(jsonb_agg(k ORDER BY k),'[]'::jsonb) FROM jsonb_object_keys(student_patch) k),
+    'applied_transition_fields',(SELECT coalesce(jsonb_agg(k ORDER BY k),'[]'::jsonb) FROM jsonb_object_keys(transition_patch) k));
+  IF _emit_evidence THEN
+    INSERT INTO public.evidence_items(student_id,kind,subject_type,subject_id,source_kind,source_id,
+      contributor_id,occurred_at,verification_state,permission_scope,payload,extraction_id)
+    VALUES(e.student_id,'document_extraction','document',e.document_id,'document_extraction',e.id,
+      actor,applied_at,'human_confirmed','student_team',metadata,e.id)
+    ON CONFLICT(student_id,source_kind,source_id) WHERE source_id IS NOT NULL DO UPDATE SET
+      contributor_id=EXCLUDED.contributor_id,occurred_at=EXCLUDED.occurred_at,
+      verification_state=EXCLUDED.verification_state,payload=EXCLUDED.payload
+    WHERE evidence_items.kind='document_extraction' AND evidence_items.subject_type='document'
+      AND evidence_items.subject_id=EXCLUDED.subject_id AND evidence_items.extraction_id=EXCLUDED.extraction_id
+    RETURNING id INTO evidence_id;
+    IF evidence_id IS NULL THEN RAISE EXCEPTION 'The review evidence was not saved.' USING ERRCODE='42501'; END IF;
+  END IF;
+  UPDATE public.document_extractions SET status='complete',reviewer_id=actor,reviewed_at=applied_at
+    WHERE id=e.id AND student_id=e.student_id AND document_id=e.document_id AND updated_at=_expected_updated_at
+    RETURNING updated_at INTO revision;
+  GET DIAGNOSTICS changed=ROW_COUNT;
+  IF changed<>1 OR revision IS NULL THEN RAISE EXCEPTION 'The review was not completed.' USING ERRCODE='42501'; END IF;
+  INSERT INTO public.audit_log(actor_id,action,entity_type,entity_id,student_id,metadata)
+    VALUES(actor,'document.extraction.applied','document_extraction',e.id,e.student_id,metadata);
+  GET DIAGNOSTICS changed=ROW_COUNT;
+  IF changed<>1 THEN RAISE EXCEPTION 'The review record was not saved.' USING ERRCODE='42501'; END IF;
+  RETURN jsonb_build_object('schema','applied-document-extraction-v1','extraction_id',e.id,
+    'student_id',e.student_id,'document_id',e.document_id,'status','complete','updated_at',revision,
+    'evidence_saved',_emit_evidence,'evidence_id',evidence_id);
+END;
+$apply$;
+COMMIT;

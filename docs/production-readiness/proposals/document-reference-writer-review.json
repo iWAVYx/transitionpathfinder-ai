@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-29",
+  "status": "Source-confirmed partial writer/reference inventory, not complete fencing or live permission acceptance",
+  "source_base": "7fd7318a",
+  "hosted_actions": false,
+  "inventory_complete": false,
+  "cleanup_authorized": false,
+  "source_hashes": {
+    "src/lib/documents.functions.ts": "cbee8ab5784326612d573551a29db5ec524eb86ae1f5ffb46ac9af72e8122495",
+    "src/lib/document-upload-reservation.server.ts": "36ab424d7c9941c0e20b3e0282a2a2e26cffbd8693524d543bc55a70713f807a",
+    "src/lib/document-upload-intent.ts": "ec9d5e986a9ad2199702906cab65fa3833436735fe55f274070e09e5e8763a45",
+    "src/lib/extractions.functions.ts": "ccecaf3f44f8df17d68baa2c647141d36176cadf1ec88a80a64bd7f28d2c5566",
+    "src/lib/evidence-writers.functions.ts": "922abf0d2709bcda824eabd909ff1a2bb6e9155e56f27e81ee3318345a9ca0c4",
+    "src/lib/report-evidence/extract.functions.ts": "7c5360b266566c69383c8f63b7e73f6f8f05261dfb635ef0042c1f4edbed6bc8",
+    "src/lib/report-evidence/evidence.functions.ts": "bcdbee117094bc892e0edceb2f0c138523612a7a2fe711b30a01210653351d6d",
+    "src/lib/student-access.functions.ts": "40226f8ff1fc318c8535020137d19a256a12ae206f4dda5dd8ad817cfc6f0aa6",
+    "src/lib/document-pipeline.server.ts": "0ed4c222d66ee224c636278af72a46de1cd1b31c20b71728a3dc136e96d90c11",
+    "src/lib/owner/support-access.server.ts": "1e6eeccf20260704ded2c2e2ce5c67594cfdf940bc3bb2060587255bfe17530e",
+    "src/lib/owner/document-pipeline-runs.functions.ts": "53bb38f11926db40ec699b6c7dba49ddb208c4f60bcd443ed5fa9096e3c8661d",
+    "supabase/functions/ai-job-processor/index.ts": "f1cb1b36f78bdfd0da2fe7c94d3a5409dd0a771d35f935c97476dbd65d4bac7b"
+  },
+  "edges": [
+    {
+      "writer": "registerDocument / rescanDocument",
+      "source": "src/lib/documents.functions.ts",
+      "writes": [
+        "documents",
+        "ai_jobs.input_source.document_id",
+        "audit_log",
+        "document_access_log",
+        "document_pipeline_runs through helper"
+      ],
+      "boundary": "Registration/rescan enqueue summary work; queued payload is not a durable lease. Scan/registration can involve provider IO outside a SQL transaction."
+    },
+    {
+      "writer": "getOrCreateExtraction / runExtractionFromText / updateExtractionSection / updateExtractionMeta",
+      "source": "src/lib/extractions.functions.ts",
+      "writes": [
+        "document_extractions document/student IDs, raw_extract, sections, review state"
+      ],
+      "boundary": "Separate POST handlers and direct table writes, outside the summary source-binding RPC. Text extraction can perform model work before persistence."
+    },
+    {
+      "writer": "applyAcceptedExtraction",
+      "source": "src/lib/extractions.functions.ts",
+      "writes": [
+        "students summary/profile fields",
+        "transition_profiles",
+        "document_extractions complete/reviewer/timestamp",
+        "evidence_items via emitEvidenceForConfirmedExtraction",
+        "audit_log"
+      ],
+      "boundary": "Multiple calls, not one transaction. Target-save errors are logged but completion can proceed. Evidence helper false return is not checked by caller.",
+      "issue": "DOC-APPLY-01",
+      "next": "Prepare atomic, current-access/source/review-aware application with strict affected-row receipts and durable evidence handling. Do not claim this is fixed by summary binding or retention FKs."
+    },
+    {
+      "writer": "emitEvidenceForConfirmedExtraction",
+      "source": "src/lib/evidence-writers.functions.ts",
+      "writes": [
+        "evidence_items.subject_type=document / subject_id=document UUID",
+        "evidence_items.source_kind=document_extraction / source_id and extraction_id=extraction UUID"
+      ],
+      "boundary": "Polymorphic subject/source identities extend beyond direct document FKs. Writes are flag-gated and helper can return ok:false; not guaranteed atomic with caller."
+    },
+    {
+      "writer": "extractEvidenceFromStoredDocument / extractEvidenceFromText and report-evidence creation",
+      "source": "src/lib/report-evidence/extract.functions.ts",
+      "writes": [
+        "report evidence links with source_kind=document and source_id=document UUID via persistence RPC"
+      ],
+      "boundary": "Reads stored summary rather than original bytes; source kind/ID provenance remains a semantic reference, not physical-object absence proof."
+    },
+    {
+      "writer": "grantDocumentPermission / revokeDocumentPermission / requestAdminDocAccess",
+      "source": "src/lib/documents.functions.ts",
+      "writes": [
+        "document_permissions",
+        "admin_doc_access_grants",
+        "document_access_log",
+        "audit_log"
+      ],
+      "boundary": "Access grants and audit history require separate lifecycle/retention review; current grant checks do not cancel existing signed URLs or provider work."
+    },
+    {
+      "writer": "revokeGrant",
+      "source": "src/lib/owner/support-access.server.ts",
+      "writes": [
+        "admin_doc_access_grants.revoked_at/revoked_by",
+        "admin_activity_logs"
+      ],
+      "boundary": "Revocation/audit writer exists outside document-upload transactions. This source review does not accept every support-access policy."
+    },
+    {
+      "writer": "recordPipelineRun (application and Edge versions)",
+      "source": [
+        "src/lib/document-pipeline.server.ts",
+        "supabase/functions/ai-job-processor/index.ts"
+      ],
+      "writes": [
+        "document_pipeline_runs"
+      ],
+      "boundary": "Best-effort service writes can outlive caller work; logs are not an authoritative retention/cleanup lease."
+    },
+    {
+      "writer": "processJob / job claim/failure loop",
+      "source": "supabase/functions/ai-job-processor/index.ts",
+      "writes": [
+        "ai_jobs claim/status/results",
+        "retained source binding through service-only source RPC",
+        "pipeline runs and notifications"
+      ],
+      "boundary": "Verified-summary RPC constrains that completion path; direct result/status updates and unrelated job types remain separate writers."
+    }
+  ],
+  "readers": [
+    {
+      "source": "src/lib/student-access.functions.ts",
+      "reads": [
+        "documents",
+        "document_extractions sections/status"
+      ],
+      "impact": "Student-facing document summaries and readiness labels depend on extraction state/content; preserving only jobs is insufficient."
+    },
+    {
+      "source": "src/lib/pathway.functions.ts / src/lib/readiness-insights.functions.ts / src/lib/cross-docs.functions.ts",
+      "reads": [
+        "document_extractions"
+      ],
+      "impact": "Planning/readiness/cross-document workflows consume extracted content outside a direct storage-object FK."
+    },
+    {
+      "source": "src/lib/owner/document-pipeline-runs.functions.ts",
+      "reads": [
+        "document_pipeline_runs"
+      ],
+      "impact": "Management diagnostic records must follow an approved retention policy; management access does not grant private student access."
+    }
+  ],
+  "unresolved": [
+    "No document_summaries writer was found in the reviewed application/Edge sources; canonical table grants/policies and dynamic/external/direct-client writes still require review. Absence from this search is not proof of no writer.",
+    "Polymorphic evidence subject/source IDs, report evidence, JSON payloads, derived student/profile fields and external writers are not fully covered by direct document FKs.",
+    "The review does not freeze writers, make extraction application atomic, establish provider-byte identity or choose a retention schedule.",
+    "DOC-APPLY-01 is an open correctness/release follow-up, shared by every role permitted to apply a reviewed extraction. No role gains application permission."
+  ],
+  "atomic_extraction_checkpoint": {
+    "status": "DOC-APPLY-01 corrected in reviewed ba136e85 application path: all nine checks and two 625/625 native suites pass. Not migrated/deployed; other direct writers still open.",
+    "evidence": "docs/production-readiness/evidence/atomic-extraction-application-local-2026-10-29.json",
+    "proposal": "docs/production-readiness/proposals/atomic-extraction-application.sql",
+    "boundary": "One additional independent application proposal; fourteen upload/summary proposals and 210 canonical migrations unchanged. No hosted change or complete writer fence.",
+    "next": "Prepare canonical migration/ledger and compatibility/data/evidence-flag preflight, including old-handler drain and bounded no-AI hosted acceptance scope, before requesting any new release authorization.",
+    "rollout_preparation": {
+      "status": "211th canonical migration prepared only; fourteen upload/summary proposals remain noncanonical/unapplied. Native/replay checks pending.",
+      "evidence": "docs/production-readiness/evidence/atomic-extraction-rollout-local-2026-10-29.json",
+      "release_plan": "docs/production-readiness/proposals/atomic-extraction-release-plan.json"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.4",
+  "status": "Core local integration complete; installation hardening, native/full-schema and quota re-admission acceptance pending",
+  "completed_substep": "Source-bound one-unit admission, caller-RLS save, private observed completion, deferred commit-time finish/release and server wiring",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-extraction-apply.server.ts",
+      "sha256": "4e35e0778e5358486ffc6e51be5f5bd87f16ac48f7c37fd0e0236cea5ee47700"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+      "sha256": "b05e98f499f55c1683283d41fc20810ef1171cc420a17672c37d24db1fb167d4"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+      "sha256": "1ee19ae3dc2a4c118e53e366f7cd2855779e17563301d09b44cdf9ddf772183a"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
+      "sha256": "173717c5ef1805479b2bd985367ed1f792189322295ae71c0e5de0f33a43cfe8"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-capacity-release.sql",
+      "sha256": "4a3dc28421e16e9b700572420bebd468aa3613042d4809f648ea14fa52bc8d20"
+    }
+  ],
+  "server_wired": true,
+  "validation": {
+    "database_cases": 101,
+    "database_passed": 95,
+    "database_native_only_skipped": 6,
+    "database_failed": 0,
+    "adapter_cases_passed": 38,
+    "unit_tests_passed": 5707,
+    "unit_files_passed": 362,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "service_worker_generation": "passed",
+    "log_sha256": {
+      "tf-apply-final-complete-db.log": "cd8c61a0657867f96019c84ee776c58408ccbe6d69360da09cc5cbbfc91d7241",
+      "tf-apply-complete-final-units.log": "0ff7b0f6f5b47e004813bdf01805146c647ab7f3cb579ff09040b2175a254808",
+      "tf-apply-complete-final-types.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tf-apply-complete-final-build.log": "7ce7aa6c47274614f5ea1662b2c638577cf8178405ee08b963a48d092446f95f",
+      "tf-apply-complete-final-sw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "readiness_portability_contracts_passed": 41,
+    "readiness_log_sha256": "75d08de1f87d06c9b6a88bdf3b195b4506cb94582c08cd82f0a4be9ea09d49ad"
+  },
+  "properties": [
+    "Exact actor/student/document/extraction/revision/sections and evidence-writing intent bound before save",
+    "Original atomic save retains caller RLS; private service capability is metadata-only",
+    "Completion checks actual profile/transition/evidence writes and matching audit before finishing",
+    "Deferred completion and one-unit settlement roll back with a failed save or changed source/result",
+    "Confirmed save does not issue a second service finish; uncertain replies retain reconciliation behavior",
+    "Snapshot hashes use UTC; private receipts retain hashes/identifiers rather than source text"
+  ],
+  "fixture_limit": "Save fixture loads the exact reviewed old gated routine body; it does not prove full canonical installation. Six existing native-only cases are skipped locally.",
+  "quota_re_admission": "Not accepted: an attempted last-slot fixture could not resume because unrelated registration work remained tracked. No pause/reconciliation bypass was used; a test now confirms that refusal.",
+  "remaining": [
+    "Harden exact dependency/owner/grant/trigger installation preflight and complete-chain activation guard",
+    "Verify current source on native PostgreSQL, commit/rollback races and complete schema replay including all four Apply drafts",
+    "Prove coherent last-slot quota re-admission and mixed producer/worker accounting",
+    "Prepare coordinated schema/runtime package, then separately authorized hosted acceptance"
+  ],
+  "ordered_replay_proposals": 19,
+  "additional_apply_drafts": 4,
+  "apply_drafts_installed_in_ordered_replay": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false,
+  "whole_workstream_complete": false
+}

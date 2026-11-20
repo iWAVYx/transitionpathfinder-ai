@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-05",
+  "workstream_actions": [
+    "2.5",
+    "2.6"
+  ],
+  "scope": "Caller-scoped preflight and optimistic replacement of a document-attached text review; not durable admission or transaction-held source/access serialization",
+  "completed": [
+    "Request requires loaded viewer, student, document, extraction and exact review revision",
+    "Current edit, document-view and non-partner-only authority checked before generation and before saving",
+    "Missing, completed, stale or unavailable reviews/sources refused",
+    "Exact id/student/document/revision/status conditional UPDATE replaces upsert; original creator preserved and deleted reviews not recreated",
+    "Changed source/review observed after generation stops saving; uncertain replies are not replayed",
+    "UI prevents generation during pending/failed saves or Apply; departed-account output remains hidden",
+    "Shared standalone no-save IEP extraction unchanged; viewer identity forwarded to shared extractor"
+  ],
+  "verification": {
+    "full_unit_suite": {
+      "files": 363,
+      "passed": 5732,
+      "failed": 0,
+      "note": "Before the final two additional refusal cases; all production source behavior already present"
+    },
+    "final_focused_suite": {
+      "files": 5,
+      "passed": 69,
+      "failed": 0,
+      "includes_two_additional_refusal_cases": true
+    },
+    "typescript": "passed",
+    "diff_check": "passed",
+    "mocked_generation_only": true,
+    "readiness_native_contracts": {
+      "passed": 44,
+      "failed": 0,
+      "note": "After reconciling both changed source fingerprints and adding the new helper to the declared cutover manifest"
+    }
+  },
+  "source_manifest": [
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "ae196be66e74b031be4908baffa4b17c56083acadef3634893c9eb6c34958bdb"
+    },
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "8aa68746cc4ad18dc62624c71a6f5a3b8fda502aa98f4cc239ca7400aca68dc5"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
+      "sha256": "ffcbadd40b37466f5bcf9e6b59baf7c60d81465f1a7f89e36cef1fc3368d5946"
+    },
+    {
+      "path": "tests/unit/document-text-extraction.test.ts",
+      "sha256": "c12403d9539480f6191cf20f597c4769e4173ad9c5b79d2b41afd5a351605337"
+    },
+    {
+      "path": "tests/unit/document-review-admission-lifetime.test.tsx",
+      "sha256": "4c0d307a49ce6f73d095a1977d5052e6b06f54dd831b2f2ff2067ce0f2bb2df7"
+    }
+  ],
+  "remaining": [
+    "Durable source-bound operation admission and capacity for document-attached pasted-text extraction",
+    "Atomic database source/access serialization, including final-check to save window",
+    "Trusted-service Storage mutation and deployed scheduler/old-version inventory",
+    "Separately authorized hosted/provider acceptance"
+  ],
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "ready_for_cutover": false,
+  "manifest_reconciliation": "docs/production-readiness/evidence/document-text-review-manifest-reconciled-2026-11-05.json"
+}

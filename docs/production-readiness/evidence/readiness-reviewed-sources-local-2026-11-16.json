@@ -1,0 +1,106 @@
+{
+  "schema": "transitionforward-readiness-reviewed-sources-local-v1",
+  "date": "2026-11-16",
+  "source_parent": "fa03028fa20a5255f3b112b116338c8246c0f3dc",
+  "status": "readiness privacy, reviewed-source and complete-score component verified in local source scope",
+  "workstreams": [
+    "5.2",
+    "5.3",
+    "4.1"
+  ],
+  "source_manifest": [
+    {
+      "path": "src/lib/readiness-insights.functions.ts",
+      "sha256": "706cb505f9b02b9bf39ce189a224e59bd1d5bfce3fa450ad08c7f7a3f3773365"
+    },
+    {
+      "path": "src/lib/readiness-sources.server.ts",
+      "sha256": "7533f2952de150cc40084f4b153bf9e2f2e449d318c341b6774115fc73215605"
+    },
+    {
+      "path": "tests/unit/readiness-insights-grounding.test.ts",
+      "sha256": "9f340e405695bd73bd92cdd454291413dc1b119d60437e60eb05a0cb9eaf01c2"
+    },
+    {
+      "path": "tests/unit/readiness-reviewed-sources.test.ts",
+      "sha256": "b9c59e3a3f83c5169d2e623e7339d10666cc6b6e6050974555a38c4afd9b3c0b"
+    },
+    {
+      "path": "tests/unit/readiness-score-completeness.test.ts",
+      "sha256": "e5b0a8a26cd98739cee5765b2010c51620aca8e01c1263608e50ed7106fdae7d"
+    }
+  ],
+  "existing_projection_prerequisite": {
+    "path": "docs/database-proposals/document-summary-scope/separate-reviewed-summary-access.review.sql",
+    "sha256": "2cfc905c944941420e2bdcdf540e6cfe7ab9fb21cfac6d545b4928369d589aad",
+    "verified_evidence": "docs/production-readiness/evidence/document-summary-scope-verified-2026-11-15.json",
+    "latest_full_schema_evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json",
+    "new_sql_or_migration": false,
+    "new_native_schema_replay_claimed": false
+  },
+  "verification": {
+    "unit_tests": 6393,
+    "unit_files": 385,
+    "focused_tests": 129,
+    "focused_files": 6,
+    "readiness_navigation_contracts": 103,
+    "release_security_contracts": 72,
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed",
+    "service_worker": "passed",
+    "isolated_copy_fingerprint_matches": true,
+    "runtime_source": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "f56f9d8d271e004d2a29401a8eecfe29401d18493a212f3923f6f0060c7db8ba",
+      "fileCount": 1236
+    },
+    "retained_unit_logs": [
+      {
+        "path": "docs/production-readiness/evidence/readiness-reviewed-sources-focused-2026-11-16.txt",
+        "sha256": "23df8438b22295a52d10e786493a71ad7a4ab7cc392211178a9297991fcc1fb8"
+      },
+      {
+        "path": "docs/production-readiness/evidence/readiness-reviewed-sources-unit-2026-11-16.txt",
+        "sha256": "6218a0f2029283bb65e7e68700864961d91b708eed0dcc3ec9b1913b297251d2"
+      }
+    ]
+  },
+  "completed": [
+    "The shared signed-in readiness endpoint reads reviewed sections through the existing caller-bound summary projection, not documents or raw document_extractions SELECTs. No service/raw fallback exists.",
+    "Only the newest planning document can provide reviewed sections; a pending newer document does not cause an older summary to be substituted. Missing or malformed projection receipts stop generation.",
+    "Current canonical student reading proof and Partner-only exclusion are required before source collection, before the provider request and before returning a result. Owner/admin management status is not accepted as student access.",
+    "Exact selected document/review versions and bounded metadata are revalidated before the provider request and before returning its result. Removed, superseded, changed or newly unreviewed sources are refused; there is no automatic generation retry.",
+    "Every readiness-score page has an exact count and unique validated student/row identities. Later-page failure, changed count, duplicate pages, foreign rows and malformed records fail closed. A duplicate beyond the first REST page cannot support a falsely unambiguous score.",
+    "Invalid numeric values are not promoted to assessed scores. Existing deterministic score/status grounding and account/student session safeguards remain covered.",
+    "Goal, voice and document inputs are labelled as recent bounded samples, not complete histories; document types use readable labels. Public demos stay fictional and do not invoke private generation."
+  ],
+  "limits": [
+    "Fresh authorization and document checks are separate requests; this does not establish transaction-held provider authority or cancel/retract a request already received by an external provider.",
+    "Profile, goals, scores, voice and Builder reads are not certified as one atomic cross-table snapshot. Paging validates counts and row identities, not a global database snapshot under all concurrent edits.",
+    "The reviewed-only projection is an existing unpromoted schema prerequisite. Deploying application source alone is not an approved rollout.",
+    "Shared endpoint/session source coverage does not certify exact-release all-role/demo/mobile behavior on hosted staging or production."
+  ],
+  "next_identified_component": {
+    "workstreams": [
+      "5.2",
+      "5.3"
+    ],
+    "name": "Student Voice saved-answer consistency",
+    "findings": [
+      "getStudentVoiceResponses returns an empty successful collection on database failure.",
+      "upsertStudentVoiceResponse claims success without validating an exact returned save row or loaded revision.",
+      "Review account/student lifetimes in the main/BridgeForward editors, workspace panel and report reader, and preserve shared role boundaries."
+    ],
+    "status": "identified-not-fixed-in-this-batch"
+  },
+  "canonical_count": 225,
+  "separate_review_drafts": 8,
+  "whole_workstream_complete": false,
+  "hosted_verified": false,
+  "hosted_actions": false,
+  "provider_or_ai_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

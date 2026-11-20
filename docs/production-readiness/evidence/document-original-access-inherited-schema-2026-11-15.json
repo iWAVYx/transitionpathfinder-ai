@@ -1,0 +1,372 @@
+{
+  "schema": "document-grant-retirement-full-chain-v1",
+  "hosted_applied": false,
+  "canonical_count": 225,
+  "ready_for_cutover": false,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 1,
+  "native_full_chain_installed": true,
+  "helper_signature_acl_preserved": true,
+  "reviewed_storage_predicate_updated": true,
+  "unrelated_policy_and_acl_unchanged": true,
+  "unrelated_public_routines_unchanged": true,
+  "canonical_or_ledger_promotion_claimed": false,
+  "document_grant_storage_control_data_unchanged": true,
+  "source_commit": "1ef84739ff9be0d0b8ec6db292c1942a98287c46",
+  "source_manifest": [
+    {
+      "path": "tests/database/document-admin-grant-full-chain-review.sql",
+      "sha256": "c365393934193c75ba7bf165e492b1165a86148e68f9c119ae425248cd3b28c4"
+    },
+    {
+      "path": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
+      "sha256": "2e6302818b3cb4af98b9fec9614f8538659d6ec9ab9c6c15b8df2faa7b4ff079"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "f4fb30fb9ed25ab3e63213edee428dff8d9898bf951da0609736f75651659423"
+    }
+  ],
+  "execution_mode": "fresh-disposable-schema-install-and-catalog",
+  "prior_regression_cases_rerun_claimed": false,
+  "executed_stages": [
+    {
+      "name": "Bootstrap Supabase-like roles and schemas",
+      "script_sha256": "ea70f109ddc859005d92a808699a7c52b17237d27c022048001f76c7cd1a04c3",
+      "log_sha256": "e2bc87f22b604fdf861f11af2f9eabfd1251799e9080819d0f576a4f56c984cf",
+      "passed": true
+    },
+    {
+      "name": "Replay all canonical migrations in order",
+      "script_sha256": "362d350098629882b8f7c7f6cc7c96140864663ed7a18e29418a8ae1430b5a9c",
+      "log_sha256": "99c9e3c5da9a421316bbf53d5a71e2c432ba42e62907c71d29e1a26343e1f1b6",
+      "passed": true
+    },
+    {
+      "name": "Verify combined canonical history and privileged routine permissions",
+      "script_sha256": "50bb35d2969d630331e5fcb17ee30f37a5a8d7019e61d9c7cdf9f77a48ec7c12",
+      "log_sha256": "05c956681591774e4ec7d6a028a6afd7797b8dfb45f90bf38e7b4087214fc809",
+      "passed": true
+    },
+    {
+      "name": "Assert realtime.messages policies applied (no silent drift)",
+      "script_sha256": "bb7fb740ad69c55cb94f19637535b3471960f43cb49aaedb250f26bd25712205",
+      "log_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "passed": true
+    },
+    {
+      "name": "Canonical document RLS snapshot matches migration replay",
+      "script_sha256": "a24d6e11ccbf7bdc8f27afcde9ad31dcb747b30489acc2328e7be9d50c6f8c2e",
+      "log_sha256": "3124060b722af776d2ea5d7653b6614663d3421e9743b19766a77b9766e80f56",
+      "passed": true
+    },
+    {
+      "name": "Credential-free security-finding contracts",
+      "script_sha256": "0c05b48c41c493dd7896c7b51f4ea61e6190ba059b7e8d81d9573524670e3f86",
+      "log_sha256": "2e6e7dbf2c8a03fef10f22d82196bd620ebed1a7f57ac99278a5a5e19d0f9860",
+      "passed": true
+    },
+    {
+      "name": "Student channel-start RPC remains narrowly executable",
+      "script_sha256": "3435aa559846bc94f35051bcd034910a0a0d45a20ddbd9501dc16cc7df8b3c0d",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Privileged HTTP cron is fail-closed after replay",
+      "script_sha256": "a104f6002f73143b2e67281c89bf78a8fcc6d559d2c143ffdfebd56566defb40",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Grant hygiene — anon must not reach licensing or billing tables",
+      "script_sha256": "96d2b3d60621a77df842f3356ab0cfc7bfc05db85ae3481edf642f28ef6e6351",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Webhook conflict targets are PostgREST-inferable",
+      "script_sha256": "1a38108c8ddadbc30edcca6254f578c9929d9d01dd83b75af3e4a59329e0ef9b",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Security remediation remains fail-closed after replay",
+      "script_sha256": "5d9a0710930218a6aa2ee20032ef05405491d723efd76650d136f376e3d19190",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Capture read-only security catalog inventory",
+      "script_sha256": "47359487133e2706749128888c7108e1fa1f77e895ded54dccf108c2de09a019",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Public CMS reads do not evaluate authenticated-only helpers",
+      "script_sha256": "26ff9b739dcc37c6e67e33b02dbda00175e0e83823e45883f176335c329a12af",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Verify canonical document upload boundaries after complete replay",
+      "script_sha256": "d1c329f027e6087f98c147e923ff5ce57c8854cbe84d33aaa52c827ff9f0a657",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Verify proposed durable admission against complete canonical replay",
+      "script_sha256": "a213dccf6aaf0bc14f2f77f325cc44b3ae4c7e2f77fba9f17415416e4fdb80a2",
+      "log_sha256": "04bedbc69ccd11b6ad79f88c18ec1da393fe1cda8154ab69922cd8678167be49",
+      "passed": true
+    },
+    {
+      "name": "Verify atomic Apply pause fence against complete replay",
+      "script_sha256": "574982ad22be9830dd9544b0b70f934fd82fcec26e4a7911121fc9d290d844a9",
+      "log_sha256": "59adabcabc04d8b4b6e3de41771b80f0964b926c794750b743fe6cbaffbe9b6d",
+      "passed": true
+    },
+    {
+      "name": "Verify reviewed upload pause fence after canonical replay",
+      "script_sha256": "bf95bc2f96afc89e4a996b64d1a6facd67a91bf9857479c8909425de02587cb2",
+      "log_sha256": "02634fd6039d5cee7fe0f88fe63a47750caab015c1a35c1ce153335b5cf492f7",
+      "passed": true
+    },
+    {
+      "name": "Verify durable upload interval after canonical replay",
+      "script_sha256": "de37a619b6473e341b9bc60e33d6566ce7603a24af786b93c3c98a162bd87387",
+      "log_sha256": "ab45f7bede69ef13f087937d161e9d5b881eb82df085e6660601b403e84b2827",
+      "passed": true
+    },
+    {
+      "name": "Verify retained upload limits after durable interval replay",
+      "script_sha256": "03b134806e37b96bb9f3f5201a141e7c86b227186584521b75146f343de93e1a",
+      "log_sha256": "d7156a2da790eb99fa37696e0ac90afa938f1d642dd136b9b7c0c885abe54f03",
+      "passed": true
+    },
+    {
+      "name": "Verify atomic summary operation handoff after retained upload limits",
+      "script_sha256": "e67e9437039f6b9cda6708364064c8564e54bc88fc92be1109bbf92db7c5be24",
+      "log_sha256": "9d049dc585bf12c17159af9e9527173d74318bd8299188e4845d902dc3bc9d57",
+      "passed": true
+    },
+    {
+      "name": "Verify dormant private capacity foundation after atomic summary handoff",
+      "script_sha256": "f3eca37d8096b5338a4cd388dfb83a4309ea916d4d8eddc287f52519ad7eafc6",
+      "log_sha256": "9ce67cd8ff18934624a68c145c40a6e2726ab27fb9f37b30ca6ed0001d83e61b",
+      "passed": true
+    },
+    {
+      "name": "Verify atomic summary completion receipt and private capacity settlement",
+      "script_sha256": "21ca564f39645f4a6980f47d741b8d8663f7a5542a674ce8fe11769d19de9ad6",
+      "log_sha256": "e08baf7e7cb6b624e1028d1d2cca5285fb26b7746b1425dcb358f04dee7f12a6",
+      "passed": true
+    },
+    {
+      "name": "Verify source-bound registration completion and capacity settlement",
+      "script_sha256": "99404e45ae0533aa4585516fd73dd67a6251cdb4869db4555a37ebf64ec2373f",
+      "log_sha256": "cbc50d1d39b1a426b334d045611ca452c0f404ed23005c71529356b87c25c265",
+      "passed": true
+    },
+    {
+      "name": "Verify private rescan source claim and dormant capacity boundary",
+      "script_sha256": "a6adf9a28d4389681b687dce2295e5e369cf6a4d5529edf33455f55f1ffe08ab",
+      "log_sha256": "3ea8654cea90137f5ce30056872ee5d95d8cfe1333a701fc4f5aebddc39b4d14",
+      "passed": true
+    },
+    {
+      "name": "Verify private one-use rescan pending transition",
+      "script_sha256": "6c9b7c1290d34c2b07b5d5064cb375896ae2e901e1fe57aa9c97200f88f6357b",
+      "log_sha256": "d6d0d4ca62e1e87a3f64c3c94768968f23831b864c972c530ad213b93d53d5b8",
+      "passed": true
+    },
+    {
+      "name": "Verify private atomic rescan result and counted queue",
+      "script_sha256": "b551ec99849881ec1b892400caacd26bef80e0bca00b1ed319f6b50c751e4f19",
+      "log_sha256": "efd17c4f41826237d6279df286dda475763b3334cb95a0cc2f023e92d6ca09e0",
+      "passed": true
+    },
+    {
+      "name": "Verify private rescan completion and exact producer settlement",
+      "script_sha256": "5f97f6302009c78114408909ee029e603d728de06d5e4661ca30edcf8e3ac56b",
+      "log_sha256": "11b9294064d1a05ea6233a7f1d26330fda24890994a858ecd0fc20dca3cb1191",
+      "passed": true
+    },
+    {
+      "name": "Verify atomic already-counted summary worker handoff",
+      "script_sha256": "41de854f2d6967c1357556ecc992259b25715740a99d3d9e0bc542edec22ae17",
+      "log_sha256": "ae11fc12f9755e39d9484ec7ca27c8c8e49804572212800ab6a9ddf462db5504",
+      "passed": true
+    },
+    {
+      "name": "Verify automatic exact worker settlement and preserved finish owner",
+      "script_sha256": "92a71ae9e18ae0478a62845723699c2ad5c282008bb4c3a65aacf1ceb88261f6",
+      "log_sha256": "7b2885ac5bc090bbc93f4134382f0c7c85f91581c3b50d1e6c78ff3660c573e1",
+      "passed": true
+    },
+    {
+      "name": "Verify rescan service boundary after complete replay",
+      "script_sha256": "150a5e58d771814a1fba084f63366303b7acca23487e011727c4383714afdd22",
+      "log_sha256": "c20669b62621642bb322d1a45677b5d5eb34b1ec81325e3660225b0b8ae6f2b6",
+      "passed": true
+    },
+    {
+      "name": "Verify integrated registration reservation queue and release",
+      "script_sha256": "79a7181536c006965fadd4e230c2a4a816acbeff82ad787faa5c676c2f25123a",
+      "log_sha256": "0c5726e4cfeaa4b0ec0780d3f8107fc881af8fd5b93c44f8fcfc87028d0c3ddb",
+      "passed": true
+    },
+    {
+      "name": "Inventory document reference metadata without reading user rows",
+      "script_sha256": "487306e8647f20469740ece410cb4232f0ff52dd844d8eae58946d1447f3e91f",
+      "log_sha256": "4d44a759e788b62723a0afae9592c51e0fdeb3c339659a11b947b1a33783d40c",
+      "passed": true
+    },
+    {
+      "name": "Review summary rollout counts without private values",
+      "script_sha256": "c0931bf7e0a50ecd31452255eb8e52c3a50132512cd0ef317d3689b68ad465be",
+      "log_sha256": "af329727ac245060a4f0f2bdc0f32616f8bca0be5c5c37ae311d8059416d69f3",
+      "passed": true
+    },
+    {
+      "name": "Seed disposable-only preflight ledger fixture",
+      "script_sha256": "462abde77798b558b17c295f8d99d2deca4e559d27e73c85bc1ce47644a65b6e",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Review atomic extraction preflight without private values",
+      "script_sha256": "e85b5092888d7f2f473c54b1c3a61e561110c09fc60ffd479010391d3f47d3cd",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Verify automatic rescan producer release before Apply",
+      "script_sha256": "fcd3168ead500539c998c7417771e4331774a5b4dbb4f689ae182fb40e7ebfc3",
+      "log_sha256": "ced35e376cebfd7426047e5694cbf241b5a800ba8c2ff0712bce631f5678fd08",
+      "passed": true
+    },
+    {
+      "name": "Verify atomic Apply chain after complete schema replay",
+      "script_sha256": "e91d03813dc40215a0a3eff7c0e2d5fa9fa642690d46a3c46d530ec9250cc4ff",
+      "log_sha256": "fd8d67ebee134b5e728932adc5a58e23edd045e29553709bf10e3bf353108a24",
+      "passed": true
+    },
+    {
+      "name": "Verify selected finite policy after complete schema replay",
+      "script_sha256": "7f0a975fbdc1efa39a25f7fd2b4fd32d2d5cd81df5848c52ea47d9a8101c2b13",
+      "log_sha256": "decc8335d90db271fc487d1597becbf719e968add184759bda0e0a9a1bde37b1",
+      "passed": true
+    },
+    {
+      "name": "Verify trusted operation review after complete replay",
+      "script_sha256": "19241a22d8ef8df68a2bcb0ffa0c365445b816789ce6f556f7d8c881ea586269",
+      "log_sha256": "17e02acd889adf28a5b761ad864d77e64c94e08353072aaa72e7f99e4811d83f",
+      "passed": true
+    },
+    {
+      "name": "Verify private Apply no-save reconciliation after complete replay",
+      "script_sha256": "8c2852a5cdb0c9d7790c83d52d16979285f608ba4a1f531474efb407eb79371e",
+      "log_sha256": "25bb01ad30dca5c5cb197a48905073a1da6aacf2d03dce9442fa460d302fb08b",
+      "passed": true
+    },
+    {
+      "name": "Verify read-only drain inventory after complete replay",
+      "script_sha256": "0625b475a6303c1892f689b6f92d99a384ba30cea2f9df2e5847e1f284b4cfb1",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    },
+    {
+      "name": "Verify private generic admission after complete replay",
+      "script_sha256": "1ea7eb23cbd1f93b7472e7afe13ff4608cf7ad55ae8c709c6ab426a790a40172",
+      "log_sha256": "93b0b1fc15c9b09fc0d1940bf89bb3b4c03e61f0f05542b4b8845d3c53b3fa98",
+      "passed": true
+    },
+    {
+      "name": "Verify raw summary claim writer fence after complete replay",
+      "script_sha256": "fe1abbd543316e1d3f8c90cd0024b070445226c4d9d7d2fd7e1a9b89caaafc56",
+      "log_sha256": "31f4ac0bf496de69452dce6ced5125c8ed3df2e4c4469a2aec16d9f3d8d87a33",
+      "passed": true
+    },
+    {
+      "name": "Verify counted summary queue entry after complete replay",
+      "script_sha256": "15ee00e46f43ee9771440cec84a6a7de58caf196480b40e701dfea75e2abd023",
+      "log_sha256": "f55f22a14a2fd9680845c4b602ebbc2b3cac932208560c7e0ce3c0fbe1fcd486",
+      "passed": true
+    },
+    {
+      "name": "Verify atomic text review save after complete replay",
+      "script_sha256": "cf0e7e7b9f4a1c6ff409814d2d9d842c3fc9feb4652281f13030ef411907b179",
+      "log_sha256": "1c33b4cec7366bdab1e912fde3767144868fa7f2b4791f1ec0196d8cb34802da",
+      "passed": true
+    },
+    {
+      "name": "Verify text review editing-proof locks after complete replay",
+      "script_sha256": "f79aef5ae620e409b2a936979ff333a26c76031faa2982dc6ffa74a51d4031a6",
+      "log_sha256": "c95a05584f783b510fd97ea463caec163f095241b60c7fdd03094d114cd8b926",
+      "passed": true
+    },
+    {
+      "name": "Verify private text capacity after complete replay",
+      "script_sha256": "eb9db802a66d40a424f749e10de6f4baa6d7b1c2b1ce71027f35b94755e735af",
+      "log_sha256": "edb1a5ac4c48225bcebf0216a486b25f19a223bb50a3ace1478568e5132a7b1f",
+      "passed": true
+    },
+    {
+      "name": "Verify bound text save completion after complete replay",
+      "script_sha256": "fe7bc283725c20ecc3bd00689199f5443b748c2523b03a0711ee8178cf053a82",
+      "log_sha256": "d369e6de16fe61d36adfade76e234726429ae3b703d29cb294a79094117a2a8e",
+      "passed": true
+    },
+    {
+      "name": "Verify attached-text source admission after complete replay",
+      "script_sha256": "ff8a300443ed06d14ca03df33c8c753dfcbdae898f90d0b3e20a94626449e768",
+      "log_sha256": "b1531e490c102e565b140edf4c63d7f7f292f37e02d19a3533245edcc1183126",
+      "passed": true
+    },
+    {
+      "name": "Verify original extraction writer fence after complete replay",
+      "script_sha256": "2d9f2f7f8421f65d43dde941bbf350179a5b1eda19b8bbfb4eb735ede3a3b173",
+      "log_sha256": "620de568ca0171f8f8129a1d35727013eb984044d6d37c0360b62e078ec30bcc",
+      "passed": true
+    },
+    {
+      "name": "Verify completion marker fence after complete replay",
+      "script_sha256": "761bf7c302b008a601d4303b5e76f5378dc06146def466871320cab3461d7ec4",
+      "log_sha256": "328995358ecf1c8eccaf1bcb5271cb3b2ad591bfc7b6909cee5a97a74b58b9e3",
+      "passed": true
+    },
+    {
+      "name": "Verify summary authority after complete replay",
+      "script_sha256": "b06b0b5589b764956beeecb7cf3b255b6cbb14aff3f0f2464bb092754e19a80c",
+      "log_sha256": "d958c60f1b380cfef3aa4c79d77ff913958abde2aefbaf22fda4654e552ff3f7",
+      "passed": true
+    },
+    {
+      "name": "Verify producer authority after complete replay",
+      "script_sha256": "101ba24a0b9deb7c589ac5d73db3a6e93788c49986845fc1c117c23f54fd4ae5",
+      "log_sha256": "f3166b143b22e847a0d16c9737e536389a16b9ab9281a6e84c1de03bc986e2aa",
+      "passed": true
+    },
+    {
+      "name": "Verify Owner review authorization after complete replay",
+      "script_sha256": "bff8214ef7ceb5d8ae9f59da242ade322b264a44db103853ac5bc32ad67c4605",
+      "log_sha256": "de4e84a8602b2ecdbbf0d2c72cc28ebc56587e89a1918699c782847090238b4e",
+      "passed": true
+    },
+    {
+      "name": "Verify Owner pasted-text work after complete replay",
+      "script_sha256": "57122a52431d5f628e5170e6f6e24327fd12f7206ffab6d4ebc4ab11e3f16deb",
+      "log_sha256": "c0ab4f616e5a5b596b51f91b8c5f4eaff3d8027f90d32255153a89f53a33eb5a",
+      "passed": true
+    },
+    {
+      "name": "Verify separate document grant retirement after the complete225+41 baseline",
+      "script_sha256": "16e01eae16d110da5db15bad495c3ead678d386bd1c1c8b80ecf5e6190bc15c5",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": true
+    }
+  ],
+  "workflow_sha256": "f4fb30fb9ed25ab3e63213edee428dff8d9898bf951da0609736f75651659423",
+  "runner_sha256": "ead65b04ea6120c61c0a31fdc2d86cc564abe0157ac8b02b65db9c80ce5cdbc1"
+}

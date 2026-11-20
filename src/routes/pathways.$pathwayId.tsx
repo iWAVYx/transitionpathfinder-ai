@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { RouteErrorComponent } from "@/components/routing/RouteErrorComponent";
 import { useEffect, useRef, useState } from "react";
@@ -283,12 +284,14 @@ const PATHWAYS: Record<string, Pathway> = {
   },
 };
 
+function loadPathway({ params }: { params: { pathwayId: string } }): { pathway: Pathway } {
+  const pathway = PATHWAYS[params.pathwayId];
+  if (!pathway) throw notFound();
+  return { pathway };
+}
+
 export const Route = createFileRoute("/pathways/$pathwayId")({
-  loader: ({ params }): { pathway: Pathway } => {
-    const pathway = PATHWAYS[params.pathwayId];
-    if (!pathway) throw notFound();
-    return { pathway };
-  },
+  loader: loadPathway,
   head: ({ params, loaderData }) => {
     const p = loaderData?.pathway;
     const title = p
@@ -316,7 +319,7 @@ export const Route = createFileRoute("/pathways/$pathwayId")({
           We couldn't find that pathway. Try one of the five on the home page.
         </p>
         <Button asChild className="mt-6">
-          <Link to="/">Back to Home</Link>
+          <ContextualBackLink to="/" label="Back to Home" />
         </Button>
       </div>
     </SiteShell>

@@ -162,7 +162,7 @@ const REGIONAL: Record<DistrictAdminFeatureId, DistrictAdminFeatureDetail> = {
     eyebrow: "Rollout Status",
     summary:
       "Where each of the 24 schools is in the rollout — onboarding, active, mature — plus network-level milestones.",
-    what: "Confirm each school is progressing and identify buildings that need launch help.",
+    what: "Explore this fictional rollout example. The signed-in tool uses recorded staff access and report coverage; training progress and compliance dates are not inferred.",
     dataSource: "Onboarding checklist · staff activation · student connection events",
     primaryAction: { label: "Open Implementation", to: "/district/implementation" },
     connectsTo: ["Connected Schools", "School-by-School Progress"],
@@ -382,7 +382,7 @@ const LOCAL: Record<DistrictAdminFeatureId, DistrictAdminFeatureDetail> = {
     eyebrow: "Rollout Status",
     summary:
       "Where each of the 8 schools is in the rollout — onboarding, active, mature — plus district-level milestones.",
-    what: "Confirm each school is progressing on the same term schedule.",
+    what: "Explore this fictional rollout example. The signed-in tool uses recorded staff access and report coverage; training progress and compliance dates are not inferred.",
     dataSource: "Onboarding checklist · staff activation · student connection events",
     primaryAction: { label: "Open Implementation", to: "/district/implementation" },
     connectsTo: ["Connected Schools", "School-by-School Progress"],

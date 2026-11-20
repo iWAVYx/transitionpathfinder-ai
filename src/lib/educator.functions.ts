@@ -1,3 +1,4 @@
+import {normalizeActionRecord} from "./action-item-values";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -174,6 +175,7 @@ export type CaseloadActionRow = {
   priority: string;
   due_date: string | null;
   created_at: string;
+  updated_at: string;
 };
 
 export const listCaseloadActionItems = createServerFn({ method: "GET" })
@@ -183,14 +185,15 @@ export const listCaseloadActionItems = createServerFn({ method: "GET" })
     const { ids, byId } = await loadCaseloadIds(supabase, userId);
     if (ids.length === 0) return { items: [] as CaseloadActionRow[] };
 
-    const { data: items } = await supabase
+    const { data: items,error } = await supabase
       .from("action_items")
       .select(
-        "id, student_id, title, description, status, category, priority, due_date, created_at",
+        "id, student_id, title, description, status, category, priority, due_date, created_at, updated_at",
       )
       .in("student_id", ids)
       .order("created_at", { ascending: false })
       .limit(200);
+    if(error||!Array.isArray(items))throw Error("Saved caseload actions could not be loaded. Please refresh.");
     type Row = {
       id: string;
       student_id: string;
@@ -201,12 +204,13 @@ export const listCaseloadActionItems = createServerFn({ method: "GET" })
       priority: string;
       due_date: string | null;
       created_at: string;
+      updated_at: string;
     };
     return {
       items: ((items ?? []) as Row[]).map((it) => {
         const s = byId.get(it.student_id);
         return {
-          ...it,
+          ...normalizeActionRecord(it),
           student_name: s
             ? `${s.first_name}${s.last_name ? ` ${s.last_name}` : ""}`
             : "Unknown",

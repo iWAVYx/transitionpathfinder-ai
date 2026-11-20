@@ -1,0 +1,256 @@
+TAP version 13
+# Subtest: baseline: an editor can insert a foreign-document grant using an editable student and expose its metadata
+ok 1 - baseline: an editor can insert a foreign-document grant using an editable student and expose its metadata
+  ---
+  duration_ms: 156.707823
+  type: 'test'
+  ...
+# Subtest: baseline: an editable grant can be retargeted to an unrelated document
+ok 2 - baseline: an editable grant can be retargeted to an unrelated document
+  ---
+  duration_ms: 120.995168
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from family
+ok 3 - parent guard refuses a mismatched document grant from family
+  ---
+  duration_ms: 113.080658
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from student
+ok 4 - parent guard refuses a mismatched document grant from student
+  ---
+  duration_ms: 110.030606
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from educator
+ok 5 - parent guard refuses a mismatched document grant from educator
+  ---
+  duration_ms: 111.153823
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from school
+ok 6 - parent guard refuses a mismatched document grant from school
+  ---
+  duration_ms: 112.080761
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from district
+ok 7 - parent guard refuses a mismatched document grant from district
+  ---
+  duration_ms: 114.27127
+  type: 'test'
+  ...
+# Subtest: parent guard also refuses a mismatched trusted-service insert
+ok 8 - parent guard also refuses a mismatched trusted-service insert
+  ---
+  duration_ms: 107.113824
+  type: 'test'
+  ...
+# Subtest: parent guard refuses reassignment of document_id
+ok 9 - parent guard refuses reassignment of document_id
+  ---
+  duration_ms: 111.907764
+  type: 'test'
+  ...
+# Subtest: parent guard refuses reassignment of student_id
+ok 10 - parent guard refuses reassignment of student_id
+  ---
+  duration_ms: 118.387357
+  type: 'test'
+  ...
+# Subtest: historical mismatches are retained but no longer authorize document metadata
+ok 11 - historical mismatches are retained but no longer authorize document metadata
+  ---
+  duration_ms: 106.549278
+  type: 'test'
+  ...
+# Subtest: a service-written mismatch also becomes inert
+ok 12 - a service-written mismatch also becomes inert
+  ---
+  duration_ms: 106.77589
+  type: 'test'
+  ...
+# Subtest: direct editing of a historical mismatched row is refused without deleting it
+ok 13 - direct editing of a historical mismatched row is refused without deleting it
+  ---
+  duration_ms: 109.624256
+  type: 'test'
+  ...
+# Subtest: correctly bound view_document keeps its prior behavior; tier privacy remains a separate gate
+ok 14 - correctly bound view_document keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 111.932082
+  type: 'test'
+  ...
+# Subtest: correctly bound view_summary keeps its prior behavior; tier privacy remains a separate gate
+ok 15 - correctly bound view_summary keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 109.097341
+  type: 'test'
+  ...
+# Subtest: correctly bound view_student_friendly_summary keeps its prior behavior; tier privacy remains a separate gate
+ok 16 - correctly bound view_student_friendly_summary keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 106.612376
+  type: 'test'
+  ...
+# Subtest: correctly bound edit_metadata keeps its prior behavior; tier privacy remains a separate gate
+ok 17 - correctly bound edit_metadata keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 106.265197
+  type: 'test'
+  ...
+# Subtest: correctly bound manage keeps its prior behavior; tier privacy remains a separate gate
+ok 18 - correctly bound manage keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 105.702433
+  type: 'test'
+  ...
+# Subtest: a correctly bound role grant keeps its prior behavior; audience scope remains a separate gate
+ok 19 - a correctly bound role grant keeps its prior behavior; audience scope remains a separate gate
+  ---
+  duration_ms: 113.617971
+  type: 'test'
+  ...
+# Subtest: correctly bound none does not add document access
+ok 20 - correctly bound none does not add document access
+  ---
+  duration_ms: 106.926713
+  type: 'test'
+  ...
+# Subtest: valid insert RETURNING and deletion receipts still work for the application
+ok 21 - valid insert RETURNING and deletion receipts still work for the application
+  ---
+  duration_ms: 106.374935
+  type: 'test'
+  ...
+# Subtest: the parent helper is invoker-only, fixed-path, unconditional and directly uncallable
+ok 22 - the parent helper is invoker-only, fixed-path, unconditional and directly uncallable
+  ---
+  duration_ms: 100.333588
+  type: 'test'
+  ...
+# Subtest: view helper OID owner grants mode path and unrelated policies are preserved
+ok 23 - view helper OID owner grants mode path and unrelated policies are preserved
+  ---
+  duration_ms: 104.021133
+  type: 'test'
+  ...
+# Subtest: a changed baseline refuses installation without partial helper/trigger changes
+ok 24 - a changed baseline refuses installation without partial helper/trigger changes
+  ---
+  duration_ms: 106.645157
+  type: 'test'
+  ...
+# Subtest: repeat installation refuses unreviewed state
+ok 25 - repeat installation refuses unreviewed state
+  ---
+  duration_ms: 101.774423
+  type: 'test'
+  ...
+# Subtest: rollback restores the prior helper and removes the new guard atomically
+ok 26 - rollback restores the prior helper and removes the new guard atomically
+  ---
+  duration_ms: 104.443725
+  type: 'test'
+  ...
+# Subtest: Owner without explicit student access cannot create a document grant
+ok 27 - Owner without explicit student access cannot create a document grant
+  ---
+  duration_ms: 103.824456
+  type: 'test'
+  ...
+# Subtest: an explicitly assigned editing Owner can create only a correctly bound grant
+ok 28 - an explicitly assigned editing Owner can create only a correctly bound grant
+  ---
+  duration_ms: 104.462216
+  type: 'test'
+  ...
+# Subtest: partner-only actors cannot create grants even with an editing collaboration
+ok 29 - partner-only actors cannot create grants even with an editing collaboration
+  ---
+  duration_ms: 103.920625
+  type: 'test'
+  ...
+# Subtest: view-only collaborators cannot create grants
+ok 30 - view-only collaborators cannot create grants
+  ---
+  duration_ms: 103.326284
+  type: 'test'
+  ...
+# Subtest: a duplicate valid INSERT remains a unique error rather than replacing an existing grant
+ok 31 - a duplicate valid INSERT remains a unique error rather than replacing an existing grant
+  ---
+  duration_ms: 106.245062
+  type: 'test'
+  ...
+# Subtest: baseline partial-index conflict target remains a distinct rights-transfer writer issue
+ok 32 - baseline partial-index conflict target remains a distinct rights-transfer writer issue
+  ---
+  duration_ms: 105.889285
+  type: 'test'
+  ...
+# Subtest: native insert-first blocks parent movement through COMMIT
+ok 33 - native insert-first blocks parent movement through COMMIT
+  ---
+  duration_ms: 145.834338
+  type: 'test'
+  ...
+# Subtest: native parent-move-first rechecks binding after COMMIT
+ok 34 - native parent-move-first rechecks binding after COMMIT
+  ---
+  duration_ms: 143.314655
+  type: 'test'
+  ...
+# Subtest: native grant-first migration waits then fences mismatched grant after COMMIT
+ok 35 - native grant-first migration waits then fences mismatched grant after COMMIT
+  ---
+  duration_ms: 143.455535
+  type: 'test'
+  ...
+# Subtest: native migration-first invalidates cached wrong-parent INSERT after COMMIT
+ok 36 - native migration-first invalidates cached wrong-parent INSERT after COMMIT
+  ---
+  duration_ms: 143.495064
+  type: 'test'
+  ...
+# Subtest: native insert-first blocks parent movement through ROLLBACK
+ok 37 - native insert-first blocks parent movement through ROLLBACK
+  ---
+  duration_ms: 144.182302
+  type: 'test'
+  ...
+# Subtest: native parent-move-first rechecks binding after ROLLBACK
+ok 38 - native parent-move-first rechecks binding after ROLLBACK
+  ---
+  duration_ms: 147.14024
+  type: 'test'
+  ...
+# Subtest: native grant-first migration waits then fences mismatched grant after ROLLBACK
+ok 39 - native grant-first migration waits then fences mismatched grant after ROLLBACK
+  ---
+  duration_ms: 148.189097
+  type: 'test'
+  ...
+# Subtest: native migration-first invalidates cached wrong-parent INSERT after ROLLBACK
+ok 40 - native migration-first invalidates cached wrong-parent INSERT after ROLLBACK
+  ---
+  duration_ms: 119.933478
+  type: 'test'
+  ...
+# Subtest: native prepared document read loses access through an old mismatched grant after installation
+ok 41 - native prepared document read loses access through an old mismatched grant after installation
+  ---
+  duration_ms: 116.29901
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4846.864097

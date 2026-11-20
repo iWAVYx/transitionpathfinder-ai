@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { z } from "zod";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -170,13 +171,6 @@ function CaseloadPage() {
                 ) : (
                   <>
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <Link
-                        to="/caseload"
-                        search={{}}
-                        className="text-sm font-semibold text-primary hover:underline"
-                      >
-                        Back to dashboard
-                      </Link>
                       <Button asChild>
                         <Link to="/students">
                           <Plus className="h-4 w-4" /> Invite Student
@@ -319,7 +313,7 @@ function CaseloadRow({
             )}
           </div>
           <p className="mt-0.5 text-xs text-foreground/75">
-            {[row.grade_band, row.school].filter(Boolean).join(" · ") || "No school on file"}
+            {[row.grade_band ? formatGradeBand(row.grade_band) : null, row.school].filter(Boolean).join(" · ") || "No school on file"}
           </p>
         </div>
         <div className="flex items-center gap-4 text-sm">

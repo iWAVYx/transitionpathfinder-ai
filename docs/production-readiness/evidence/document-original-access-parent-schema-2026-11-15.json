@@ -1,0 +1,39 @@
+{
+  "schema": "document-permission-parent-full-schema-v1",
+  "source_commit": "1ef84739ff9be0d0b8ec6db292c1942a98287c46",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 2,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "unrelated_procedures_preserved": true,
+  "all_policies_preserved": true,
+  "table_permissions_preserved": true,
+  "document_and_permission_rows_preserved": true,
+  "view_helper_metadata_preserved": true,
+  "new_guard_invoker_and_private": true,
+  "prior_regression_cases_rerun_claimed": false,
+  "before_catalog_sha256": "892cfc405e32274bb88ba11e5478fb6bb92bcde2e4d9da06b47e3ff0fca73c93",
+  "after_catalog_sha256": "eebfa4b90e2200c839b1ecbd40d12be173ed3b5ec814c3790249f3a66bcd89d8",
+  "prior_schema_proof_sha256": "f3ff0c1163e49030b169f66c96e82af3d736ade508c671de8109b79537f2d9f3",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-permission-parent/bind-document-permission-parent.review.sql",
+      "sha256": "ea25ac327c157169eb90b5a03d39dd3297f4051b2e71dfbf4712eb65c6e5bb21"
+    },
+    {
+      "path": "tests/database/document-permission-parent.test.mjs",
+      "sha256": "d2c028d8530acda4cc012202a2210e397db92145ef7ef62b89bd04a251824d39"
+    },
+    {
+      "path": "tests/database/run-document-permission-parent-schema.mjs",
+      "sha256": "6d0457a3996af9c4a162754d2d1438b77d713e240a98ca12407b44895e0855e1"
+    },
+    {
+      "path": ".github/workflows/document-permission-parent-review.yml",
+      "sha256": "33e55491f5f6e6f5795555d160d1edd118f7e7cf4745002c82ccee3bf50abfa1"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

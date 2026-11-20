@@ -1,0 +1,88 @@
+{
+  "schema": "document-producer-integration-audit-v1",
+  "date": "2026-11-03",
+  "source_commit": "e1940751f413fb621811239e6e4bba480f844204",
+  "workstream": 1,
+  "completed_substep": "Source handoff map for the next producer integration; implementation and native acceptance remain open.",
+  "source_manifest": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "87a1dfea0cc671425d632a83a25a94f0e2202c19b10d9a492e81a76a2a100fd0"
+    },
+    {
+      "path": "src/lib/document-operation-admission.server.ts",
+      "sha256": "5d990ab99ce2248f16b7c6bcb541e5c1b39c63a3f3614609a5024cea91b4b425"
+    },
+    {
+      "path": "src/lib/document-upload-registration-operation.server.ts",
+      "sha256": "5729e6b88578e81133203ca130038eeaeca64cb267a7035c43ef3f357db0b984"
+    },
+    {
+      "path": "src/lib/document-extraction-apply.server.ts",
+      "sha256": "111c929860b1a55899b3a38591b1201f8cdb94dac8d088a244ef3e138b95d458"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-source-claim.sql",
+      "sha256": "fad01efea48b9d10d2b6d01ae9cb92369c2001192eaa89065247a68ccf720406"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-pending-transition.sql",
+      "sha256": "4b0e72d6efab8470cbd2952eb03292320827ce8418cc4235d17f776fe3c4d0d9"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-outcome-queue.sql",
+      "sha256": "02d44e5eb75159b2aaa722e367e9010834713108e9c38a6aab180cbd6f0891a6"
+    }
+  ],
+  "findings": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "boundary": "Registration",
+      "current": "Prepared handler uses runClaimedDocumentRegistration and its exact actor/student/attempt/source receipt.",
+      "remaining": "Confirm registration capacity reservation, source/outcome queue and producer release as one reviewed flow; current helper use alone does not establish full capacity integration."
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "boundary": "Rescan",
+      "current": "Prepared handler still starts through generic runAdmittedDocumentOperation(kind=rescan), with direct conditional document updates and ai_jobs insertion.",
+      "remaining": "Replace with reviewed source-bound admission/pending/result-queue handoff and producer completion. Do not compose owner-private SQL calls as separate service requests."
+    },
+    {
+      "path": "src/lib/document-extraction-apply.server.ts",
+      "boundary": "Reviewed Apply",
+      "current": "Uses generic admission before existing reviewed extraction save.",
+      "remaining": "Account general Apply capacity and preserve exact current source, loaded-viewer intent and caller-RLS save authority."
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "boundary": "Summary worker",
+      "current": "Uses confirmed atomic summary claim and continuation; capability remains outside work callback.",
+      "remaining": "Retain current proposal15 native/full-schema verification gate. Worker release is separate from producer release and does not complete source handlers."
+    }
+  ],
+  "next_implementation_order": [
+    "Retain exact current proposal15 native/full-schema proof before another SQL stage.",
+    "Prepare the smallest reviewed service boundary for source-bound rescan; preserve private owner-only helper grants and same-transaction effects.",
+    "Integrate one rescan path with strict source/result receipts, unknown-outcome holds and no automatic retries; verify before expanding.",
+    "Complete registration and Apply/general accounting, then coordinated canonical packaging and authorized hosted acceptance."
+  ],
+  "nonnegotiable_boundaries": [
+    "Never grant service_role direct access to owner-private capacity/source helpers or raw ledgers.",
+    "No fabricated byte/provider attestation from database timestamps, echoed hashes or local scan identifiers.",
+    "Uncertain provider or completion outcome remains counted and requires reconciliation.",
+    "Shared handler logic applies to every authorized role; Owner/admin still requires explicit student access; demo never uploads or invokes providers."
+  ],
+  "validation": {
+    "read_only_source_review": true,
+    "source_hashes_recorded": true,
+    "provider_or_hosted_calls": false,
+    "runtime_changed": false,
+    "new_sql_stage_added": false
+  },
+  "whole_workstream_closed": false,
+  "ready_for_cutover": false
+}

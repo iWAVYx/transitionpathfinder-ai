@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.5",
+  "scope": "Concrete remaining source fallback; no permissions or behavior changed by this review",
+  "path": "docs/production-readiness/proposals/document-registration-queue-transfer.sql",
+  "sha256": "bb237c4ac1508857bbf3e76fe8f070f2ebda36918b7e2dbda8e4a75111f38dc6",
+  "function": "public.bind_registration_summary_capacity()",
+  "branches": [
+    {
+      "line": 66,
+      "text": "IF NOT FOUND THEN RETURN NEW; END IF;"
+    },
+    {
+      "line": 79,
+      "text": "IF NOT FOUND THEN RETURN NEW; END IF; -- Legacy starts require a separate cutover fence."
+    }
+  ],
+  "existing_comment": "Legacy starts require a separate cutover fence.",
+  "finding": "The helper returns without a counted registration binding for a legacy document. New counted claim/write fences block untracked processing, but unsupported queue rows can still be accepted and require review.",
+  "next_reviewed_change": [
+    "Reject new document-summary queue rows when the counted registration/rescan source is absent",
+    "Refuse unsupported transitions into/out of document-summary job type without changing unrelated AI job behavior",
+    "Preserve proper registration and same-transaction rescan queues, exact admitted completion and existing history",
+    "Verify roles, empty/legacy rows, rollback and concurrent queue/installer behavior; do not adopt/delete existing legacy rows"
+  ],
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

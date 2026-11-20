@@ -1,3 +1,5 @@
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
+import {useAuth} from "@/hooks/use-auth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -69,13 +71,18 @@ const SOURCE_HINT: Record<string, string> = {
   team: "Team action",
 };
 
-function ActionItemsPage() {
+function ActionItemsPage(){const{user,loading}=useAuth();if(loading)return <p>Loading action items…</p>;if(!user)return <p>Sign in to view action items.</p>;return <ActionItemsPageSession key={user.id}/>;}
+function ActionItemsPageSession() {
+  const [loadError,setLoadError]=useState(false);
   const loadStudents = useServerFn(listStudents);
   const loadItems = useServerFn(listStudentActionItems);
   const updateItem = useServerFn(updateStudentActionItem);
 
   const [students, setStudents] = useState<Student[]>([]);
   const [studentId, setStudentId] = useState<string>("");
+  const scope=usePlanningLifetime(studentId);
+  const [itemsStudentId,setItemsStudentId]=useState('');
+  const [canEdit,setCanEdit]=useState(false);
   const [items, setItems] = useState<StudentActionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -83,31 +90,33 @@ function ActionItemsPage() {
   const [category, setCategory] = useState<CategoryFilter>("all");
 
   useEffect(() => {
-    loadStudents()
-      .then(({ students }) => {
+    loadStudents({data:{expected_viewer_id:scope.viewerId}})
+      .then(({ students,loadFailed }) => {
+        if(!scope.current())return;if(loadFailed)throw Error();
         setStudents(students);
         if (students[0]) setStudentId(students[0].id);
         else setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(()=>{if(scope.current()){setLoadError(true);setLoading(false);}});
   }, [loadStudents]);
 
   useEffect(() => {
     if (!studentId) return;
     setLoading(true);
-    loadItems({ data: { student_id: studentId } })
-      .then(({ items }) => setItems(items))
-      .catch(() => toast.error("Could not load action items"))
-      .finally(() => setLoading(false));
+    loadItems({ data: { student_id: studentId,expected_viewer_id:scope.viewerId } })
+      .then(({items,canEdit})=>{if(scope.current()){setItems(items);setItemsStudentId(studentId);setCanEdit(canEdit);setLoadError(false);scope.confirmRead();}})
+      .catch(()=>{if(scope.current()){setLoadError(true);setItems([]);}})
+      .finally(()=>{if(scope.current())setLoading(false);});
   }, [studentId, loadItems]);
 
   const filtered = useMemo(() => {
+    if(itemsStudentId!==studentId)return [];
     return items.filter((it) => {
       if (priority !== "all" && it.priority !== priority) return false;
       if (category !== "all" && it.category !== category) return false;
       return true;
     });
-  }, [items, priority, category]);
+  }, [items, priority, category,itemsStudentId,studentId]);
 
   const { overdue, thisWeek, later, done } = useMemo(() => {
     const today = new Date();
@@ -149,11 +158,13 @@ function ActionItemsPage() {
         : item.status === "in_progress"
           ? "completed"
           : "not_started";
+    if(!scope.begin())return;
     setSavingId(item.id);
     try {
-      await updateItem({ data: { id: item.id, status: next } });
+      const receipt=await updateItem({data:{id:item.id,student_id:item.student_id,expected_updated_at:item.updated_at,expected_viewer_id:scope.viewerId,status:next}});
+      if(!scope.current())return;
       setItems((prev) =>
-        prev.map((it) => (it.id === item.id ? { ...it, status: next } : it)),
+        prev.map((it) => (it.id === item.id ? {...it,...receipt.item} : it)),
       );
       toast.success(
         next === "completed"
@@ -163,9 +174,10 @@ function ActionItemsPage() {
             : "Reopened",
       );
     } catch (e) {
+      if(!scope.current())return;scope.markUncertain();
       toast.error(e instanceof Error ? e.message : "Update failed");
     } finally {
-      setSavingId(null);
+      scope.finish();if(scope.current())setSavingId(null);
     }
   }
 
@@ -173,7 +185,7 @@ function ActionItemsPage() {
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="action-items-page"
         className="mx-auto max-w-5xl px-4 py-8"
       >
@@ -255,7 +267,7 @@ function ActionItemsPage() {
           </div>
         )}
 
-        {loading ? (
+        {loadError||scope.uncertain?<div role="alert" className="rounded-xl border p-4 text-sm">Saved action items are unavailable or changed. Refresh this page before another change.</div>:loading||(!!studentId&&itemsStudentId!==studentId) ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
@@ -286,7 +298,7 @@ function ActionItemsPage() {
                 tone="rose"
                 items={overdue}
                 savingId={savingId}
-                onToggle={cycleStatus}
+                onToggle={cycleStatus} canChange={item=>canEdit||item.assigned_to_user_id===scope.viewerId}
               />
             )}
             {thisWeek.length > 0 && (
@@ -296,7 +308,7 @@ function ActionItemsPage() {
                 tone="amber"
                 items={thisWeek}
                 savingId={savingId}
-                onToggle={cycleStatus}
+                onToggle={cycleStatus} canChange={item=>canEdit||item.assigned_to_user_id===scope.viewerId}
               />
             )}
             {later.length > 0 && (
@@ -306,7 +318,7 @@ function ActionItemsPage() {
                 tone="default"
                 items={later}
                 savingId={savingId}
-                onToggle={cycleStatus}
+                onToggle={cycleStatus} canChange={item=>canEdit||item.assigned_to_user_id===scope.viewerId}
               />
             )}
             {done.length > 0 && (
@@ -316,13 +328,13 @@ function ActionItemsPage() {
                 tone="default"
                 items={done}
                 savingId={savingId}
-                onToggle={cycleStatus}
+                onToggle={cycleStatus} canChange={item=>canEdit||item.assigned_to_user_id===scope.viewerId}
                 muted
               />
             )}
           </div>
         )}
-      </main>
+      </section>
     </SiteShell>
   );
 }
@@ -333,6 +345,7 @@ function Section({
   items,
   savingId,
   onToggle,
+  canChange,
   muted = false,
   tone = "default",
 }: {
@@ -340,6 +353,7 @@ function Section({
   icon?: React.ReactNode;
   items: StudentActionItem[];
   savingId: string | null;
+  canChange:(item:StudentActionItem)=>boolean;
   onToggle: (i: StudentActionItem) => void;
   muted?: boolean;
   tone?: "rose" | "amber" | "default";
@@ -369,7 +383,7 @@ function Section({
             >
               <button
                 onClick={() => onToggle(it)}
-                disabled={savingId === it.id}
+                disabled={savingId!==null||!canChange(it)}
                 aria-label={
                   it.status === "completed"
                     ? "Reopen"

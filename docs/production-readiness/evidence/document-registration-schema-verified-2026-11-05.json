@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.3",
+  "run": 41979082941,
+  "event": "pull_request",
+  "head_source": "c72dd1f0461bda68f53fcfce6995cd44b819513f",
+  "merge_checkout": "61cee26f0193f9153d9b9ed2ec53989b72a694f8",
+  "replay_job": "success",
+  "canonical_migrations": 225,
+  "ordered_proposals": 19,
+  "focused_rescan_registration_native": {
+    "tests": 68,
+    "passed": 68,
+    "failed": 0,
+    "skipped": 0
+  },
+  "complete_local_model": {
+    "tests": 1493,
+    "passed": 1323,
+    "failed": 0,
+    "native_only_skipped": 170
+  },
+  "proof": "docs/production-readiness/evidence/document-registration-schema-proof-41979082941-2026-11-05.json",
+  "proof_sha256": "4d3773de56443de061108a9e1cb9a2d72d8717007572f5ea2e9625361b171bcd",
+  "replay_log_sha256": "aa80a528e89420c6369a91dd50aaa4d6f92545e79aaa48a6d53c1961a6faeb4a",
+  "four_exact_routine_owners_bodies_grants_verified": true,
+  "separate_complete_native_suite": "in_progress_at_observation",
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

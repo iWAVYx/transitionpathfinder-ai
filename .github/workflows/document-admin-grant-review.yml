@@ -1,0 +1,127 @@
+name: Document grant retirement review
+on:
+  pull_request:
+    paths:
+      - "docs/database-proposals/document-admin-grant-retirement/**"
+      - "tests/database/document-admin-grant*.mjs"
+      - "tests/database/run-document-grant-native.mjs"
+      - "tests/database/run-document-grant-full-schema.mjs"
+      - "tests/database/document-admin-grant-full-chain-review.sql"
+      - "supabase/migrations/**"
+      - ".github/workflows/document-admin-grant-review.yml"
+  push:
+    branches: ["codex/ppt-output-quality-print"]
+    paths:
+      - "docs/database-proposals/document-admin-grant-retirement/**"
+      - "tests/database/document-admin-grant*.mjs"
+      - "tests/database/run-document-grant-native.mjs"
+      - "tests/database/run-document-grant-full-schema.mjs"
+      - "tests/database/document-admin-grant-full-chain-review.sql"
+      - "supabase/migrations/**"
+      - ".github/workflows/document-admin-grant-review.yml"
+permissions:
+  contents: read
+jobs:
+  targeted-local-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned disposable WASM PostgreSQL
+        run: npm install --prefix "$RUNNER_TEMP/tf-grant-pglite" --ignore-scripts --no-audit --no-fund @electric-sql/pglite@0.5.8
+      - name: Reproduce legacy bypass and test review-only retirement
+        run: |
+          export DOCUMENT_GRANT_PGLITE_MODULE="$RUNNER_TEMP/tf-grant-pglite/node_modules/@electric-sql/pglite/dist/index.js"
+          node --test tests/database/document-admin-grant-retirement.test.mjs
+
+  targeted-native-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.020
+        env:
+          POSTGRES_USER: supabase_admin
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U supabase_admin"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: supabase_admin
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install disposable database driver
+        run: npm install --prefix "$RUNNER_TEMP/tf-grant-pg" --ignore-scripts --no-save --package-lock=false pg@8.16.3
+      - name: Verify targeted native cases and observed concurrent locks
+        run: |
+          export DOCUMENT_GRANT_PG_MODULE="$RUNNER_TEMP/tf-grant-pg/node_modules/pg/lib/index.js"
+          node tests/database/run-document-grant-native.mjs /tmp/document-grant-native
+      - name: Retain exact native results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: document-grant-targeted-native
+          path: /tmp/document-grant-native
+          if-no-files-found: error
+
+  full-schema-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.020
+        env:
+          POSTGRES_USER: supabase_admin
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U supabase_admin"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+      DOCUMENT_GRANT_SCHEMA_SERVICE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Require unchanged original SQL and regression baseline
+        run: node tests/database/verify-owner-apply-recovery-baseline.mjs /tmp/document-grant-original-baseline.json
+      - name: Install disposable catalog driver
+        run: npm install --prefix "$RUNNER_TEMP/pathway-history-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3
+      - name: Execute every existing full schema install and catalog stage
+        run: node tests/database/run-document-grant-full-schema.mjs /tmp/document-grant-full-chain
+      - name: Retain schema integration proof and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: document-grant-full-chain
+          path: |
+            /tmp/document-grant-full-chain
+            /tmp/document-grant-original-baseline.json
+          if-no-files-found: error

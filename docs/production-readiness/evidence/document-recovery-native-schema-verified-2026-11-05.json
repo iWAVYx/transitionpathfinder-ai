@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-05",
+  "workstream_actions": [
+    "2.3",
+    "2.4"
+  ],
+  "scope": "DB-only no-save reconciliation and existing queued pause/resume/fresh-connection behavior; not the new drain inventory",
+  "head_source": "293e5268f80a886ef65323615b9e78a6f35a28b5",
+  "checkout_commit": "fb6167ae57e0abe10847923380fc8e8b6424bbb1",
+  "run": 42084127380,
+  "workflow": "success",
+  "native_cases": 1594,
+  "native_failed": 0,
+  "native_skipped": 0,
+  "canonical_migrations": 225,
+  "control_drafts": 27,
+  "independently_validated_raw_native_artifacts": true,
+  "native_proof": "docs/production-readiness/evidence/document-recovery-native-proof-42084127380-2026-11-05.json",
+  "native_proof_sha256": "f918352f21f601b049d6b5cafb2774ec73c6f54e1515646eb055993fbb43e8be",
+  "schema_proof": "docs/production-readiness/evidence/document-apply-no-save-schema-proof-42084127380-2026-11-05.json",
+  "schema_proof_sha256": "aa89707abdfc7a4e15259aab497b3c6d402f96a868a4f0e2156a681d209f5f56",
+  "replay_log_sha256": "d72baeb3b7a827fcaa5ddbac0088c1b481c25df406de8abd393d5d22acb16ca5",
+  "resolver_sql_sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07",
+  "exact_thirteen_routine_bodies_owners_settings_and_grants_verified": true,
+  "distinct_control_owners_preserved": true,
+  "service_resolver_callable": false,
+  "native_fresh_connection_cases": 2,
+  "hosted_process_restart_verified": false,
+  "whole_actions_complete": false,
+  "remaining_2_3": [
+    "Trusted operator route authorization and other reconciliation kinds",
+    "Provider/external cessation evidence; ambiguous work stays held"
+  ],
+  "remaining_2_4": [
+    "New queued/promised drain inventory native/full-schema proof",
+    "Authorized hosted acceptance after older/source/access fences"
+  ],
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

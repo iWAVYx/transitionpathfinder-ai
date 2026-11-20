@@ -1,0 +1,99 @@
+{
+  "schema": "document-upload-retained-limits-verified-v1",
+  "date": "2026-10-30",
+  "verified_source": "f40a9ba47a1c598d7af605aae2660d5b24944d92",
+  "status": "All nine applicable automatic checks and both complete native/schema replays passed; proposal remains unapplied",
+  "native_each": {
+    "tests": 867,
+    "passed": 867,
+    "failed": 0,
+    "skipped": 0,
+    "canonical_migrations": 225,
+    "noncanonical_control_proposals": 5
+  },
+  "automatic_checks": [
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111013392/job/124253136128",
+      "name": "role-guard-matrix",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111013537/job/124253136868",
+      "name": "report-a11y",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111013470/job/124253136355",
+      "name": "CT Seed v2 Static Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111013659/job/124253136765",
+      "name": "unit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111013668/job/124253137375",
+      "name": "replay",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111013570/job/124253137150",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111013210/job/124253135165",
+      "name": "Credential-free Production Readiness Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111004489/job/124253103147",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41111004490/job/124253102833",
+      "name": "replay",
+      "state": "SUCCESS"
+    }
+  ],
+  "proof_artifacts": [
+    {
+      "path": "docs/production-readiness/evidence/document-upload-retained-limits-proof-41111013668-2026-10-30.json",
+      "sha256": "c7c471d97feb7c87282597cbb9686ef8dfa87dd91b5b34f9306e4a7ed2a9378e",
+      "run": 41111013668
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-upload-retained-limits-proof-41111004490-2026-10-30.json",
+      "sha256": "c7c471d97feb7c87282597cbb9686ef8dfa87dd91b5b34f9306e4a7ed2a9378e",
+      "run": 41111004490
+    }
+  ],
+  "verified_quota_body_md5": "dc8972ceac29738817b32b74ad411e1b",
+  "verified_fixed_path": [
+    "search_path=pg_catalog"
+  ],
+  "verified_owners": {
+    "migration": "postgres",
+    "admission": "supabase_admin"
+  },
+  "limits": {
+    "actor": 5,
+    "student": 10,
+    "registered_unsettled_counted": true
+  },
+  "manual_reconciliation_implemented": false,
+  "general_operation_limits_implemented": false,
+  "automatic_expiry_or_release": false,
+  "provider_quiescence_verified": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "application_runtime": {
+    "fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "files": 1205,
+    "changed": false
+  },
+  "skipped_protected_workflows": "Unperformed; not counted as passed."
+}

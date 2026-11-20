@@ -1,0 +1,129 @@
+{
+  "schema": "document-registration-policy-compatibility-local-v1",
+  "date": "2026-10-31",
+  "corrected_from_source": "a8ef79db312a719135d40362c00ec4a18d149e65",
+  "status": "Native failure reproduced as a format-sensitive policy check; correction verified locally; new native/full-schema checks pending before rescan work",
+  "failed_runs": [
+    {
+      "run": 41220561351,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41220561351",
+      "native": {
+        "tests": 1045,
+        "passed": 1002,
+        "failed": 43,
+        "skipped": 0
+      },
+      "failure": "Native upload fixtures refused the scoped-read preflight; full225+all-nine replay was not reached.",
+      "log_sha256": "48f73d82ba3362c8c1215e6404c66b31ad5d6f488b508bef8f8af40842c0247e"
+    },
+    {
+      "run": 41220558801,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41220558801",
+      "native": {
+        "tests": 1045,
+        "passed": 1002,
+        "failed": 43,
+        "skipped": 0
+      },
+      "failure": "Native upload fixtures refused the scoped-read preflight; full225+all-nine replay was not reached.",
+      "log_sha256": "e35dcc79c56a1f4598e34146d8bb2b3d1e2e7546c75636e9993217d73555b4b9"
+    }
+  ],
+  "controlled_policy_metadata": [
+    {
+      "search_path": "public",
+      "server": "18.3",
+      "policies": [
+        {
+          "polname": "upload_attempt_creator_read",
+          "expression": "((actor_id = auth.uid()) AND (is_partner_only(auth.uid()) IS FALSE) AND (can_edit_student(auth.uid(), student_id) IS TRUE))"
+        },
+        {
+          "polname": "upload_attempt_service_read",
+          "expression": "true"
+        }
+      ]
+    },
+    {
+      "search_path": "public, auth",
+      "server": "18.3",
+      "policies": [
+        {
+          "polname": "upload_attempt_creator_read",
+          "expression": "((actor_id = uid()) AND (is_partner_only(uid()) IS FALSE) AND (can_edit_student(uid(), student_id) IS TRUE))"
+        },
+        {
+          "polname": "upload_attempt_service_read",
+          "expression": "true"
+        }
+      ]
+    },
+    {
+      "search_path": "pg_catalog, public, auth",
+      "server": "18.3",
+      "policies": [
+        {
+          "polname": "upload_attempt_creator_read",
+          "expression": "((actor_id = uid()) AND (is_partner_only(uid()) IS FALSE) AND (can_edit_student(uid(), student_id) IS TRUE))"
+        },
+        {
+          "polname": "upload_attempt_service_read",
+          "expression": "true"
+        }
+      ]
+    }
+  ],
+  "cause_boundary": "The old literal comparison rejects unchanged policies when auth becomes visible in search_path and auth.uid() deparses as uid(). Native failure occurred at that preflight; new native metadata probes retain exact catalog formatting. No domain or quota failure is reclassified as a passing release.",
+  "correction": "Database-parsed session-local zero-row reference. Exact policy count/name/command/permissiveness/roles/USING/WITH CHECK and actual read-only grants remain required. No repair, role expansion or changed installed policy.",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "sha256": "7b2bb5d87302ee39189ebd87ee3bf21727fe91069adc9d0c9dc32e2f78d3742b"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement-review.json",
+      "sha256": "baceed0cc95cd4f461a3bd89e485ce1b828641f45475032db2d31ee79164170e"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "6503c48497ea6740c20f8cae5a20de6f12aac1f082b93748ad3ef58c48fddaba"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "65c1737d6a56d705fdad0cc85cd51815f064b231567da24f3bb341f9a8db861d"
+    }
+  ],
+  "validation": {
+    "full_local_sql": {
+      "tests": 1052,
+      "passed": 926,
+      "failed": 0,
+      "skipped": 126,
+      "skip_scope": "Native PostgreSQL concurrency-only cases"
+    },
+    "focused": {
+      "tests": 57,
+      "passed": 51,
+      "failed": 0,
+      "skipped": 6
+    },
+    "new_policy_cases": 7,
+    "offline_safety_and_accounting_contracts": 110,
+    "workflow_yaml": "passed",
+    "native_probe": "Seven catalog compatibility/drift/collision cases run in disposable PostgreSQL before the full suites. Full native suite retains all cases and zero retries.",
+    "new_source_native_full_schema": "pending",
+    "final_documentation_contracts": 44
+  },
+  "runtime_routine_hashes_changed": false,
+  "actual_policies_or_grants_changed": false,
+  "canonical_migrations": 225,
+  "existing_unapplied_batch": 15,
+  "noncanonical_unapplied_proposals": 9,
+  "application_source_changed": false,
+  "worker_source_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "next": "Close native and full225+all-nine verification before adding rescan source binding/completion. Then finish Apply source proof, source-bound reservation/queue/worker integration and the unchanged remaining release gates."
+}

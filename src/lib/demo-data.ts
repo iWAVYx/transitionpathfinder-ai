@@ -57,6 +57,25 @@ export const DEMO_INTAKE: IntakeInput = {
     "Annual PPT — April 8, 2026 · Transition planning meeting — May 2026 · BRS intake referral — Spring 2026.",
 };
 
+// Fictional examples use one complete set in both recorded question fields.
+// Real saved reports retain their own wording and distinct requests.
+const MAYA_MEETING_QUESTIONS = [
+  "Has Maya been referred to BRS for Pre-Employment Transition Services?",
+  "Can travel training start this spring?",
+  "What is the plan for DDS eligibility before Maya turns 18?",
+  "How will progress on self-advocacy be measured?",
+  "Can we add an employment-related goal this spring tied to a real volunteer site?",
+];
+
+const JORDAN_MEETING_QUESTIONS = [
+  "Has Jordan been referred to BRS for Pre-Employment Transition Services?",
+  "Can we add a Gateway dual-enrollment course for senior year?",
+  "Can we add a transportation-independence goal to the spring IEP?",
+  "How will we measure work-completion weekly across all classes?",
+  "Which teachers will accept audio/video deliverables in place of essays?",
+  "Which executive-function supports can we add?",
+];
+
 export const DEMO_REPORT: PathwayReport = {
   summary:
     "Maya is a thoughtful, observant 11th grader who lights up around animals and quiet, hands-on work. She learns best with clear routines, written steps, and a trusted adult in her corner. With the right introductions — and time to build comfort — she has a strong, realistic path toward animal care or environmental work in Connecticut.",
@@ -614,13 +633,7 @@ export const DEMO_REPORT: PathwayReport = {
   },
 
   meeting_prep_toolkit: {
-    questions_to_ask: [
-      "Has Maya been referred to BRS for Pre-ETS?",
-      "When can travel training begin?",
-      "Can we add an employment-related goal this spring?",
-      "What's the plan for DDS eligibility before Maya turns 18?",
-      "How will progress on self-advocacy be measured?",
-    ],
+    questions_to_ask: [...MAYA_MEETING_QUESTIONS],
     documents_to_bring: [
       "This Pathway Report",
       "Most recent IEP and progress reports",
@@ -766,13 +779,7 @@ export const DEMO_REPORT: PathwayReport = {
     "Requesting accommodations from a new adult",
   ],
 
-  family_questions_for_ppt: [
-    "Has Maya been referred to BRS for Pre-Employment Transition Services?",
-    "Can travel training start this spring?",
-    "What is the plan for DDS eligibility before Maya turns 18?",
-    "How will progress on self-advocacy be measured?",
-    "Can we add an employment-related goal tied to a real volunteer site?",
-  ],
+  family_questions_for_ppt: [...MAYA_MEETING_QUESTIONS],
 
   teacher_next_steps: [
     "Submit BRS Pre-ETS referral within 2 weeks",
@@ -1386,13 +1393,7 @@ export const JORDAN_REPORT: PathwayReport = {
   },
 
   meeting_prep_toolkit: {
-    questions_to_ask: [
-      "Has Jordan been referred to BRS for Pre-ETS?",
-      "Can we add a dual-enrollment course at Gateway for senior year?",
-      "Can we add an executive-function support and a transportation goal?",
-      "What's the plan for measuring work-completion weekly?",
-      "Which teachers will accept audio/video deliverables in place of essays?",
-    ],
+    questions_to_ask: [...JORDAN_MEETING_QUESTIONS],
     documents_to_bring: [
       "This Pathway Report",
       "Most recent IEP and progress reports",
@@ -1538,13 +1539,7 @@ export const JORDAN_REPORT: PathwayReport = {
     "Self-advocating to a new teacher before falling behind",
   ],
 
-  family_questions_for_ppt: [
-    "Has Jordan been referred to BRS for Pre-Employment Transition Services?",
-    "Can we add a Gateway dual-enrollment course for senior year?",
-    "Can we add a transportation-independence goal to spring IEP?",
-    "How will we measure work-completion weekly across all classes?",
-    "Which teachers will accept audio/video deliverables in place of essays?",
-  ],
+  family_questions_for_ppt: [...JORDAN_MEETING_QUESTIONS],
 
   teacher_next_steps: [
     "Submit BRS Pre-ETS referral within 2 weeks",

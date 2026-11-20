@@ -1,3 +1,4 @@
+import { documentAccessReasonLabel } from "@/lib/document-access-audit-display";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -137,7 +138,7 @@ function IepAuditPage() {
   return (
     <OwnerShell
       title="IEP signed-URL audit"
-      description="Search and export every IEP PDF signed-URL mint and revoked-access denial."
+      description="Review document access links and refused attempts. A refused link does not by itself confirm that student access was removed."
       actions={
         <Button
           variant="outline"
@@ -171,8 +172,8 @@ function IepAuditPage() {
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="document.signed_url.mint">Mint</SelectItem>
-                <SelectItem value="document.signed_url.denied">Denied (revoked)</SelectItem>
+                <SelectItem value="document.signed_url.mint">Link Created</SelectItem>
+                <SelectItem value="document.signed_url.denied">Link Not Issued</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -244,8 +245,8 @@ function IepAuditPage() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <Stat label="Results" value={counts.total} />
-        <Stat label="Signed URLs minted" value={counts.mints} icon={<Sparkles className="h-4 w-4" />} />
-        <Stat label="Revoked-access denials" value={counts.denied} tone="alert" icon={<ShieldAlert className="h-4 w-4" />} />
+        <Stat label="Links Created" value={counts.mints} icon={<Sparkles className="h-4 w-4" />} />
+        <Stat label="Links Not Issued" value={counts.denied} tone="alert" icon={<ShieldAlert className="h-4 w-4" />} />
       </div>
 
       <div className="mt-4 overflow-hidden rounded-lg border border-border bg-background">
@@ -280,11 +281,11 @@ function IepAuditPage() {
                     <td className="px-3 py-2 text-xs">
                       {e.action === "document.signed_url.denied" ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 font-medium text-destructive">
-                          <ShieldAlert className="h-3 w-3" /> Denied
+                          <ShieldAlert className="h-3 w-3" /> Link Not Issued
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary">
-                          Mint
+                          Link Created
                         </span>
                       )}
                     </td>
@@ -304,7 +305,7 @@ function IepAuditPage() {
                     <td className="px-3 py-2 text-xs">
                       <div>{e.title ?? ""}</div>
                       <div className="text-muted-foreground">
-                        {[e.doc_type, e.ttl_seconds ? `${e.ttl_seconds}s` : null, e.reason]
+                        {[e.doc_type, e.ttl_seconds ? `${e.ttl_seconds}s` : null, documentAccessReasonLabel(e.reason)]
                           .filter(Boolean)
                           .join(" · ")}
                       </div>

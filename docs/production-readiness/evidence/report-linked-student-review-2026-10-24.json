@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-24",
+  "status": "local-proposal-tested-not-canonical-not-deployed",
+  "baseApplication": "b9062390665f5c9285d8dec473a5bfa76342530f",
+  "baseDocs": "abe5e2824752ba1fcc82ba37d97cfd3593aabe7c",
+  "runtimeFingerprint": "aa247bc40bab903b733fca5d85c6a9a4d7a97ce07ef1e2494814ff2b76629a50",
+  "runtimeFiles": 1185,
+  "proposal": {
+    "path": "docs/production-readiness/proposals/report-linked-student-save.sql",
+    "sha256": "6d9d732d291c68c0af3d4aa211c942e2904ccaea373a13864ad5efc7de0828a8",
+    "canonicalMigration": false,
+    "behavior": [
+      "Compare full observed content and explicitly supplied nullable linked-student ID under the same report row lock",
+      "Preserve authenticated report-owner and caller RLS checks, existing trigger-owned truthful history and atomic rollback",
+      "New SECURITY INVOKER RPC with fixed pg_catalog search path and no omitted-student default",
+      "Revoke client/service execution of the old context-free RPC in the same transaction; no fallback",
+      "Abort on unexpected prior function body/grants, report/history ownership/RLS, client privileged roles or history trigger metadata"
+    ],
+    "compatibility": "Current application still uses the old RPC. Applying this proposal alone would stop save/restore/regeneration. Prepare both shared write-helper call sites, types, retained contracts, canonical migration/ledger and authorized coordinated release before hosted use."
+  },
+  "validation": {
+    "newDisposablePgliteCases": {
+      "pass": 19,
+      "fail": 0,
+      "skip": 0
+    },
+    "retainedHistoryPgliteCases": {
+      "pass": 65,
+      "fail": 0,
+      "skip": 2,
+      "skipReason": "Native multi-session concurrency tests require disposable PostgreSQL; not certified by PGlite."
+    },
+    "revisionAndShareUnitCases": {
+      "files": 4,
+      "pass": 40,
+      "fail": 0
+    },
+    "runtimeFingerprintUnchanged": true,
+    "firstHarnessAttempt": "Failed during setup because the fixture omitted the existing is_platform_admin helper; corrected the fixture stub, then all cases passed. Not a runtime/source defect.",
+    "logs": [
+      "/private/tmp/tf-report-context-proposal-test.log",
+      "/private/tmp/tf-report-context-existing-history.log",
+      "/private/tmp/tf-report-context-sharing-unit.log"
+    ]
+  },
+  "sharingSourceReview": {
+    "acceptedPriorScope": "October 23 isolated sharing acceptance remains valid for its named create/revoke/projection/expiry/denial journeys; no new hosted test performed.",
+    "findings": [
+      {
+        "source": "src/lib/students.functions.ts:createShareToken",
+        "observation": "Creation accepts an entitled report owner or eligible student reader. Omitted expires_in_days creates a nonexpiring token; UI defaults do not enforce an API lifetime."
+      },
+      {
+        "source": "supabase/migrations/20260527160738_4b10cdd0-0c92-40e1-b652-b016a9a0cafd.sql:resolve_share_token",
+        "observation": "Resolver follows current report content by report ID and checks revoked/expiry only. It does not re-evaluate issuer membership/access or bind the token to the student context at issuance."
+      },
+      {
+        "source": "src/lib/share.functions.ts",
+        "observation": "Public response still projects a fixed family/educator audience and excludes private engine fields; this does not itself invalidate the bearer link on relationship removal/relink."
+      }
+    ],
+    "notYetSettled": "Review lifecycle policy for issuer access loss, report relinking and nonexpiring legacy tokens; distinguish independent bearer links from Transition Channel retained chat-history choices. No lifetime or permission semantics changed."
+  },
+  "next": [
+    "Exercise actual concurrent relink and content save in separate sessions on disposable native PostgreSQL",
+    "Review other mutable generation inputs (including intake association), permitted direct client writes, ownership and metadata RPC scope separately; this proposal guards linked student only",
+    "Prepare save/restore/regeneration caller integration and canonical migration/replay/ledger/recovery packet",
+    "Finish bearer-link lifecycle policy and tests without reopening completed sharing acceptance",
+    "Obtain separate authorization for any hosted migration, deployment/publication or bounded acceptance run"
+  ],
+  "limits": [
+    "Not a full canonical replay, hosted acceptance, native concurrency result, live AI generation proof or production readiness decision",
+    "No application runtime changes; all seven roles, demo/public rendering and shared document formatting unchanged",
+    "The new test file is manually exercised locally; no claim that existing CI already selects it",
+    "Production/main, hosted databases, credentials, settings, AI/providers and staging publications untouched; report polish and Parent Pilot/Pathway Snapshot remain deferred"
+  ]
+}

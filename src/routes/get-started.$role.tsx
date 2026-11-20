@@ -11,11 +11,13 @@ import {
   type RoleDoorSlug,
 } from "@/lib/routing/role-doors";
 
+function loadRoleDoor({ params }: { params: { role: string } }) {
+  if (!isRoleDoorSlug(params.role)) throw notFound();
+  return { door: getRoleDoor(params.role) };
+}
+
 export const Route = createFileRoute("/get-started/$role")({
-  loader: ({ params }) => {
-    if (!isRoleDoorSlug(params.role)) throw notFound();
-    return { door: getRoleDoor(params.role) };
-  },
+  loader: loadRoleDoor,
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {

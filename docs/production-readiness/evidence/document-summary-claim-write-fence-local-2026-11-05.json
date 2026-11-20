@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.5",
+  "status": "Raw summary-start write fence implemented and locally verified; native/full-schema acceptance pending",
+  "proposal": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
+  "proposal_sha256": "f14500b6706e63921703b4957c9b257883c664770f0ea4153e9ec11ef7105fe0",
+  "test_file": "tests/database/document-path-exclusivity.test.mjs",
+  "test_sha256": "0a05474fa218e3799043b30c560a35870ac467901694a384877f8f5e2d5221e5",
+  "source_stage": 29,
+  "helper_metadata": [
+    {
+      "name": "guard_document_summary_claim_writer",
+      "definer": false,
+      "md5": "f55a7b4a3e798b9ada2d90dee1dd630c"
+    },
+    {
+      "name": "check_document_summary_claim_committed",
+      "definer": true,
+      "md5": "d10258785f01c5cc825b43621e57f7dc"
+    }
+  ],
+  "tests": {
+    "tf-legacy-summary-claim-preflight-final.log": {
+      "tests": 19,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 2,
+      "sha256": "763e9fbbcdaee621f2c364d870c5e7340b5e0f84c8e57116b7c829b5ee26a352"
+    },
+    "tf-legacy-writers-combined.log": {
+      "tests": 76,
+      "passed": 68,
+      "failed": 0,
+      "skipped": 8,
+      "sha256": "a6c72130d0cf954888f46a1f00d5b7ad4d3336ad26aa233548991aca408b68c7"
+    },
+    "tf-summary-writer-contracts.log": {
+      "tests": 44,
+      "passed": 44,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "cb117380aa8e0cea9c9b1246d5acffdc0efe177def9e1c1965fc45415413d4f0"
+    }
+  },
+  "combined_run_contains15_new_writer_cases_before_four_final_installer_refusal_cases": true,
+  "overlapping_runs_not_additive": true,
+  "prior_cases_retained": 1621,
+  "added_cases": 19,
+  "added_native_installer_writer_races": 2,
+  "required_native_cases": 1640,
+  "workflow_shell_blocks_validated": 65,
+  "scope": "Direct legacy starts/refreshes on document-summary jobs; not arbitrary trusted-owner code, all Storage access or proof old hosted services have stopped",
+  "checks": [
+    "Service direct processing starts refuse while paused or open; authenticated RLS still refuses actual row changes",
+    "Owner-context raw start also fails commit without real source/operation/capacity bindings; owner role alone is insufficient",
+    "Actual counted claim and verified completion remain available",
+    "Exact admitted work may finish while paused and may survive fence installation",
+    "Existing untracked processing refuses installation without adoption, cleanup or release",
+    "Raw refresh cannot replace an admitted claim timestamp/attempt",
+    "Rollback restores queue and counted obligation together",
+    "Other existing AI job types remain available",
+    "New trigger helpers stay private and deferred validation runs as trusted owner",
+    "Unexpected generic grants, caller settings, pause state or private table grants refuse without repair"
+  ],
+  "no_rpc_body_or_grants_rewritten": true,
+  "no_provider_calls": true,
+  "no_worker_activation": true,
+  "native_full_schema_verified": false,
+  "whole_action_complete": false,
+  "remaining": [
+    "Native1640-case and complete225+29 schema reader/permission/trigger verification",
+    "Other service/raw/Storage and scheduled writer coverage",
+    "Source/access changes under2.6 and hosted-version/provider quiescence evidence",
+    "Canonical packaging and separately authorized hosted rollout"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

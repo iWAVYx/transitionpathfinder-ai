@@ -1,0 +1,68 @@
+{
+  "schema": "transitionforward-document-review-initialization-source-local-v1",
+  "date": "2026-11-15",
+  "source_base": "bbd94f89d37af986bc907d45a6470897313495ac",
+  "status": "source-local-verified-not-hosted",
+  "component": "Existing Workstream2.5 review initialization gap",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-review-initialization.server.ts",
+      "sha256": "30a0a21281fd813cd5fbd3b69a6efa1076cede2b7d3424f189e62d8d6e9ebb1e"
+    },
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "264865d3a7a4e0a7ba9caa76ad9b2eb87bc4a3da98bc3927bdb7c9e901d53999"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
+      "sha256": "3c626cc47dfd64c5ae94ec86b55f693f4d76b679c01b57267170086a8089edc9"
+    },
+    {
+      "path": "tests/unit/document-review-initialization.test.ts",
+      "sha256": "853d482bf487788bb9f30d382a8abaa63b5efe76b2ade5c4c4f42fd59f1a7416"
+    },
+    {
+      "path": "tests/unit/document-review-admission-lifetime.test.tsx",
+      "sha256": "fa561dbc952769bc42611d5eb195ae848ec9e9b644677986a1a56b255f487f6e"
+    }
+  ],
+  "behavior": [
+    "Both the authenticated endpoint and core require the loaded viewer identity; mismatches stop before database access.",
+    "Caller-scoped document lookup plus canonical student/document read authority precede existing-review retrieval. Existing viewers do not need editing access to read an available review.",
+    "A confirmed absent review alone may proceed to initialization, with canonical editing authority and partner-only exclusion. Read errors and malformed replies stop without insertion.",
+    "Only one empty pending twelve-section review is inserted with the authenticated creator; complete identity, state, sections and empty generated/meta fields are verified before return.",
+    "Current read authority is checked again before returning either an existing or newly initialized review.",
+    "No automatic retry, upsert or conflict fallback. Lost/concurrent insertion outcomes require refresh; a committed empty row may already exist.",
+    "The browser sends the originating viewer, suppresses departed results/errors and shows a fixed user-friendly load error without private transport text."
+  ],
+  "validation": {
+    "full_unit_cases": 5961,
+    "unit_files": 371,
+    "focused_initialization_and_lifetime_cases": 47,
+    "inventory_navigation_contracts": 94,
+    "storage_inventory_cases": 9,
+    "release_security_contracts": 72,
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed"
+  },
+  "limitations": [
+    "Independent reads and insert do not provide transaction-held authorization serialization; caller RLS and database guards remain necessary.",
+    "No hosted permission/removal/concurrent-client acceptance is claimed. No schema, grants or existing private access exceptions were changed.",
+    "Existing SQL/native evidence is retained only for unchanged SQL; no fresh native database replay is claimed.",
+    "Uncertain initialization does not certify rollback. It may leave one valid empty review; users must refresh instead of blindly resubmitting.",
+    "No generation, provider call, quota admission, document byte mutation or cleanup is performed by initialization."
+  ],
+  "sql_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false,
+  "runtime_source_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "76128f94bd9d4fabd78b6aaa24d760430ad09b117831e82888047de3dad7248d",
+    "fileCount": 1221
+  }
+}

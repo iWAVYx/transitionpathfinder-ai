@@ -1,0 +1,46 @@
+{
+  "schema": "document-native-test-plan-v1",
+  "test_file": "tests/database/document-path-exclusivity.test.mjs",
+  "test_sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a",
+  "tests": 1660,
+  "distinct_labels": 1657,
+  "names_sha256": "242e2bad5a0a5a60c4650c506ec275b472cd1ba09e6e63b41dc78ed24d0ee24e",
+  "inventory_source": "Retain all1640 verified cases and their multiplicities; add20 queue-entry cases with two native cached-writer/installer races. Legacy data is seeded before protocol installation; default prior fixture behavior and all prior assertions remain unchanged. Read-only fixture exports support one-case composite child runners via the normal Node name filter; all1660 registrations/labels/multiplicities/assertions/timeouts and seven ordinary partitions remain unchanged.",
+  "partitions": [
+    {
+      "id": "summary-automatic-settlement",
+      "tests": 45,
+      "names_sha256": "06a774e91134cc062eb40e7a73fbda55abb0c0c1347a21718e54c3dcc2c99b85"
+    },
+    {
+      "id": "counted-worker",
+      "tests": 48,
+      "names_sha256": "2101f3f8bb754690a5966d718b2eb7d2ff36e2190fc5086566938bad185c7f20"
+    },
+    {
+      "id": "other-boundaries",
+      "tests": 847,
+      "names_sha256": "4207b8c8cce4edaef8f0edbed61c65d5dad3715f68c66992c90332f9a92d0837"
+    },
+    {
+      "id": "producer-and-summary-boundaries",
+      "tests": 435,
+      "names_sha256": "e3d688a1a8be0b4ecfa736e334a05f42f653e75bf9b7f73b10e7f2f1b32b3f0c"
+    },
+    {
+      "id": "rescan-source-and-pending",
+      "tests": 147,
+      "names_sha256": "ca2f62e5fbd14153e4a2869e8db12b62dd9dbf351496776a97a6537e7c4ccd23"
+    },
+    {
+      "id": "rescan-outcome",
+      "tests": 86,
+      "names_sha256": "d2b8dfb98f22d84042f9f0c783ce1000daabe2aeae68168276ad5f450772d6cb"
+    },
+    {
+      "id": "rescan-settlement",
+      "tests": 52,
+      "names_sha256": "8d57614a3efa1be84c1fd4f58368feae40d547e48b7a4024fb79ce6d103f775b"
+    }
+  ]
+}

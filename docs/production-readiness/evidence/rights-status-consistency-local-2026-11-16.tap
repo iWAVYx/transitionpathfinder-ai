@@ -1,0 +1,334 @@
+TAP version 13
+# Subtest: atomic under_18_parent_rights_active review saves matching status/history/audit once without sharing or consent
+ok 1 - atomic under_18_parent_rights_active review saves matching status/history/audit once without sharing or consent
+  ---
+  duration_ms: 740.525541
+  type: 'test'
+  ...
+# Subtest: atomic approaching_transfer_of_rights review saves matching status/history/audit once without sharing or consent
+ok 2 - atomic approaching_transfer_of_rights review saves matching status/history/audit once without sharing or consent
+  ---
+  duration_ms: 450.610958
+  type: 'test'
+  ...
+# Subtest: atomic rights_transferred_to_student review saves matching status/history/audit once without sharing or consent
+ok 3 - atomic rights_transferred_to_student review saves matching status/history/audit once without sharing or consent
+  ---
+  duration_ms: 413.105167
+  type: 'test'
+  ...
+# Subtest: atomic student_shared_decision_making review saves matching status/history/audit once without sharing or consent
+ok 4 - atomic student_shared_decision_making review saves matching status/history/audit once without sharing or consent
+  ---
+  duration_ms: 409.349625
+  type: 'test'
+  ...
+# Subtest: atomic parent_guardian_authorized_by_student review saves matching status/history/audit once without sharing or consent
+ok 5 - atomic parent_guardian_authorized_by_student review saves matching status/history/audit once without sharing or consent
+  ---
+  duration_ms: 418.355916
+  type: 'test'
+  ...
+# Subtest: atomic legal_representative_or_conservator review saves matching status/history/audit once without sharing or consent
+ok 6 - atomic legal_representative_or_conservator review saves matching status/history/audit once without sharing or consent
+  ---
+  duration_ms: 426.053
+  type: 'test'
+  ...
+# Subtest: atomic unknown_needs_review review saves matching status/history/audit once without sharing or consent
+ok 7 - atomic unknown_needs_review review saves matching status/history/audit once without sharing or consent
+  ---
+  duration_ms: 418.980459
+  type: 'test'
+  ...
+# Subtest: eligible family writer has current caller-scoped atomic access
+ok 8 - eligible family writer has current caller-scoped atomic access
+  ---
+  duration_ms: 413.157416
+  type: 'test'
+  ...
+# Subtest: eligible student writer has current caller-scoped atomic access
+ok 9 - eligible student writer has current caller-scoped atomic access
+  ---
+  duration_ms: 406.738834
+  type: 'test'
+  ...
+# Subtest: eligible educator writer has current caller-scoped atomic access
+ok 10 - eligible educator writer has current caller-scoped atomic access
+  ---
+  duration_ms: 403.128459
+  type: 'test'
+  ...
+# Subtest: eligible school writer has current caller-scoped atomic access
+ok 11 - eligible school writer has current caller-scoped atomic access
+  ---
+  duration_ms: 406.480917
+  type: 'test'
+  ...
+# Subtest: eligible district writer has current caller-scoped atomic access
+ok 12 - eligible district writer has current caller-scoped atomic access
+  ---
+  duration_ms: 408.134875
+  type: 'test'
+  ...
+# Subtest: eligible owner writer has current caller-scoped atomic access
+ok 13 - eligible owner writer has current caller-scoped atomic access
+  ---
+  duration_ms: 405.16525
+  type: 'test'
+  ...
+# Subtest: ineligible family cannot create a rights review
+ok 14 - ineligible family cannot create a rights review
+  ---
+  duration_ms: 404.404542
+  type: 'test'
+  ...
+# Subtest: ineligible student cannot create a rights review
+ok 15 - ineligible student cannot create a rights review
+  ---
+  duration_ms: 403.803958
+  type: 'test'
+  ...
+# Subtest: ineligible educator cannot create a rights review
+ok 16 - ineligible educator cannot create a rights review
+  ---
+  duration_ms: 411.83375
+  type: 'test'
+  ...
+# Subtest: ineligible school cannot create a rights review
+ok 17 - ineligible school cannot create a rights review
+  ---
+  duration_ms: 409.140083
+  type: 'test'
+  ...
+# Subtest: ineligible district cannot create a rights review
+ok 18 - ineligible district cannot create a rights review
+  ---
+  duration_ms: 402.336792
+  type: 'test'
+  ...
+# Subtest: ineligible owner cannot create a rights review
+ok 19 - ineligible owner cannot create a rights review
+  ---
+  duration_ms: 403.368584
+  type: 'test'
+  ...
+# Subtest: ineligible partner cannot create a rights review
+ok 20 - ineligible partner cannot create a rights review
+  ---
+  duration_ms: 400.734666
+  type: 'test'
+  ...
+# Subtest: summary-only viewer can read a planning review but cannot edit it
+ok 21 - summary-only viewer can read a planning review but cannot edit it
+  ---
+  duration_ms: 407.521041
+  type: 'test'
+  ...
+# Subtest: unrelated or partner-only 00000000-0000-4000-8000-000000000006 cannot load the rights review
+ok 22 - unrelated or partner-only 00000000-0000-4000-8000-000000000006 cannot load the rights review
+  ---
+  duration_ms: 405.702667
+  type: 'test'
+  ...
+# Subtest: unrelated or partner-only 00000000-0000-4000-8000-000000000007 cannot load the rights review
+ok 23 - unrelated or partner-only 00000000-0000-4000-8000-000000000007 cannot load the rights review
+  ---
+  duration_ms: 427.218625
+  type: 'test'
+  ...
+# Subtest: unrelated or partner-only 00000000-0000-4000-8000-000000000008 cannot load the rights review
+ok 24 - unrelated or partner-only 00000000-0000-4000-8000-000000000008 cannot load the rights review
+  ---
+  duration_ms: 399.257167
+  type: 'test'
+  ...
+# Subtest: viewer mismatch is refused before writes or private receipt lookup
+ok 25 - viewer mismatch is refused before writes or private receipt lookup
+  ---
+  duration_ms: 409.555209
+  type: 'test'
+  ...
+# Subtest: same request/payload confirms a lost reply without duplicate history or audit
+ok 26 - same request/payload confirms a lost reply without duplicate history or audit
+  ---
+  duration_ms: 408.4625
+  type: 'test'
+  ...
+# Subtest: same request with changed intent cannot replace the recorded operation
+ok 27 - same request with changed intent cannot replace the recorded operation
+  ---
+  duration_ms: 410.864333
+  type: 'test'
+  ...
+# Subtest: a stale revision cannot create a second review
+ok 28 - a stale revision cannot create a second review
+  ---
+  duration_ms: 407.082083
+  type: 'test'
+  ...
+# Subtest: history failure rolls back student revision/history/audit/private operation together
+ok 29 - history failure rolls back student revision/history/audit/private operation together
+  ---
+  duration_ms: 400.167083
+  type: 'test'
+  ...
+# Subtest: audit failure rolls back student revision/history/audit/private operation together
+ok 30 - audit failure rolls back student revision/history/audit/private operation together
+  ---
+  duration_ms: 398.367333
+  type: 'test'
+  ...
+# Subtest: cached/raw student UPDATE cannot forge rights_status
+ok 31 - cached/raw student UPDATE cannot forge rights_status
+  ---
+  duration_ms: 402.010042
+  type: 'test'
+  ...
+# Subtest: cached/raw student UPDATE cannot forge rights_status_revision
+ok 32 - cached/raw student UPDATE cannot forge rights_status_revision
+  ---
+  duration_ms: 403.030833
+  type: 'test'
+  ...
+# Subtest: cached/raw student UPDATE cannot forge transfer_notice_acknowledged_at
+ok 33 - cached/raw student UPDATE cannot forge transfer_notice_acknowledged_at
+  ---
+  duration_ms: 398.781959
+  type: 'test'
+  ...
+# Subtest: unrelated student metadata edits preserve the rights revision and review history
+ok 34 - unrelated student metadata edits preserve the rights revision and review history
+  ---
+  duration_ms: 401.047916
+  type: 'test'
+  ...
+# Subtest: private operation rows remain inaccessible despite future permissive policy/grant
+ok 35 - private operation rows remain inaccessible despite future permissive policy/grant
+  ---
+  duration_ms: 402.521916
+  type: 'test'
+  ...
+# Subtest: raw history replacement/deletion stays blocked despite permissive policies
+ok 36 - raw history replacement/deletion stays blocked despite permissive policies
+  ---
+  duration_ms: 395.715167
+  type: 'test'
+  ...
+# Subtest: forged session settings cannot mint the private transaction marker
+ok 37 - forged session settings cannot mint the private transaction marker
+  ---
+  duration_ms: 405.310791
+  type: 'test'
+  ...
+# Subtest: parent authorization is a recorded planning note, not a consent or sharing grant
+ok 38 - parent authorization is a recorded planning note, not a consent or sharing grant
+  ---
+  duration_ms: 409.419542
+  type: 'test'
+  ...
+# Subtest: legacy mismatch is shown for review and not silently normalized
+ok 39 - legacy mismatch is shown for review and not silently normalized
+  ---
+  duration_ms: 408.4375
+  type: 'test'
+  ...
+# Subtest: current operation wins deterministic display order over future-dated legacy history
+ok 40 - current operation wins deterministic display order over future-dated legacy history
+  ---
+  duration_ms: 404.546583
+  type: 'test'
+  ...
+# Subtest: replay after lost access does not reveal the original private review
+ok 41 - replay after lost access does not reveal the original private review
+  ---
+  duration_ms: 409.328
+  type: 'test'
+  ...
+# Subtest: removed recorded history cannot yield a false successful replay
+ok 42 - removed recorded history cannot yield a false successful replay
+  ---
+  duration_ms: 411.029458
+  type: 'test'
+  ...
+# Subtest: anon cannot call read/save RPCs
+ok 43 - anon cannot call read/save RPCs
+  ---
+  duration_ms: 405.615583
+  type: 'test'
+  ...
+# Subtest: service_role cannot call read/save RPCs
+ok 44 - service_role cannot call read/save RPCs
+  ---
+  duration_ms: 411.681
+  type: 'test'
+  ...
+# Subtest: non-read-committed save is refused without writes
+ok 45 - non-read-committed save is refused without writes
+  ---
+  duration_ms: 398.1505
+  type: 'test'
+  ...
+# Subtest: invalid calendar date rolls back the complete transaction
+ok 46 - invalid calendar date rolls back the complete transaction
+  ---
+  duration_ms: 399.953125
+  type: 'test'
+  ...
+# Subtest: atomic audit contains no notes or raw authorization text
+ok 47 - atomic audit contains no notes or raw authorization text
+  ---
+  duration_ms: 403.529375
+  type: 'test'
+  ...
+# Subtest: installation rollback leaves status/history/data and old table permissions unchanged
+ok 48 - installation rollback leaves status/history/data and old table permissions unchanged
+  ---
+  duration_ms: 403.254375
+  type: 'test'
+  ...
+# Subtest: repeated installation stops before a partial change
+ok 49 - repeated installation stops before a partial change
+  ---
+  duration_ms: 410.759584
+  type: 'test'
+  ...
+# Subtest: history row suppression cannot produce a false successful receipt
+ok 50 - history row suppression cannot produce a false successful receipt
+  ---
+  duration_ms: 407.065083
+  type: 'test'
+  ...
+# Subtest: student row suppression cannot produce a false successful receipt
+ok 51 - student row suppression cannot produce a false successful receipt
+  ---
+  duration_ms: 406.109625
+  type: 'test'
+  ...
+# Subtest: audit row suppression cannot produce a false successful receipt
+ok 52 - audit row suppression cannot produce a false successful receipt
+  ---
+  duration_ms: 413.378333
+  type: 'test'
+  ...
+# Subtest: rights history TRUNCATE is not an ordinary-account capability
+ok 53 - rights history TRUNCATE is not an ordinary-account capability
+  ---
+  duration_ms: 402.362709
+  type: 'test'
+  ...
+# Subtest: partner-only relationships cannot read raw recorded rights history
+ok 54 - partner-only relationships cannot read raw recorded rights history
+  ---
+  duration_ms: 408.480458
+  type: 'test'
+  ...
+1..54
+# tests 54
+# suites 0
+# pass 54
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 22440.65125

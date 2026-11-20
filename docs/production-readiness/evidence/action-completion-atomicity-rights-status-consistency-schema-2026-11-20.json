@@ -1,0 +1,52 @@
+{
+  "schema": "rights-status-consistency-full-schema-v1",
+  "source_commit": "30024c2d464c9cd54cd557f4f66e38e6d661325a",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 7,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "all_existing_public_routines_preserved": true,
+  "existing_policies_preserved": true,
+  "new_restrictive_policies": 5,
+  "new_routines": 5,
+  "new_triggers": 2,
+  "new_foreign_key_internal_triggers": 4,
+  "all_existing_triggers_preserved": true,
+  "history_client_writes_revoked": true,
+  "all_other_table_privileges_preserved": true,
+  "old_history_consent_audit_document_data_preserved": true,
+  "old_student_values_preserved_revision_only_added": true,
+  "private_operations_table_rls_no_client_service_access": true,
+  "real_schema_smoke": {
+    "real_auth_profile_student_history_audit_tables": true,
+    "authenticated_save_read_replay": true,
+    "exactly_once": true,
+    "no_consent_write": true,
+    "fictional_transaction_rolled_back": true
+  },
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_legacy_privacy_proof_sha256": "8ec50392bd9d94486573a0a9586c0a02a8326818a429c56695b86ee32a27692d",
+  "before_catalog_sha256": "8c6ab90ff874d82f567ca2b3689923b4c885896359950dc6236ec7ae110c806c",
+  "after_catalog_sha256": "159429368686da77d032d9655bb9a15c0351a0bbeda1608254d77e4d1c800f15",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/rights-status-consistency/atomic-rights-review.review.sql",
+      "sha256": "4937ccb7464a01efdbcdc2144bf46a3119179e676a961de93a6f2e4dd89ebc53"
+    },
+    {
+      "path": "tests/database/rights-status-consistency.test.mjs",
+      "sha256": "df8c618a6bda831a37738cf6bda4747fe7aa3c78a22f85f1456c621e4542bf57"
+    },
+    {
+      "path": "tests/database/run-rights-status-consistency-schema.mjs",
+      "sha256": "8a4600affa0a249af9da518e2296f2a358ce8377853b4c1e5f0969a10041de4c"
+    },
+    {
+      "path": ".github/workflows/rights-status-consistency-review.yml",
+      "sha256": "6d03d39e060764200b932e34ec242efb0bed186d8fffff4114a75a62a8946017"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

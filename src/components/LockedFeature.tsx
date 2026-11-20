@@ -1,6 +1,8 @@
-import { Lock, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { useContext } from "react";
+import { DashboardReturnContext, isDashboardHomeDestination } from "@/components/dashboard/dashboard-return-context";
+import { Lock, Sparkles } from "lucide-react";
 
 type Props = {
   title: string;
@@ -23,6 +25,7 @@ export function LockedFeature({
   backTo = "/dashboard",
   backLabel = "Back to dashboard",
 }: Props) {
+  const headerOwnsReturn = useContext(DashboardReturnContext);
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center px-4 py-16 text-center sm:px-6 lg:px-8">
       <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -42,11 +45,13 @@ export function LockedFeature({
       <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
         <Sparkles className="h-3.5 w-3.5 text-primary" /> Coming soon
       </div>
-      <div className="mt-8">
-        <Button asChild variant="outline">
-          <Link to={backTo}>{backLabel}</Link>
-        </Button>
-      </div>
+      {!(headerOwnsReturn && isDashboardHomeDestination(backTo)) && (
+        <div className="mt-8">
+          <Button asChild variant="outline">
+            <Link to={backTo}>{backLabel}</Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

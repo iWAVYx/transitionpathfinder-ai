@@ -1,0 +1,53 @@
+{
+  "schema": "document-rescan-source-claim-local-v1",
+  "date": "2026-10-31",
+  "source_base": "1151b02f4983045b4115d278e3d53c1e41d49cee",
+  "status": "Private rescan source/capacity foundation verified locally; native/full225+ten replay pending. No activation.",
+  "focused": {
+    "declared": 52,
+    "passed_local": 48,
+    "native_only_skips": 4,
+    "failed": 0,
+    "includes_final_workflow_guard_execution": true,
+    "log_sha256": "9bf39f764bb0adfcd84f4cb2544b0487fa0e1405af8ba3fef36291e4cb3b14ab"
+  },
+  "full_sql": {
+    "declared": 1106,
+    "passed_local": 975,
+    "native_only_skips": 131,
+    "failed": 0,
+    "log_sha256": "e7755c9e41b8da4247c3ce8d76509cc73d94f30440014abad4834784471b8ccc"
+  },
+  "safety_contracts": 110,
+  "yaml_and_workflow_shell_parsed": true,
+  "runtime": {
+    "website_unchanged": true,
+    "fingerprint": "3de06675c2de5effc6ff6888e189201d4f26cd9a2fba6d9c51b2433ac12e1f16",
+    "files": 1205,
+    "worker_unchanged": true,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_files": 4
+  },
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-source-claim.sql",
+      "sha256": "fad01efea48b9d10d2b6d01ae9cb92369c2001192eaa89065247a68ccf720406"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-source-claim-review.json",
+      "sha256": "ebe2ff2f4078fbc35673d221f2525ace5b1099a408daa2738e0fa5a1fe1bdfed"
+    }
+  ],
+  "native_full_schema_confirmation_pending": true,
+  "canonical_migrations": 225,
+  "noncanonical_proposals": 10,
+  "existing_fifteen_migration_batch_includes_proposals": false,
+  "application_capacity_hooks_installed": false,
+  "source_bound_pending_transition_prepared": false,
+  "source_bound_rescan_completion_settlement_prepared": false,
+  "trusted_reconciliation_implemented": false,
+  "ready_for_cutover": false,
+  "hosted_actions": false,
+  "production_actions": false,
+  "real_storage_provider_ai_calls": false
+}

@@ -1,0 +1,125 @@
+{
+  "schema": "transitionforward-admin-document-grant-retirement-targeted-local-v1",
+  "date": "2026-11-15",
+  "source_base": "2a8239a35dca58a4f088c541f15567d3cce620e9",
+  "scope": "Reviewed source draft and targeted in-memory PostgreSQL/WASM cases; not native concurrency, full-schema replay or hosted installation.",
+  "status": "local-reproduction-and-draft-complete-native-integration-open",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
+      "sha256": "80b74335dc6874c723b0f2158f6573f2854da20bcf0b2ae4c210d0c2c7c2b8d0"
+    },
+    {
+      "path": "tests/database/document-admin-grant-retirement.test.mjs",
+      "sha256": "a7d9f42463a24bebc0169cb087ce1b08e8a9380e17b719a8c8fd50a0a4a89b7f"
+    },
+    {
+      "path": ".github/workflows/document-admin-grant-review.yml",
+      "sha256": "b447a96ec814d19b47d2074864dd4c0022b51ca35609f4e5a5f889a1fb491a58"
+    },
+    {
+      "path": "src/lib/document-access-audit-display.ts",
+      "sha256": "9d6e4d5de09c4e4b244076decbe271c55fae07bdfb1e37d644c4e412b59fa340"
+    },
+    {
+      "path": "src/routes/_authenticated/owner.iep-audit.tsx",
+      "sha256": "74ff5d2306dd2ef328cb98c6df5f4dd76fc57342db33e7c3e462f7fa79561776"
+    },
+    {
+      "path": "tests/unit/document-access-audit-display.test.ts",
+      "sha256": "7e34fa65f27995011a9b4d4a7de8824c5438b122675484a8f5bc1c269bdd56a5"
+    }
+  ],
+  "canonical_excerpt_sources": [
+    {
+      "path": "supabase/migrations/20260603221955_27d34c77-a00d-4a08-bef6-b3ad40b8c48d.sql",
+      "sha256": "fd0b6c0ef5e172bb2c7bae221840ce6025cd77d510b2477640e81e31f9c7bdb2"
+    },
+    {
+      "path": "supabase/migrations/20260611232723_f4eac771-7183-4a69-887e-49ea6b7c4f75.sql",
+      "sha256": "a0f5fcef2f1893690fa5d5fe1574827c37f2151b0a40b000d8577754d6f1e72b"
+    },
+    {
+      "path": "supabase/migrations/20260624032049_03e91336-dff5-4bda-b5ff-94294f60d6ef.sql",
+      "sha256": "dfc8224b1bfbb9f11f3456538cc30e3ea258d15f08ffa6576247f3badb9b50a2"
+    },
+    {
+      "path": "supabase/migrations/20260907190000_security_finding_alignment.sql",
+      "sha256": "3155d9b4cba7eec0a3171edd041a004155dc509cc585a8deb74aa9723a8d22cf"
+    },
+    {
+      "path": "supabase/migrations/20261024010000_remove_implicit_admin_student_access.sql",
+      "sha256": "02ccd0acc33466c5c53f0382eafead622d72d8d135517978f2b7db9267ebc306"
+    },
+    {
+      "path": "supabase/migrations/20261029020200_document_storage_write_boundary.sql",
+      "sha256": "8aba6cb1d578a4e09a4d1d5b077db968c07274571767329ccf9a2f8ebcda78d2"
+    },
+    {
+      "path": "supabase/migrations/20261029020800_document_quarantine_read_boundary.sql",
+      "sha256": "31076fda2f24a847c096928263f9ed21e9ba37446358ac1ee1a31f3627058e7e"
+    }
+  ],
+  "verification": {
+    "targeted_database_cases": 27,
+    "passed": 27,
+    "failed": 0,
+    "skipped": 0,
+    "engine": "@electric-sql/pglite 0.5.8 (in-memory PostgreSQL/WASM)",
+    "full_unit_cases": 6020,
+    "unit_files": 373,
+    "display_cases": 6,
+    "inventory_navigation_cases": 94,
+    "storage_inventory_cases": 9,
+    "release_security_cases": 72,
+    "typescript": "passed",
+    "isolated_environment_file_free_build": "passed"
+  },
+  "proved_locally": [
+    "Actual canonical admin grant table/policies and has_recent_admin_doc_access/Storage helper bodies reproduce self-granted unrelated access.",
+    "Review draft revokes authenticated grant INSERT, adds a restrictive refusal, drops the private metadata override policy and retains an inert false-returning helper signature/OID/ACL.",
+    "Pre-existing/unexpired and newly service-written grant rows confer no private access through the targeted legacy paths after retirement.",
+    "Historical grant rows are preserved; existing Storage helper body, explicit ownership/self/collaboration/document-permission access, editor/viewer distinctions and pre-registration uploader reads remain intact.",
+    "Partner-only/unrelated/removed users, quarantine and existing client overwrite/delete restrictions remain denied.",
+    "Changed legacy function identity and repeat installation refuse; transaction rollback restores the original policy/helper/privilege state.",
+    "Owner audit consumes the existing document.signed_url.denied audit stream. Refused links are shown truthfully and reason codes/private arbitrary text are not rendered as explanations."
+  ],
+  "fixture_limits": [
+    "Schema is a minimal targeted fixture using exact canonical function/policy excerpts, not full225 canonical replay.",
+    "has_audience returns false in the fixture; audience-based grants are not certified by these tests.",
+    "Quarantine uses exact canonical predicate/policy bodies without certifying the full installation preflight prerequisites.",
+    "Storage checks query actual in-memory storage.objects RLS; no Storage API or real bytes are accessed.",
+    "Single in-memory connection does not certify old plans, in-flight transactions, migration contention or provider cessation."
+  ],
+  "remaining": [
+    "Native PostgreSQL current-catalog/full-chain installation and cached/in-flight access races.",
+    "Promote the separate review draft into the final ordered/canonical/ledger package only after review; existing225+41 evidence does not include it.",
+    "Verify deployed schema/grants/worker/config under separately authorized isolated access, then stage and run bounded acceptance.",
+    "Already minted bearer links may survive until expiry; no SQL draft can claim to revoke them.",
+    "Operational alert delivery/consumer availability still needs hosted launch verification.",
+    "Current document-permission levels and audience-derived grants still require the existing full-role privacy review under5.2; this narrow retirement does not certify every download permission path."
+  ],
+  "ordered_chain_added": false,
+  "canonical_sql_changed": false,
+  "separate_review_draft_added": true,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false,
+  "raw_local_result": {
+    "path": "docs/production-readiness/evidence/document-admin-grant-retirement-local-2026-11-15.tap",
+    "sha256": "6eaeb2d02768d808d72db9e29ee57f0649c3dc9535f0f3a91961d2bb2663ad49",
+    "tests": 27,
+    "passed": 27,
+    "failed": 0,
+    "skipped": 0
+  },
+  "runtime_source_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "2da31a9e9bef9cf03b4f0105617c8fecd0e2386b19b5619f8901683141b46ce3",
+    "fileCount": 1223
+  }
+}

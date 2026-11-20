@@ -1,0 +1,82 @@
+{
+  "schema": "document-registration-capacity-settlement-local-v1",
+  "date": "2026-10-31",
+  "source_base": "5b3c9efbcbf9278edbd1e0adb1024a26178b4a43",
+  "status": "Source-bound upload completion and private settlement prepared; rescan/Apply and application capacity integration remain open",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "sha256": "7267aadb7fc06a5866d3df55673f19efe64de6c5919fb4c7412a19f189162520"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement-review.json",
+      "sha256": "ba4d0ab6da8cf4e461460d1ae86245456a908fb2d791dc012814e38ca2d2a96a"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "b7ddb8740e004f0b75986db1b8d1da9c0b0eadf5e30fa275a6c500137522f10f"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "ebf40ee748473766bb6aba8e11fd972c64c5b7cad24b761300c91e5ea5459325"
+    }
+  ],
+  "validation": {
+    "full_local_sql": {
+      "tests": 1045,
+      "passed": 919,
+      "failed": 0,
+      "skipped": 126,
+      "skip_scope": "Native PostgreSQL concurrency-only cases"
+    },
+    "new_registration_cases": 50,
+    "new_native_only_cases": 6,
+    "focused_final": {
+      "tests": 50,
+      "passed": 44,
+      "failed": 0,
+      "skipped": 6
+    },
+    "offline_safety_and_accounting_contracts": 110,
+    "workflow_yaml": "parsed; ninth disposable stage prepared",
+    "parity": "Complete original finish capability/state/outcome/reply body preserved apart from private lock/receipt calls; complete previous capacity guard preserved apart from registration deductions. Both parity cases pass.",
+    "corrections": "Initial preflight incorrectly assumed upload-attempt reads were wholly private; corrected to preserve the exact existing scoped SELECT grants/policies without mutation rights. Added the missing canonical documents.updated_at field to the disposable fixture. Quarantine mixed-case test now uses a UUID containing letters. No actual schema/permission workaround or weakened assertion.",
+    "new_source_ci": "Pending: native1045 cases and full225+all-nine proposals, exact eight routine hashes/owners/private grants, existing-owner helper execution, enabled guards, unset policy and dormant proof artifact.",
+    "final_documentation_contracts": 44
+  },
+  "verified_previous_summary_stage": {
+    "source": "5b3c9efbcbf9278edbd1e0adb1024a26178b4a43",
+    "evidence": "docs/production-readiness/evidence/document-summary-capacity-settlement-verified-2026-10-31.json",
+    "native_each": 995,
+    "native_skips": 0,
+    "full_replays": "Both225+eight",
+    "automatic_successes": 9
+  },
+  "proof_boundary": "Disposable metadata/domain consistency, not a physical scanner/provider stop proof, spending cap, full source-bound admission integration or hosted acceptance.",
+  "runtime_source_unchanged": {
+    "website_fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "website_files": 1205,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_files": 4
+  },
+  "canonical_migrations": 225,
+  "existing_unapplied_batch": 15,
+  "noncanonical_unapplied_proposals": 9,
+  "registration_capacity_settlement_prepared": true,
+  "rescan_apply_settlement_implemented": false,
+  "source_bound_admission_queue_worker_hooks_installed": false,
+  "general_application_limits_implemented": false,
+  "queue_budget_reservation_implemented": false,
+  "numeric_policy_selected": false,
+  "manual_reconciliation_implemented": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "next": [
+    "Prepare exact source-bound rescan and Apply completion proof; do not settle actor-only leases from typed status.",
+    "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
+    "Verify current native1045-case races and full225+all-nine proposal replay; select reviewed numeric ceilings and finish canonical/ledger packaging.",
+    "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
+  ]
+}

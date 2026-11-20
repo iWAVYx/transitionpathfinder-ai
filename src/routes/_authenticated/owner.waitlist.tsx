@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -539,7 +540,7 @@ function WaitlistDetailDrawer({
               <Field label="Org type" value={entry.organization_type} />
               <Field label="City" value={entry.city} />
               <Field label="State" value={entry.state} />
-              <Field label="Grade band" value={entry.student_grade_band} />
+              <Field label="Grade band" value={formatGradeBand(entry.student_grade_band, "Not set")} />
               <Field label="Source" value={entry.source || entry.source_page} />
               <Field label="Submitted" value={new Date(entry.created_at).toLocaleString()} />
             </dl>

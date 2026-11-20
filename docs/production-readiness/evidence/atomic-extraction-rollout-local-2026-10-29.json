@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-29",
+  "status": "Canonical migration, exact-ledger batch and read-only preflight verified in disposable CI; hosted rollout remains unapplied and unauthorized",
+  "source_base": "1ce0cec3",
+  "application_changed": false,
+  "application_fingerprint": "2052a88b3659f352848ca036c45a8b358c4edb7066039b260bcb34b39aefe886",
+  "application_file_count": 1200,
+  "canonical_migration_count": 211,
+  "new_migration": "supabase/migrations/20261029010000_apply_reviewed_document_extraction.sql",
+  "new_migration_sha256": "cc0ded8c47b1a009cbe7477e84f2902fe43fedeb4845a52ebd15d50689200600",
+  "upload_summary_proposals_remaining_unapplied": 14,
+  "hosted_actions": false,
+  "release_plan": "docs/production-readiness/proposals/atomic-extraction-release-plan.json",
+  "checked": [
+    "Canonical function body remains identical to the previously verified atomic implementation; new installation guard requires existing RLS, extraction revision trigger and evidence uniqueness. No data/permission rewrite.",
+    "Rollout generator only prepares SQL strings, never connections. Exact prerequisite sources/names, absence of new version/routine, serialized installation and exact full-source ledger commit together. Duplicate/drift or failed ledger insertion rolls back function DDL.",
+    "Read-only trusted preflight emits only fixed state/count/catalog/ledger values, never student/document UUIDs, content, notes or evidence payloads. Incomplete RLS visibility fails closed. Existing problems are counted, not repaired.",
+    "Saved production-history comparisons now report 211 canonical and 17 pending against the same September17 saved evidence, not a new production read or approval.",
+    "Full application release is still blocked on fourteen noncanonical upload/summary proposals, old-handler drain, explicit flag/data review and separate authorization. No migration or test has run hosted.",
+    "Disposable CI seeds an explicitly synthetic four-row prerequisite/new ledger after the complete psql replay, because psql does not create a Supabase ledger. This is never evidence of hosted application."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 647,
+      "pass": 579,
+      "fail": 0,
+      "skip": 68,
+      "skips": "Real PostgreSQL contention only; no local concurrency proof."
+    },
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    },
+    "native_full_schema": {
+      "tests": 647,
+      "pass": 647,
+      "fail": 0,
+      "skip": 0,
+      "canonical_replay": 211,
+      "upload_summary_proposals_after_replay": 14,
+      "pr_run": 40896112196,
+      "push_run": 40896103226,
+      "artifact": "docs/production-readiness/evidence/atomic-extraction-preflight-disposable-2026-10-29.json",
+      "artifact_provenance": "Empty disposable databases with a separately labeled synthetic four-row ledger, never hosted data or migration history.",
+      "artifacts": [
+        {
+          "event": "pr",
+          "run": 40896112196,
+          "sha256": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45"
+        },
+        {
+          "event": "push",
+          "run": 40896103226,
+          "sha256": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45"
+        }
+      ]
+    },
+    "local_fixture_note": "The new disposable-ledger seed initially met an existing empty test namespace; its test now starts from the same absent namespace as CI. No hosted schema, assertions, migration guards or grants were relaxed.",
+    "initial_native_run": {
+      "source": "f7b0272335daface83b676ddaaecb76d016ac37e",
+      "pr_run": 40894190030,
+      "push_run": 40894177354,
+      "tests": 647,
+      "pass": 627,
+      "fail": 20,
+      "skip": 0,
+      "first_failure": "Test 628: SQLSTATE 54011, disposable documents table exhausted PostgreSQL dropped-column slots; subsequent aborted-transaction errors were cascading harness failures."
+    },
+    "fixture_correction": "Recreate the disposable documents table for each case, preserving the captured original policies and exact ACL, asserting zero dropped-column slots and ACL parity, without CASCADE. Roll back any failed case transaction before resetting. No migration assertions or guards relaxed. Corrected local run: 579 pass, 68 native-only skips, zero failures; both corrected native runs now pass 647/647 with zero skips.",
+    "automatic_checks": {
+      "passed": 9,
+      "source": "471a4848f60e4be5c6dc0ebdcf94015909d05a47",
+      "build_runs": [
+        40896112162,
+        40896103166
+      ],
+      "unit_run": 40896112171,
+      "unit_tests": 5294,
+      "role_run": 40896112446,
+      "accessibility_run": 40896112255,
+      "readiness_run": 40896112298,
+      "static_run": 40896112175,
+      "hosted_checks": "Skipped; no live role, data or provider acceptance inferred."
+    }
+  },
+  "limitations": [
+    "Rollback-only hosted acceptance is prepared, not executable/authorized; exact existing verified fictional sources and baseline reconciliation must be reviewed first. No invented clean receipt or real-user substitution.",
+    "Canonical preparation does not close direct-writer, edit lost-update, whole-permission graph, provider-byte, retention or complete-reference gates.",
+    "No production/main, hosted migration/deployment/publication, fixtures, account/access/payment/secret, provider/AI action. Parent Pilot / Pathway Snapshot and report polish remain deferred."
+  ],
+  "preflight_sha256": "a4f51971766a8266a09da5124a4cfb628505937701a7a3e7b980ef5ca8d1c8c4",
+  "verified_source": "471a4848f60e4be5c6dc0ebdcf94015909d05a47"
+}

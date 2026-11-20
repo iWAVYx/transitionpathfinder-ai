@@ -1,3 +1,4 @@
+import { upcomingRecordedMeeting } from "./recorded-status";
 import type { DashboardSnapshot } from "@/lib/golden-path.functions";
 
 type PreviewDetails = { details: Array<{ label: string; value: string }>; nextStep: string };
@@ -8,7 +9,7 @@ export function studentToolPreviewDetails(
   snapshot: DashboardSnapshot,
 ): PreviewDetails {
   const student = snapshot.student;
-  const meeting = snapshot.upcomingMeeting;
+  const meeting = upcomingRecordedMeeting(snapshot.upcomingMeeting);
   if (path.startsWith("/students") || path === "/student-voice")
     return {
       details: [
@@ -55,7 +56,9 @@ export function studentToolPreviewDetails(
         { label: "Location", value: meeting?.location || "No location has been set." },
         {
           label: "Preparation",
-          value: `${snapshot.meetingPrep.filter((item) => !item.completed).length} saved preparation items still need attention.`,
+          value: meeting
+            ? `${snapshot.meetingPrep.filter((item) => !item.completed).length} saved preparation items for this meeting still need attention.`
+            : "No upcoming meeting is selected for preparation.",
         },
       ],
       nextStep:
@@ -76,7 +79,7 @@ export function studentToolPreviewDetails(
         .slice(0, 3)
         .map((resource) => ({ label: resource.title, value: resource.matched_reason })),
       nextStep:
-        "Open a recommended resource to review why it fits, then save the useful ones for your plan.",
+        "Open a resource to decide whether it is useful, then save the ones you want to discuss with your team.",
     };
   if (path.includes("action-items"))
     return {

@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-04",
+  "workstream_action": "1.4",
+  "completed_substep": "Reject stale review revision/sections before generic admission and held-work creation",
+  "source": "src/lib/document-extraction-apply.server.ts",
+  "sha256": "ab1f70d8e63bb6cc93ee00089a84a75b3d8533002087ea7c4138bb4fdc60e1c0",
+  "focused_tests": 38,
+  "passed": 38,
+  "typescript": "passed",
+  "capacity_binding_implemented": false,
+  "remaining": [
+    "Exact student/source-bound Apply capacity reservation",
+    "Confirmed atomic save/completion accounting",
+    "Native/full-schema and applicable-role verification"
+  ],
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false,
+  "full_unit_tests": 5707,
+  "unit_files": 362,
+  "readiness_hosting_contracts": 41
+}

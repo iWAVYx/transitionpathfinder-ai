@@ -1,0 +1,21 @@
+{
+  "schema": "document-guarded-composite-native-proof-v1",
+  "source_commit": "c9c69ce2e82a08e7618f489e02503cc7a3b540b8",
+  "tests": 42,
+  "passed": 42,
+  "failed": 0,
+  "skipped": 0,
+  "native": true,
+  "test_sha256": "5cfe821b16863e415e71891d645d5a5678f1abb93c8074a683dcc263207bbbcd",
+  "fixture_sha256": "5c9d514f90a5a5b20c437354f701a773a1e6e272734bc739ef56556b5c960a6a",
+  "shared_fixture_sha256": "85947aaad7a32c4f120299cfdb0ab2e834605083745f14922a54c82606ef9e62",
+  "manual_handler_sha256": "7e2333fe0d2b27146a4a74e3d537c6d58c0c1e3ef85149bfb1e2ac076e0acc3a",
+  "writer_sql_sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069",
+  "marker_sql_sha256": "58877488d0cb42e35c3ae6a897fc89de915af700f53df0f1bacd5bc761b3c7b0",
+  "apply_sql_sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25",
+  "recovery_sql_sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07",
+  "log_sha256": "abf0866b2ad765d8685b6bc84a98f5268d9b2029cb1837eae8288fde5f09951b",
+  "provider_calls": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
+import { readReportPages, readReportBatches } from "./report-query-pages";
 
 /**
  * Consolidated "Who can see this student?" panel data.
@@ -55,46 +57,48 @@ export type AccessOverview = {
 export const getStudentAccessOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) =>
-    z.object({ student_id: z.string().uuid() }).parse(i),
+    z.object({ student_id: z.string().uuid(), ...viewerIntentSchema.shape }).parse(i),
   )
   .handler(async ({ data, context }): Promise<AccessOverview> => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
     const studentId = data.student_id;
 
     const [collabsRes, relsRes, reportsRes] = await Promise.all([
-      supabase
+      readReportPages((from, to) => supabase
         .from("student_collaborators")
-        .select("id, user_id, invited_email, role, created_at, status")
+        .select("id, user_id, invited_email, role, created_at, status", { count: "exact" })
         .eq("student_id", studentId)
-        .eq("status", "accepted"),
-      supabase
+        .eq("status", "accepted").order("id").range(from, to)),
+      readReportPages((from, to) => supabase
         .from("student_relationships")
         .select(
           "id, related_user_id, relationship_type, permission_level, created_at, consent_status",
+          { count: "exact" },
         )
         .eq("student_id", studentId)
-        .eq("consent_status", "approved"),
-      supabase
+        .eq("consent_status", "approved").order("id").range(from, to)),
+      readReportPages((from, to) => supabase
         .from("pathway_reports")
-        .select("id")
-        .eq("student_id", studentId),
+        .select("id", { count: "exact" })
+        .eq("student_id", studentId).order("id").range(from, to)),
     ]);
 
-    const collabRows = (collabsRes.data ?? []) as Array<{
+    const collabRows = collabsRes as Array<{
       id: string;
       user_id: string | null;
       invited_email: string;
       role: string;
       created_at: string;
     }>;
-    const relRows = (relsRes.data ?? []) as Array<{
+    const relRows = relsRes as Array<{
       id: string;
       related_user_id: string;
       relationship_type: string;
       permission_level: string;
       created_at: string;
     }>;
-    const reportIds = (reportsRes.data ?? []).map((r) => r.id as string);
+    const reportIds = reportsRes.map((r) => r.id as string);
 
     // Resolve profiles for the user-backed rows
     const userIds = new Set<string>();
@@ -102,10 +106,10 @@ export const getStudentAccessOverview = createServerFn({ method: "POST" })
     relRows.forEach((r) => userIds.add(r.related_user_id));
     const profiles: Record<string, { full_name: string | null; email: string | null }> = {};
     if (userIds.size > 0) {
-      const { data: ps } = await supabase
+      const ps = await readReportBatches(Array.from(userIds), (ids, from, to) => supabase
         .from("profiles")
-        .select("id, full_name, email")
-        .in("id", Array.from(userIds));
+        .select("id, full_name, email", { count: "exact" })
+        .in("id", ids).order("id").range(from, to));
       (ps ?? []).forEach((p) => {
         profiles[p.id as string] = {
           full_name: (p.full_name as string | null) ?? null,
@@ -125,13 +129,15 @@ export const getStudentAccessOverview = createServerFn({ method: "POST" })
       created_at: string;
     }> = [];
     if (reportIds.length > 0) {
-      const { data: sl } = await supabase
+      const sl = await readReportBatches(reportIds, (ids, from, to) => supabase
         .from("share_tokens")
         .select(
           "id, report_id, audience, expires_at, view_count, last_viewed_at, created_at, revoked",
+          { count: "exact" },
         )
-        .in("report_id", reportIds)
-        .eq("revoked", false);
+        .in("report_id", ids)
+        .eq("revoked", false).order("id").range(from, to));
+      const observedAt = Date.now();
       shareRows = ((sl ?? []) as Array<{
         id: string;
         report_id: string;
@@ -142,7 +148,7 @@ export const getStudentAccessOverview = createServerFn({ method: "POST" })
         created_at: string;
         revoked: boolean;
       }>)
-        .filter((r) => !r.expires_at || new Date(r.expires_at) > new Date())
+        .filter((r) => !r.expires_at || new Date(r.expires_at).getTime() > observedAt)
         .map((r) => ({
           id: r.id,
           report_id: r.report_id,

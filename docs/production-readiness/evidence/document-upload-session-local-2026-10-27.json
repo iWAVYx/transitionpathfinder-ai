@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-27",
+  "status": "local candidate; automatic review pending; not deployed",
+  "base_commit": "8a8b481f619ca2b2a89be1c57ededfdb2e1aacdd",
+  "correction": [
+    "The shared upload form receives the authenticated viewer from the already-authenticated student page and remounts its review session when viewer, student or edit entitlement changes.",
+    "An active-session guard rejects retained privacy callbacks after departure and checks every awaited preflight, storage and registration boundary before starting the next step.",
+    "Late successes, failures and list-refresh failures cannot clear the new session form, refresh its list or show old notices. Finally cleanup avoids state updates after departure.",
+    "Both preflight and registration receive expected_viewer_id and reject mismatched authenticated viewer intent before permission queries or processing. The hint grants no access; authenticated context still supplies the actor.",
+    "Preflight requires explicit true edit permission and false partner-only status, with no RPC errors. Missing, malformed, errored and rejected responses fail closed without private error leakage or replay.",
+    "The browser requires an explicit successful preflight response before uploading bytes. Existing protected-upload gate, scan receipts and uncertainty pause remain unchanged."
+  ],
+  "validation": {
+    "focused_cases": 91,
+    "new_cases": 37,
+    "full_unit_files": 343,
+    "full_unit_tests": 5073,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "static_upload_gate_contracts": 5,
+    "diff_check": "passed",
+    "service_worker": "passed"
+  },
+  "prior_candidate_ci": {
+    "candidate": "8a8b481f",
+    "applicable_checks_passed": 8,
+    "hosted_acceptance": "skipped, not passed"
+  },
+  "runtime_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "dadc5d6a0abc8e7d3d7b49aaf0dcb94ccc582e674d04cfc94e045dbb5e6a907b",
+    "file_count": 1192
+  },
+  "limits": [
+    "Mocked local tests only; no real uploads, provider calls, hosted fixtures or acceptance run.",
+    "A request already dispatched may still complete. This is a boundary guard, not transport cancellation, rollback or a transaction spanning browser storage and server registration.",
+    "If storage completes after departure, registration is not newly started; those exact objects still require safe reconciliation. No blind deletion or prefix cleanup was added.",
+    "The optional server viewer-intent hint is not authorization; RLS and current authenticated permission checks remain authoritative. The shared UI supplies the hint on both calls.",
+    "Uncertain writes pause only their current form, not all tabs or future visits. Content-hash dedupe, exact orphan cleanup, unavailable-versus-empty lists, effective quarantine/download exceptions and background jobs remain open.",
+    "No role entitlements expanded; Owner/admin require explicit student access. Public demo remains sample-only without real uploads.",
+    "No deployment, publication, migration, production/original-main merge, accounts/access, payments or secrets changes."
+  ],
+  "next": [
+    "Complete fresh automatic review.",
+    "Finish duplicate/hash/orphan reconciliation and background-job cleanup mapping before preparing separately bounded goal-save/storage acceptance.",
+    "Request fresh scoped authorization before hosted rollout or fixture/provider work; human GitHub staging reviews remain required."
+  ],
+  "preserved": [
+    "Full TF-01\u2013TF-26/six milestones and production gates",
+    "Lovable heading and protected environments/dependencies/generated types/widget views",
+    "Deferred report polish and Parent Pilot/Pathway Snapshot"
+  ]
+}

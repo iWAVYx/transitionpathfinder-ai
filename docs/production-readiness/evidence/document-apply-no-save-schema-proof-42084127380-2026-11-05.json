@@ -1,0 +1,135 @@
+{
+  "paused": true,
+  "schema": "document-apply-no-save-proof-v1",
+  "routines": [
+    {
+      "name": "assert_document_apply_no_save",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "cb4c8db5d2997490b63e69e1927331ae",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "begin_bound_document_apply",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "3e91e42a0bbed4937e1f971240d18910",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "check_document_apply_no_save_commit",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "aa790e0ede26281f279f08979bf59448",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "count_document_apply_no_save_reconciliations",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "9926d52402da3785ff462967c598fcbe",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "guard_document_apply_no_save_reconciliation",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "828aa40c5a75631fa140374b054de851",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "guard_document_capacity_reservation",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "f16664ce92d6398ccfea11b43fb5fc74",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "guard_reconciled_document_apply_lease",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "4b2809595e26810b86c126485da3f741",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "inspect_document_operation_drain",
+      "owner": "supabase_admin",
+      "definer": true,
+      "body_md5": "7b00cc3117fe90d6acfe882eb0903c33",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "inspect_internal_document_operation_review",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "370dccff660186cd520e5a17ad86e6ac",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "is_document_apply_no_save_reconciled",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "239917de14a68e098877245e85e6d215",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "reconcile_internal_document_apply_no_save",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "6a8e1cd3465ea94f1c3957a459356695",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "record_document_operation_review",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "ef113c17bd354bf251bb638c42f337ad",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "set_document_operation_pause",
+      "owner": "supabase_admin",
+      "definer": true,
+      "body_md5": "cf8584352cf80b6b51ee2190b7c73f3c",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    }
+  ],
+  "ledger_rows": 0,
+  "hosted_applied": false,
+  "ready_for_cutover": false,
+  "provider_resolution": false,
+  "service_resolver_callable": false
+}

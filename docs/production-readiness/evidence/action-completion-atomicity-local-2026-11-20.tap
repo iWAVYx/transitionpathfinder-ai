@@ -1,0 +1,244 @@
+TAP version 13
+# Subtest: current family atomically completes action/activity/report marker
+ok 1 - current family atomically completes action/activity/report marker
+  ---
+  duration_ms: 782.923708
+  type: 'test'
+  ...
+# Subtest: current student atomically completes action/activity/report marker
+ok 2 - current student atomically completes action/activity/report marker
+  ---
+  duration_ms: 468.74825
+  type: 'test'
+  ...
+# Subtest: current educator atomically completes action/activity/report marker
+ok 3 - current educator atomically completes action/activity/report marker
+  ---
+  duration_ms: 433.188
+  type: 'test'
+  ...
+# Subtest: current school atomically completes action/activity/report marker
+ok 4 - current school atomically completes action/activity/report marker
+  ---
+  duration_ms: 417.172209
+  type: 'test'
+  ...
+# Subtest: current district atomically completes action/activity/report marker
+ok 5 - current district atomically completes action/activity/report marker
+  ---
+  duration_ms: 414.301416
+  type: 'test'
+  ...
+# Subtest: current owner atomically completes action/activity/report marker
+ok 6 - current owner atomically completes action/activity/report marker
+  ---
+  duration_ms: 420.90675
+  type: 'test'
+  ...
+# Subtest: ineligible owner cannot update despite broad role or partner relationship
+ok 7 - ineligible owner cannot update despite broad role or partner relationship
+  ---
+  duration_ms: 406.056292
+  type: 'test'
+  ...
+# Subtest: ineligible partner cannot update despite broad role or partner relationship
+ok 8 - ineligible partner cannot update despite broad role or partner relationship
+  ---
+  duration_ms: 418.981541
+  type: 'test'
+  ...
+# Subtest: ineligible outsider cannot update despite broad role or partner relationship
+ok 9 - ineligible outsider cannot update despite broad role or partner relationship
+  ---
+  duration_ms: 417.494166
+  type: 'test'
+  ...
+# Subtest: an assignee needs explicit current reading proof and only marks derived report metadata
+ok 10 - an assignee needs explicit current reading proof and only marks derived report metadata
+  ---
+  duration_ms: 419.302167
+  type: 'test'
+  ...
+# Subtest: assignee identity without student reading proof cannot update
+ok 11 - assignee identity without student reading proof cannot update
+  ---
+  duration_ms: 421.174959
+  type: 'test'
+  ...
+# Subtest: a read-only non-assignee cannot change actions
+ok 12 - a read-only non-assignee cannot change actions
+  ---
+  duration_ms: 415.383833
+  type: 'test'
+  ...
+# Subtest: reject wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 13 - reject wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 421.562959
+  type: 'test'
+  ...
+# Subtest: reject wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 14 - reject wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 407.493125
+  type: 'test'
+  ...
+# Subtest: reject wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+ok 15 - reject wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+  ---
+  duration_ms: 410.226792
+  type: 'test'
+  ...
+# Subtest: reject wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+ok 16 - reject wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+  ---
+  duration_ms: 420.07775
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch student_id{"student_id":"00000000-0000-4000-8000-0
+ok 17 - reject invalid or identity-changing patch student_id{"student_id":"00000000-0000-4000-8000-0
+  ---
+  duration_ms: 408.703334
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch created_by_user_id{"created_by_user_id":"00000000-0000-400
+ok 18 - reject invalid or identity-changing patch created_by_user_id{"created_by_user_id":"00000000-0000-400
+  ---
+  duration_ms: 411.340958
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch assigned_to_user_id{"assigned_to_user_id":"00000000-0000-40
+ok 19 - reject invalid or identity-changing patch assigned_to_user_id{"assigned_to_user_id":"00000000-0000-40
+  ---
+  duration_ms: 431.920625
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch pathway_report_id{"pathway_report_id":"00000000-0000-4000
+ok 20 - reject invalid or identity-changing patch pathway_report_id{"pathway_report_id":"00000000-0000-4000
+  ---
+  duration_ms: 406.184333
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch status{"status":null}
+ok 21 - reject invalid or identity-changing patch status{"status":null}
+  ---
+  duration_ms: 412.257792
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch status{"status":"done"}
+ok 22 - reject invalid or identity-changing patch status{"status":"done"}
+  ---
+  duration_ms: 413.398541
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch priority{"priority":"urgent"}
+ok 23 - reject invalid or identity-changing patch priority{"priority":"urgent"}
+  ---
+  duration_ms: 420.143584
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch title{"title":""}
+ok 24 - reject invalid or identity-changing patch title{"title":""}
+  ---
+  duration_ms: 411.69225
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch title{"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ok 25 - reject invalid or identity-changing patch title{"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ---
+  duration_ms: 408.695
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch description{"description":3}
+ok 26 - reject invalid or identity-changing patch description{"description":3}
+  ---
+  duration_ms: 415.109584
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch description{"description":"xxxxxxxxxxxxxxxxxxxxxxxx
+ok 27 - reject invalid or identity-changing patch description{"description":"xxxxxxxxxxxxxxxxxxxxxxxx
+  ---
+  duration_ms: 420.449666
+  type: 'test'
+  ...
+# Subtest: reject invalid or identity-changing patch due_date{"due_date":"next-week"}
+ok 28 - reject invalid or identity-changing patch due_date{"due_date":"next-week"}
+  ---
+  duration_ms: 415.918167
+  type: 'test'
+  ...
+# Subtest: both completion forms produce one event; no-op and alias changes never duplicate it complete
+ok 29 - both completion forms produce one event; no-op and alias changes never duplicate it complete
+  ---
+  duration_ms: 416.486
+  type: 'test'
+  ...
+# Subtest: both completion forms produce one event; no-op and alias changes never duplicate it completed
+ok 30 - both completion forms produce one event; no-op and alias changes never duplicate it completed
+  ---
+  duration_ms: 412.072667
+  type: 'test'
+  ...
+# Subtest: ordinary content edits are exact and do not manufacture completion effects
+ok 31 - ordinary content edits are exact and do not manufacture completion effects
+  ---
+  duration_ms: 415.155292
+  type: 'test'
+  ...
+# Subtest: suppressed action row rolls back all completion effects
+ok 32 - suppressed action row rolls back all completion effects
+  ---
+  duration_ms: 421.962666
+  type: 'test'
+  ...
+# Subtest: suppressed event row rolls back all completion effects
+ok 33 - suppressed event row rolls back all completion effects
+  ---
+  duration_ms: 416.226583
+  type: 'test'
+  ...
+# Subtest: suppressed report row rolls back all completion effects
+ok 34 - suppressed report row rolls back all completion effects
+  ---
+  duration_ms: 420.362167
+  type: 'test'
+  ...
+# Subtest: a wrong linked student prevents every write
+ok 35 - a wrong linked student prevents every write
+  ---
+  duration_ms: 414.5725
+  type: 'test'
+  ...
+# Subtest: stale retry after a committed completion cannot duplicate its activity
+ok 36 - stale retry after a committed completion cannot duplicate its activity
+  ---
+  duration_ms: 416.333666
+  type: 'test'
+  ...
+# Subtest: installation preserves existing rows and ordinary raw grants; broad writer review stays open
+ok 37 - installation preserves existing rows and ordinary raw grants; broad writer review stays open
+  ---
+  duration_ms: 427.781375
+  type: 'test'
+  ...
+# Subtest: RPC is authenticated-only and revision helper stays private
+ok 38 - RPC is authenticated-only and revision helper stays private
+  ---
+  duration_ms: 582.01675
+  type: 'test'
+  ...
+# Subtest: repeat installation stops before partial replacement
+ok 39 - repeat installation stops before partial replacement
+  ---
+  duration_ms: 438.161875
+  type: 'test'
+  ...
+1..39
+# tests 39
+# suites 0
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16949.794833

@@ -1,0 +1,39 @@
+{
+  "status": "Native service boundary and complete225+16 replay verified on e921e422",
+  "workstream_action": "1.1",
+  "proposal_sha256": "bf3f953f69c1878ee4999dc18f97d554281969a0ca61f71d223efc35b30de8ee",
+  "routines": [
+    {
+      "name": "begin_bound_document_rescan",
+      "signature": "uuid,uuid,uuid,timestamptz,jsonb",
+      "body_md5": "9f791ab0018a9b712576893728de1772"
+    },
+    {
+      "name": "mark_bound_document_rescan_pending",
+      "signature": "uuid,uuid,uuid,text",
+      "body_md5": "e56c403622617b28788e0d5a29478334"
+    },
+    {
+      "name": "persist_bound_document_rescan_result",
+      "signature": "uuid,uuid,uuid,jsonb",
+      "body_md5": "c5476d2011eab14412ed27520a8e498b"
+    }
+  ],
+  "handler_wired": true,
+  "hosted_applied": false,
+  "ready_for_cutover": false,
+  "native_failure": {
+    "run": 41870811483,
+    "cause": "Deferred commit trigger ran with service-role execution context and could not call private validator",
+    "fixed_in_prepared_source": true,
+    "validator_grants_expanded": false,
+    "native_recheck_pending": false
+  },
+  "combined_focused": {
+    "tests": 67,
+    "passed": 65,
+    "failed": 0,
+    "native_only_skips": 2
+  },
+  "native_evidence": "docs/production-readiness/evidence/document-rescan-service-boundary-verified-2026-11-05.json"
+}

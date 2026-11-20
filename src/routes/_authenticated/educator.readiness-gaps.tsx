@@ -55,7 +55,7 @@ function EducatorReadinessGapsPage() {
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="educator-readiness-gaps-page"
         className="mx-auto max-w-6xl px-4 py-8"
       >
@@ -154,7 +154,7 @@ function EducatorReadinessGapsPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

@@ -1,0 +1,98 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.5",
+  "status": "Private generic admission fence prepared and locally verified; native/full-schema acceptance pending",
+  "proposal": "docs/production-readiness/proposals/document-private-operation-admission.sql",
+  "proposal_sha256": "5e7861721abaa2022ded87715d3c1f4fc9929ab4e7bb9d8aff5526133ba7af88",
+  "scope": "Retire direct generic admission for app/service roles while preserving exact trusted nested callers and already-admitted completion. This does not close all legacy/Storage/deployed-writer coverage.",
+  "caller_routine_pins": [
+    {
+      "signature": "public.bind_document_upload_operation()",
+      "body_md5": "3c4a138653e5d79030b4247fd01f381e",
+      "definer": true,
+      "utc": false
+    },
+    {
+      "signature": "public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)",
+      "body_md5": "5813809f271e1b2b94af7ffa0b11ffd4",
+      "definer": false,
+      "utc": false
+    },
+    {
+      "signature": "public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)",
+      "body_md5": "9f791ab0018a9b712576893728de1772",
+      "definer": true,
+      "utc": false
+    },
+    {
+      "signature": "public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)",
+      "body_md5": "3e91e42a0bbed4937e1f971240d18910",
+      "definer": true,
+      "utc": true
+    },
+    {
+      "signature": "public.claim_admitted_document_summary(uuid,integer)",
+      "body_md5": "c447fea2a55afefc6ad1451986ac1eea",
+      "definer": true,
+      "utc": false
+    }
+  ],
+  "tests": {
+    "tf-private-admission-final-local.log": {
+      "tests": 27,
+      "passed": 25,
+      "failed": 0,
+      "skipped": 2,
+      "sha256": "bca20a0ce4a041f520b2502dcb128db59402a676c6ddae7a493c36c23466162b"
+    },
+    "tf-private-admission-combined.log": {
+      "tests": 61,
+      "passed": 55,
+      "failed": 0,
+      "skipped": 6,
+      "sha256": "5c44c6f3abecbb8d6475117818c7cc21d8dd0399f6ec4421ae565e22c6ef15e4"
+    },
+    "tf-private-admission-contracts.log": {
+      "tests": 44,
+      "passed": 44,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "e72210bf09e8679c788974efa82af9b96ad17f1262e3ec0ea2df4449680c1edb"
+    }
+  },
+  "overlapping_runs_not_additive": true,
+  "source_test_file": "tests/database/document-path-exclusivity.test.mjs",
+  "source_test_sha256": "851b8ce808d2cf3f63f80015aa3aaa36b83ad79782a852d2ca5a3b44c08a3d5d",
+  "prior_native_cases_retained": 1594,
+  "added_cases": 27,
+  "required_native_cases": 1621,
+  "added_native_pause_races": 2,
+  "workflow_shell_blocks_validated": 64,
+  "checks": [
+    "Direct anon/authenticated/service generic register/rescan/Apply/summary calls refuse without recording work",
+    "Registration and counted summary complete through exact internal bridge, including distinct admission owner",
+    "Bound Apply preserves caller-RLS save and exact unit release",
+    "Bound rescan remains source-bound and counted when held for review",
+    "Previously admitted Apply may finish while paused",
+    "Installation changes no function body/owner, work row, pause state or capacity value",
+    "Grant changes roll back atomically",
+    "Unexpected caller owner/path, public/custom grantee or inherited admission-owner authority refuses without repair",
+    "Control row is locked and pause is rechecked after waiting; two native resume commit/rollback cases remain required"
+  ],
+  "existing_service_completion_preserved": true,
+  "generic_or_finish_body_rewritten": false,
+  "lease_or_capacity_data_modified": false,
+  "creates_schema_objects": false,
+  "runtime_handler_code_changed": false,
+  "native_full_schema_verified": false,
+  "whole_action_complete": false,
+  "remaining": [
+    "Native1621-case gate and complete225+28 schema replay",
+    "Other raw/Storage/service writer and scheduled-job coverage",
+    "Current source cannot prove older hosted versions or providers have stopped",
+    "Coordinated canonical packaging and separately authorized hosted acceptance"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

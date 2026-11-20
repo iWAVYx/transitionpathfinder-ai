@@ -57,7 +57,7 @@ function EducatorNotesPage() {
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="educator-notes-page"
         className="mx-auto max-w-4xl px-4 py-8"
       >
@@ -127,7 +127,7 @@ function EducatorNotesPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

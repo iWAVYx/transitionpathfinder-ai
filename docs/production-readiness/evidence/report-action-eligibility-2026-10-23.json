@@ -1,0 +1,93 @@
+{
+  "schema": "transitionforward-report-content-action-eligibility-v1",
+  "source_commit": "ee3cbf5c77117b84196719a6cb9da19af9b76372",
+  "runtime_fingerprint": "5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c",
+  "runtime_file_count": 1184,
+  "local_validation": {
+    "focused_tests": 103,
+    "full_unit_files": 311,
+    "full_unit_tests": 4399,
+    "typescript": "passed",
+    "diff_check": "passed"
+  },
+  "automatic_checks": [
+    {
+      "conclusion": "skipped",
+      "databaseId": 39967975067,
+      "name": "Permission regression QA",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "databaseId": 39967975226,
+      "name": "Cross-district RLS QA",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39967975085,
+      "name": "Production Readiness Audit",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39967974985,
+      "name": "Role-guard QA",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39967974994,
+      "name": "CT Seed v2 Audit",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "databaseId": 39967975141,
+      "name": "RLS regression QA",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39967975012,
+      "name": "Migration Replay (disposable Postgres)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39967975026,
+      "name": "Report a11y (axe-core)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39967975052,
+      "name": "Build & SSR Verification",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39967975164,
+      "name": "Dashboard regression",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39967966900,
+      "name": "Build & SSR Verification",
+      "status": "completed"
+    }
+  ],
+  "authorization_scope": "Local source/tests/documentation only. No deployment, publication, database mutation, new hosted fixture or AI call.",
+  "semantics": [
+    "Ownership hint is derived from authenticated caller and recorded owner, not a role or input claim.",
+    "Hint is UI eligibility only; handlers still recheck ownership, RLS, student access and entitlement.",
+    "Non-owning readers retain readable version history and printing, with existing sharing unaffected.",
+    "Restore and all reader regeneration entry points are hidden for unconfirmed/non-owning readers.",
+    "Pending version retrieval loses restore eligibility before issuing any save.",
+    "Owner/admin backend SELECT/UPDATE exceptions and stale browser intent remain separate unresolved gates."
+  ],
+  "unchanged_database_proposal_sha256": "13843881b1ecadbaee05ffd65c8b8e3aa55d66f1ba62f48c2be2e175a1bfca09",
+  "deployed_staging_runtime": "c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d",
+  "production_changed": false
+}

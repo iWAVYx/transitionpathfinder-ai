@@ -1,0 +1,14 @@
+{
+  "schema": "document-summary-authority-schema-proof-v1",
+  "canonical_count": 225,
+  "review_drafts": 38,
+  "exact_reader_patch": true,
+  "reader_owner_mode_path_grants_preserved": true,
+  "existing_text_protocol_unchanged": true,
+  "private_invoker_helper": true,
+  "paused": true,
+  "remaining_capacity_units": 0,
+  "provider_quiescence_verified": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

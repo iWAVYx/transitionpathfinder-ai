@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.1",
+  "status": "verified_native_and_full_schema",
+  "run": 41895390161,
+  "head_source": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+  "checkout_commit": "b9fca6c829927bcf80430a5723de159a1521b504",
+  "native_tests": 1453,
+  "passed": 1453,
+  "skipped": 0,
+  "early_tests": 364,
+  "early_passed": 364,
+  "canonical_migrations": 225,
+  "review_proposals": 16,
+  "artifact": "docs/production-readiness/evidence/document-rescan-service-boundary-proof-41895390161-2026-11-05.json",
+  "artifact_sha256": "8ab096432867edbbf6d07825927ddf970735cc184917064fb1a81be3a0565cd6",
+  "log_sha256": "94a5e235eb78463706aedd2d154e951e3e38a0d255138717fe4e050f5cb6d8f5",
+  "deferred_validation": "Exact original private trigger body now executes as trusted owner; native service-role commit and full-schema guard passed without granting validator execution to service_role.",
+  "failed_predecessor": {
+    "run": 41870811483,
+    "early_tests": 363,
+    "passed": 355,
+    "failed": 8
+  },
+  "other_runs": {
+    "rescan_push_41895383048": "cancelled; not counted as a pass",
+    "registration_41906499820": "cancelled at six-hour job limit before full-schema replay; not accepted"
+  },
+  "hosted_actions": false,
+  "ready_for_cutover": false,
+  "whole_workstream_complete": false
+}

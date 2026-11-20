@@ -262,26 +262,28 @@ function HomePage() {
             </p>
             <h1 className="mt-5 font-display text-4xl font-medium leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               {hero.headline_lead}{" "}
-              <span className="relative inline-block sm:whitespace-nowrap bg-gradient-to-r from-brand-teal to-brand-gold bg-clip-text not-italic text-transparent">
-                {hero.headline_accent.replace(/-/g, "\u2011")}
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 300 24"
-                  preserveAspectRatio="none"
-                  className="draw-underline absolute -bottom-2 left-0 h-3 w-full"
-                >
-                  <path
-                    d="M5 16 C 60 4, 140 22, 200 10 S 290 14, 295 8"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    className="text-brand-teal"
-                  />
-                </svg>
+              <span className="block whitespace-nowrap">
+                <span className="relative inline-block sm:whitespace-nowrap bg-gradient-to-r from-brand-teal to-brand-gold bg-clip-text not-italic text-transparent">
+                  {hero.headline_accent.replace(/-/g, "\u2011")}
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 300 24"
+                    preserveAspectRatio="none"
+                    className="draw-underline absolute -bottom-2 left-0 h-3 w-full"
+                  >
+                    <path
+                      d="M5 16 C 60 4, 140 22, 200 10 S 290 14, 295 8"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      className="text-brand-teal"
+                    />
+                  </svg>
+                </span>
+                {"\u00A0"}
+                <span className="whitespace-nowrap">{hero.headline_tail}</span>
               </span>
-              {"\u00A0"}
-              <span className="whitespace-nowrap">{hero.headline_tail}</span>
             </h1>
             <p className="mt-6 max-w-xl whitespace-pre-line text-lg leading-relaxed text-foreground sm:text-xl">
               {hero.subhead}

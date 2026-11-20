@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-26 America/New_York",
+  "status": "bounded Family/Educator readiness functional and private-access acceptance passed; wording caveat remains",
+  "reviewed_commit": "b444619fe9dd6f3b628a0b15629e7586edcefeae",
+  "isolated_lovable_commit": "bdb5fc84505c9ea1862370521a466fc48f21fd81",
+  "fingerprint": "eebb4f81f22e87e90e6a9184f31086b8050e366465ef124c9dff51b97a2f0159",
+  "runtime_file_count": 1189,
+  "release_run": 40326196371,
+  "test_run": 40329952596,
+  "verified": [
+    "All eight automatic checks passed before release; user rollout/test authorization and separate GitHub human reviews recorded",
+    "Both stable staging sites match source, staging backend, sandbox payments and passing isolation",
+    "Seven existing role sessions passed; Family and Educator each completed exactly one UI generation with zero test retries",
+    "Family without scored records displayed two Not Assessed badges and no recorded-score source claim",
+    "Educator displayed exact recorded Employment score 75 and Steady, plus an unassessed area and recorded-score source coverage",
+    "Each fictional student was unreadable through caller RLS to the other six existing roles (12 denial checks total); Owner receives no implicit planning access",
+    "Artifact sanitization passed before download; two fictional screenshots reviewed",
+    "Caller cleanup completed, followed by independent postgres/read-only checks returning zero for both exact fixture scopes"
+  ],
+  "limits_observed": {
+    "owned_fictional_students": 2,
+    "readiness_rows": 1,
+    "ui_generation_actions": 2,
+    "screenshots": 2,
+    "test_retries": 0,
+    "new_reports_documents_versions_relationships_shares_accounts": 0,
+    "model_or_gateway_attempt_billing_counts": "not independently observable; authorization allowed up to two model invocations/six SDK attempts; no spending-cap claim"
+  },
+  "independent_cleanup": [
+    {
+      "operator": "postgres",
+      "read_only": "on",
+      "run_marker": "QA Readiness 40329952596-1 parent",
+      "goals_count": 0,
+      "observed_at": "2026-10-26T13:28:16.950026+00:00",
+      "student_count": 0,
+      "documents_count": 0,
+      "readiness_count": 0,
+      "action_items_count": 0,
+      "evidence_items_count": 0,
+      "pathway_reports_count": 0,
+      "student_intakes_count": 0,
+      "ppt_meeting_preps_count": 0,
+      "student_guardians_count": 0,
+      "document_extractions_count": 0,
+      "student_team_members_count": 0,
+      "report_evidence_links_count": 0,
+      "student_collaborators_count": 0,
+      "student_relationships_count": 0,
+      "student_saved_partners_count": 0,
+      "student_voice_responses_count": 0,
+      "student_opportunity_matches_count": 0,
+      "student_resource_recommendations_count": 0
+    },
+    {
+      "operator": "postgres",
+      "read_only": "on",
+      "run_marker": "QA Readiness 40329952596-1 educator",
+      "goals_count": 0,
+      "observed_at": "2026-10-26T13:28:47.44219+00:00",
+      "student_count": 0,
+      "documents_count": 0,
+      "readiness_count": 0,
+      "action_items_count": 0,
+      "evidence_items_count": 0,
+      "pathway_reports_count": 0,
+      "student_intakes_count": 0,
+      "ppt_meeting_preps_count": 0,
+      "student_guardians_count": 0,
+      "document_extractions_count": 0,
+      "student_team_members_count": 0,
+      "report_evidence_links_count": 0,
+      "student_collaborators_count": 0,
+      "student_relationships_count": 0,
+      "student_saved_partners_count": 0,
+      "student_voice_responses_count": 0,
+      "student_opportunity_matches_count": 0,
+      "student_resource_recommendations_count": 0
+    }
+  ],
+  "manual_review": {
+    "rating_behavior": "Both intended score/unknown cases confirmed; readable card body and source labels in desktop screenshots",
+    "remaining_source_fidelity": [
+      "Educator explanation says a steady score shows positive progress, although only one score and no longitudinal evidence was supplied",
+      "Educator summary says demonstrates careful problem solving where the fixture supplies a reported profile strength; maintain reported-versus-observed wording review"
+    ],
+    "visual_limits": "The element screenshots include the sticky site header over their upper edge; no new full-page/mobile/native-navigation visual acceptance claimed"
+  },
+  "not_proven": [
+    "Every generated sentence or future provider output",
+    "Readiness provider behavior across all source combinations or access loss during an issued generation",
+    "Remaining translation/next-step/IEP/document/evidence generators or all-role whole-product acceptance",
+    "Historical intermittent Pathway failure root cause"
+  ],
+  "next": "Continue source-fidelity follow-up and remaining report-assist/IEP/document/evidence coverage without automatic AI repeat. Exact future releases and fixture/provider runs require separate authorization.",
+  "preserved": "TF-01\u2013TF-26/six milestones, management-only Owner, production/privacy/provider/security/billing/email/operations gates; report polish and Parent Pilot/Pathway Snapshot deferred; Lovable title-case widget edit preserved",
+  "production_touched": false
+}

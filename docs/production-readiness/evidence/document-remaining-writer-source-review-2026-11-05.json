@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-05",
+  "workstream_actions": [
+    "2.5",
+    "2.6"
+  ],
+  "source_commit": "868afeb53ec1bd1099fbf9409f4d8ebf1379be2a",
+  "scope": "Bounded checked-in source review; not a deployed scheduler inventory or proof of provider quiescence",
+  "source_manifest": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "d4e12fcc379eb1d6f50566eb879d18a5bbf1e4e2a88b5b839d7b6d61fd00771d"
+    },
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806"
+    },
+    {
+      "path": "src/lib/iep-extract.functions.ts",
+      "sha256": "8cb15b4cbb8fb0b959eed03c6ca4fb4a4c27e95ff28e80f56f37704085352403"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
+      "sha256": "da221eb33d2a5b45b01ee98e281d781d7de7a1e14693b4d0b270ddd3ee743898"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
+    },
+    {
+      "path": "supabase/migrations/20260813013345_20260812163612_harden_scheduled_hook_isolation.sql",
+      "sha256": "4b8f94c3e5fd9d0ea2d57cd52e9b91761b6d2c75fb4f39853796be25c318b0cb"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-storage-write-boundary.sql",
+      "sha256": "0ff8cf71a92ca44c125c98fc4fc5d5760d0a597737a77fc70b17c83bc45ea490"
+    }
+  ],
+  "reviewed": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "finding": "Registration inserts document_summary queued jobs; rescan uses the source-bound outcome queue flow. Draft30 verifies their valid paths while refusing uncounted entries."
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "finding": "Document summaries require claimAdmittedSummaryOperation; claim errors continue without raw fallback or provider IO. Raw processing PATCH is in the other-job branch."
+    },
+    {
+      "path": "supabase/migrations/20260813013345_20260812163612_harden_scheduled_hook_isolation.sql",
+      "finding": "This canonical scheduled-hook migration names channel digest, observability alert and event-purge hooks. Repository search found no ai-job-processor schedule declaration; absence in source does not prove hosted configuration."
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-storage-write-boundary.sql",
+      "finding": "Client replacement/deletion policies do not prove immutable trusted-service Storage writes; service/object mutation coverage remains under2.6."
+    }
+  ],
+  "concrete_remaining": [
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "symbol": "runExtractionFromText",
+      "finding": "Authenticated document lookup precedes extractFromIep and document_extractions upsert. No durable operation admission is present in this handler. The document review page still invokes it.",
+      "required_review": "Decide and enforce the document-attached pasted-text operation boundary without changing independent no-save IEP extraction; serialize authoritative source/access validation and saved extraction writes."
+    },
+    {
+      "path": "src/lib/iep-extract.functions.ts",
+      "symbol": "extractFromIep",
+      "finding": "Shared text extraction performs a provider call with authenticated/redacted text. Queue accounting proof does not cover this separate function.",
+      "required_review": "Review shared callers before adding any document-specific fence; preserve unrelated authorized no-save extraction behavior."
+    }
+  ],
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

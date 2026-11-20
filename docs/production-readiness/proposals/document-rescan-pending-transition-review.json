@@ -1,0 +1,60 @@
+{
+  "schema": "document-rescan-pending-transition-review-v1",
+  "date": "2026-10-31",
+  "base_source": "315d629efd209a69ae7dd5ddad961a58b401a73d",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-rescan-pending-transition.sql",
+    "sha256": "4b0e72d6efab8470cbd2952eb03292320827ce8418cc4235d17f776fe3c4d0d9"
+  },
+  "routines": [
+    {
+      "name": "assert_internal_document_rescan_source",
+      "signature": "public.assert_internal_document_rescan_source(uuid,uuid,text,timestamptz)",
+      "body_md5": "535eec88a7abb5695252922280c3d01b",
+      "definer": false
+    },
+    {
+      "name": "guard_document_rescan_pending_receipt",
+      "signature": "public.guard_document_rescan_pending_receipt()",
+      "body_md5": "29807c2edbe76ea0c3d175e829828b72",
+      "definer": false
+    },
+    {
+      "name": "mark_internal_document_rescan_pending",
+      "signature": "public.mark_internal_document_rescan_pending(uuid,uuid,uuid,text)",
+      "body_md5": "57f36c2761a64969624bc597a38f8b31",
+      "definer": false
+    }
+  ],
+  "scope": "Eleventh noncanonical/unapplied owner-internal one-use failed-to-pending transition. No ordinary/service execution, server endpoint wiring, dispatch, result/queue/completion/settlement, held reconciliation or provider drain proof.",
+  "source_and_capability": "Match the original source binding, current actor edit/view/non-partner access, actual registered attempt/origin-completion receipt, current exact document revision/object/version/hash/size/type, active rescan lease, its private capability and both reserved units. Caller echo of the copy hash is a fence, not physical byte attestation.",
+  "atomicity": "Update only scan_status and the canonical updated_at revision. Insert the immutable private pending receipt in the same transaction and validate the actual stored RETURNING row. Skipped/altered source or receipt writes roll back both. Require a strictly later pending revision and a same-transaction tuple write witness. No capability is stored in the new receipt or returned again.",
+  "one_use": "The first successful mutation returns a new transition receipt only. Duplicate/lost-reply paths cannot adopt an existing pending row, resume a claim or replay provider work. RPC/transaction commit confirmation remains required before any future external IO.",
+  "locks": "Completion control/capacity fence before source binding, registered attempt/origin lease, document UPDATE, object SHARE, current lease/capacity locks. A prior claim can drain while paused; no fresh admission passes. Repeat current access after source locking; full transaction-held authority/legacy writer fencing remains a separate activation gate.",
+  "retention": "Metadata-only immutable RESTRICT-linked receipt: operation/actor/document IDs, source/pending revisions, hash, transaction/timestamp. No names, document text, provider output, storage secrets or admission capabilities. xmin is used only as a same-transaction row-write witness, never permanent identity or provider/byte proof.",
+  "old_routines_or_ownership_replaced": false,
+  "private_pending_transition_prepared": true,
+  "ordinary_execution_grants": false,
+  "source_bound_endpoint_wired": false,
+  "scanner_dispatch_implemented": false,
+  "physical_copy_attested": false,
+  "rescan_outcome_completion_settlement_implemented": false,
+  "trusted_reconciliation_implemented": false,
+  "provider_quiescence_verified": false,
+  "ready_for_cutover": false,
+  "hosted_authorized": false,
+  "required_next": [
+    "Prepare exact persisted rescan outcome, counted summary queue, completion and conservative settlement receipts; keep held or uncertain provider work counted.",
+    "Connect the reviewed claim -> same-copy verification -> one-use pending -> dispatch path under current viewer/source checks only after source-bound hooks, trusted reconciliation, legacy/direct writers and physical/provider gates are resolved.",
+    "Finish Apply, shared queue/worker hooks, canonical/ledger packaging and freshly authorized coordinated staging acceptance."
+  ],
+  "verification": {
+    "source": "ad94ac7202b46112b896cc1a63c5fce12c9de004",
+    "evidence": "docs/production-readiness/evidence/document-rescan-pending-transition-verified-2026-11-01.json",
+    "native_full_schema_verified": true,
+    "runs": [
+      41262897640,
+      41262893002
+    ]
+  }
+}

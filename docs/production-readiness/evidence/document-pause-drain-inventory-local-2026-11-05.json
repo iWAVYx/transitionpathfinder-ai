@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.4",
+  "status": "Read-only drain inventory implemented and locally verified; native and full-schema reader acceptance pending",
+  "inventory": "docs/production-readiness/proposals/document-pause-drain-inventory.sql",
+  "inventory_sha256": "dde428e3aa44f07a323c0014f62747e3887a525fce60145609d90b54f23cdc83",
+  "test_file": "tests/database/document-pause-drain-inventory.test.mjs",
+  "test_sha256": "1a98c0793ff73cc6a126e59792dbe2f61feabe771b531c557b5304f5e04ee247",
+  "metadata_fixture_scope": "Reduced rows test aggregate arithmetic, privacy and full visibility refusal; they do not certify domain write guards",
+  "actual_domain_scope": "Existing complete Apply fixture before and after real held no-save reconciliation; no extra case labels or fixture permissions",
+  "tests": {
+    "tf-drain-inventory-local.log": {
+      "tests": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "3266390f25e923b0422294500fff56ddf54aa333858d245b001ccea2a2cd29b6"
+    },
+    "tf-drain-inventory-actual-domain.log": {
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "5001751feb9289764b2a815199599376467782a433d59137271d5cca7b8b9add"
+    },
+    "tf-drain-inventory-combined.log": {
+      "tests": 102,
+      "passed": 102,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "4d8b625b2ac80243f62f9353ed6548b6241a442d89de55609b9f157b5a75f635"
+    }
+  },
+  "combined_test_count_is_overlapping_not_additive": true,
+  "workflow_shell_blocks_validated": 63,
+  "all1594_case_labels_and_partitions_retained": true,
+  "existing_case_extended_with_real_inventory_assertions": true,
+  "checks": [
+    "Consistent repeatable-read read-only snapshot with full trusted visibility required",
+    "Queued-only and promised-not-queued units reported independently from active leases",
+    "Unresolved holds, uncovered unfinished summaries and malformed accounting prevent clear status",
+    "Invalid accounting returns null total instead of a misleading zero",
+    "Actual held Apply retains one unit; exact no-save reconciliation leaves zero while retaining history",
+    "No identifiers, paths, source hashes, private text or capabilities emitted",
+    "No writes, grants, pause/resume, cleanup, cancellation, provider requests or automatic release",
+    "Database clear never proves external quiescence, legacy-writer coverage or cutover authorization"
+  ],
+  "native_verified": false,
+  "full_schema_verified": false,
+  "creates_schema_objects": false,
+  "hosted_actions": false,
+  "whole_action_complete": false,
+  "ready_for_cutover": false
+}

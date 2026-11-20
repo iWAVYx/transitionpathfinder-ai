@@ -31,7 +31,10 @@ export function buildSchoolAdminLivePreview(
 
   const metrics = data.metrics;
   const staffActivation = percent(metrics.active_members, metrics.total_members);
-  const reportCoverage = percent(metrics.reports_count, metrics.students_count);
+  const reportCoverage =
+    metrics.students_with_report == null
+      ? null
+      : percent(metrics.students_with_report, metrics.students_count);
   const gradeRows = countByGrade(data).map(([grade, count]) => ({
     primary: `${grade} · ${count} student${count === 1 ? "" : "s"}`,
     secondary: "Authorized roster count; no student names or documents shown.",
@@ -46,8 +49,8 @@ export function buildSchoolAdminLivePreview(
     ...(metrics.pending_members > 0
       ? [
           {
-            primary: `${metrics.pending_members} invitation${metrics.pending_members === 1 ? "" : "s"} pending`,
-            secondary: "Open Team / Staff Access to review and resend invitations.",
+            primary: `${metrics.pending_members} non-active membership${metrics.pending_members === 1 ? "" : "s"}`,
+            secondary: "Open Team / Staff Access to review each recorded status.",
             status: "warning" as const,
           },
         ]
@@ -95,14 +98,14 @@ export function buildSchoolAdminLivePreview(
     "team-access": detail("team-access", {
       title: "Team / Staff Access",
       eyebrow: "Live Staff Access",
-      summary: "Authorized membership counts and pending invitations for this school.",
-      what: "Review active access, resolve pending invitations, and manage school roles.",
-      dataSource: "Organization memberships · invitation status",
+      summary: "Authorized active and other membership counts for this school.",
+      what: "Review recorded access status and manage school roles.",
+      dataSource: "Organization memberships · recorded access status",
       primaryAction: { label: "Manage Staff", to: "/school/team" },
       connectsTo: ["School Overview", "Implementation Progress"],
       stats: [
         { label: "Active", value: String(metrics.active_members) },
-        { label: "Pending", value: String(metrics.pending_members) },
+        { label: "Other Memberships", value: String(metrics.pending_members) },
         { label: "Total", value: String(metrics.total_members) },
       ],
       rows: staffRows,
@@ -138,7 +141,9 @@ export function buildSchoolAdminLivePreview(
       stats: [
         { label: "Report records", value: String(metrics.reports_count) },
         { label: "Students", value: String(metrics.students_count) },
-        { label: "Coverage signal", value: `${reportCoverage}%` },
+        ...(reportCoverage == null
+          ? []
+          : [{ label: "Students With Reports", value: `${reportCoverage}%` }]),
       ],
       rows: [
         {
@@ -216,11 +221,11 @@ export function buildSchoolAdminLivePreview(
       summary:
         "Immediate access and implementation signals derived from the authorized school snapshot.",
       what: "Resolve pending access and open the full workspace for broader support planning.",
-      dataSource: "Pending memberships · roster/report aggregate counts",
+      dataSource: "Non-active memberships · roster/report aggregate counts",
       primaryAction: { label: "Open Support Needs", to: "/school/support-needs" },
       connectsTo: ["Team Access", "Implementation Progress"],
       stats: [
-        { label: "Pending staff", value: String(metrics.pending_members) },
+        { label: "Other Memberships", value: String(metrics.pending_members) },
         { label: "Students", value: String(metrics.students_count) },
         { label: "Report records", value: String(metrics.reports_count) },
       ],
@@ -229,7 +234,7 @@ export function buildSchoolAdminLivePreview(
           ? [
               {
                 primary: `${metrics.pending_members} staff access item${metrics.pending_members === 1 ? "" : "s"} need follow-up`,
-                secondary: "Review pending invitations in Team / Staff Access.",
+                secondary: "Review recorded membership statuses in Team / Staff Access.",
                 status: "warning",
               },
             ]

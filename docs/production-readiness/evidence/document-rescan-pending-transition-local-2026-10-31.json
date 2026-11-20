@@ -1,0 +1,63 @@
+{
+  "schema": "document-rescan-pending-transition-local-v1",
+  "date": "2026-10-31",
+  "base_source": "315d629efd209a69ae7dd5ddad961a58b401a73d",
+  "status": "Private one-use pending transition verified locally; native/full225+eleven confirmation pending. No activation.",
+  "focused": {
+    "declared": 104,
+    "passed_local": 95,
+    "native_only_skips": 9,
+    "failed": 0,
+    "final_ci_guard_executed": true,
+    "log_sha256": "1d369dba1dd9024ba9121a61e97dd23a5139a13667d952cbdd7ea16121f87197"
+  },
+  "full_sql": {
+    "declared": 1158,
+    "passed_local": 1022,
+    "native_only_skips": 136,
+    "failed": 0,
+    "log_sha256": "320a0f561dd5be244006c8d2dade9a0cb612981440b0f5693e69f7e529bc67ff"
+  },
+  "safety_contracts": 110,
+  "yaml_and_workflow_shell_parsed": true,
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-pending-transition.sql",
+      "sha256": "4b0e72d6efab8470cbd2952eb03292320827ce8418cc4235d17f776fe3c4d0d9"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-pending-transition-review.json",
+      "sha256": "4bb3008978af85d33b524b6e64507edb87d0e4cc651fa1ecb2c1434aecb1254d"
+    }
+  ],
+  "previous_stage": {
+    "verified_source": "315d629efd209a69ae7dd5ddad961a58b401a73d",
+    "native_passed_each_run": 1106,
+    "native_skipped": 0,
+    "canonical_migrations": 225,
+    "noncanonical_proposals": 10,
+    "evidence": "docs/production-readiness/evidence/document-rescan-source-claim-verified-2026-10-31.json"
+  },
+  "current_noncanonical_proposals": 11,
+  "canonical_migrations": 225,
+  "existing_fifteen_migration_batch_includes_proposals": false,
+  "runtime": {
+    "website_unchanged": true,
+    "fingerprint": "3de06675c2de5effc6ff6888e189201d4f26cd9a2fba6d9c51b2433ac12e1f16",
+    "files": 1205,
+    "worker_unchanged": true,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_files": 4
+  },
+  "native_full_schema_pending": true,
+  "ordinary_execution_grants": false,
+  "endpoint_wired": false,
+  "scanner_dispatch_implemented": false,
+  "physical_copy_attested": false,
+  "rescan_outcome_completion_settlement_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "ready_for_cutover": false,
+  "hosted_actions": false,
+  "ai_provider_physical_storage_calls": false,
+  "production_actions": false
+}

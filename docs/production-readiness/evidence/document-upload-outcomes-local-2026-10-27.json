@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-27",
+  "status": "local PR candidate; not deployed; automatic review pending",
+  "base_commit": "0a045f5a4a86380c212368eaf53dd0780d41767b",
+  "correction": [
+    "Require complete valid-ID receipts for the exact student and attempted storage path; classify saved, pending, blocked and uncertain results.",
+    "Read back clean and quarantine updates; missing, failed or inconsistent persistence receipts stop processing with friendly errors. Return persisted rows, not the initial row or manufactured status.",
+    "Enqueue summary processing only after a confirmed persisted clean scan. Clean scan does not mean educational content approval or completed summary generation.",
+    "Pause uncertain writes in the current form; preserve metadata, show a persistent refresh-and-review alert and disable file selection. Block synchronous duplicate confirmations. No automatic replay or blind object deletion.",
+    "Separate list-refresh errors from upload failures and omit raw service errors from browser notices/logs. Existing read-only controls and upload gate remain intact."
+  ],
+  "validation": {
+    "focused_cases": 60,
+    "new_cases": 39,
+    "full_unit_files": 343,
+    "full_unit_tests": 5036,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "static_upload_gate_contracts": 5,
+    "diff_check": "passed",
+    "service_worker": "passed"
+  },
+  "prior_candidate_ci": {
+    "candidate": "0a045f5a",
+    "applicable_checks_passed": 8,
+    "both_builds": "passed first attempt",
+    "hosted_acceptance": "skipped, not passed"
+  },
+  "runtime_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "4c0ed44138772d243949a36a56c9b907cb524665d4749175e2c63b5fb6761705",
+    "file_count": 1192
+  },
+  "limits": [
+    "Mocked tests only; no real uploads, malware submissions, provider calls, hosted fixtures or acceptance run.",
+    "Per-form pause is not database/cross-tab/cross-refresh idempotency. Upload student/viewer lifetime, hash/dedupe/orphan reconciliation, unavailable-versus-empty lists, effective quarantine/download policy exceptions, remaining server audit logs and background-job/cleanup mapping remain open.",
+    "Pending confirms only recorded pending status, not a future clean verdict. No continuous monitoring or new transaction boundary is claimed.",
+    "No new role access. Shared behavior applies where authorized; Owner/admin require explicit student access. Demo remains sample-only without real uploads/provider calls.",
+    "No hosted deployment/publication/migration, production/original-main merge, accounts/access/shares, payments or secrets changes."
+  ],
+  "next": [
+    "Complete automatic review.",
+    "Prepare separate bounded goal-save and storage/provider scopes after resolving remaining lifetime/reconciliation issues; specify exact limits and independent absence verification.",
+    "Obtain fresh explicit authorization and required human GitHub reviews before hosted rollout or fixture/provider work."
+  ],
+  "preserved": [
+    "Full TF-01\u2013TF-26/six milestones and production gates",
+    "Lovable heading and protected environments/dependencies/generated types/widget views",
+    "Deferred report polish and Parent Pilot/Pathway Snapshot"
+  ]
+}

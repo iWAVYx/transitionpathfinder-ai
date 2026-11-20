@@ -1,0 +1,82 @@
+{
+  "schema": "document-summary-operation-handoff-local-v1",
+  "date": "2026-10-30",
+  "source_base": "e1880e06049f62e096065a1b61195284603cf0fd",
+  "status": "Local database foundation verified; worker integration, native/exact-source CI and hosted activation pending",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
+      "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-operation-handoff-review.json",
+      "sha256": "491f9720cf3433ff3cd2b1921ad6fb13d5a99c2ac9246ecf6fc0228ce0ce9011"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "d12da1dd75a931f00a9238c729e22dc880165dbb575aa8a47ef6af86c1353a9b"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "f463f5eafa1429d0810101f7cb7eae13ebc7e917f364b78c1e711e502867840f"
+    }
+  ],
+  "validation": {
+    "sql_cases": 908,
+    "local_pass": 796,
+    "native_only_skipped": 112,
+    "new_cases": 41,
+    "new_local_cases": 35,
+    "new_native_races": 6,
+    "new_race_scope": "Competing service-only handoffs and both control-pause lock directions; COMMIT/ROLLBACK with independent owner observer and service-role writers.",
+    "focused_selected_cases": 45,
+    "focused_selected_pass": 39,
+    "focused_selected_native_skipped": 6,
+    "initial_focused_cases": 5,
+    "safety_contracts": 92,
+    "workflow_yaml": "parsed with existing js-yaml",
+    "native_and_exact_source": "pending",
+    "application": "Unchanged; prior5661 unit tests/359 files, types/build retained, not rerun locally for SQL-only preparation.",
+    "worker": "Unchanged; existing intercepted Deno proof retained, not a claim of new worker integration."
+  },
+  "database": {
+    "canonical_migrations": 225,
+    "noncanonical_unapplied_controls": 6,
+    "in_existing_fifteen_migration_batch": false,
+    "new_private_table": "document_summary_operation_bindings",
+    "new_service_rpc": "claim_admitted_document_summary(uuid,integer)",
+    "new_internal_helpers": 2,
+    "earlier_five_proposal_sources_changed": false
+  },
+  "atomic_scope": [
+    "One transaction fences pause before metadata mutation, locks an exact queued job/attempt, validates current actor/source through the reviewed helper, persists source binding, admits one server-generated summary operation and inserts immutable job/operation/source identity.",
+    "Any refusal/rollback retains queued state and creates no partial operation or binding. Existing source/operation bindings refuse replay rather than resume.",
+    "Only service-role may claim; no browser RPC or ordinary raw binding grants. New reply/binding contain source/fence metadata, never text, names or privacy context.",
+    "Lost committed reply cannot reattach/reclaim; active/held work remains counted. Completion requires the exact completed job/source-bound result. Other unbound kinds retain behavior."
+  ],
+  "worker_handler_wired": false,
+  "legacy_reader_paths_fenced": false,
+  "queue_budget_reservation_implemented": false,
+  "general_operation_limits_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "provider_quiescence_verified": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "application_runtime": {
+    "fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "files": 1205,
+    "changed": false
+  },
+  "worker_package": {
+    "fingerprint": "dc07a82e08a06e6a37c309494f5cc8fef50ac9aa451ee0466e72ce928cd66b29",
+    "files": 4,
+    "changed": false
+  },
+  "remaining": [
+    "Wire the worker to strict one-use handoff receipt validation before metadata/file/provider work and finish the same existing operation, never begin another.",
+    "Reconcile queued capacity reservation and general active/held limits so counted jobs can drain without double admission or starvation.",
+    "Fence old/direct/scheduled worker readers/claimers and preserve uncertain work with trusted manual reconciliation.",
+    "Native six-race and full225+six-proposal replay proof; final canonical/ledger packaging and newly authorized hosted/provider acceptance."
+  ]
+}

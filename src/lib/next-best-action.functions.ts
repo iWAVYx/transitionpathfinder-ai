@@ -1,3 +1,4 @@
+import {ACTION_OPEN_FILTER} from "./action-item-values";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -90,7 +91,7 @@ export const getNextBestAction = createServerFn({ method: "POST" })
             .from("action_items")
             .select("id, status")
             .eq("student_id", sid)
-            .neq("status", "complete")
+            .not("status", "in", ACTION_OPEN_FILTER)
             .limit(1),
         ]);
 

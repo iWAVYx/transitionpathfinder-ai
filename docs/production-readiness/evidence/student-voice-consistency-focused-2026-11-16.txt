@@ -1,0 +1,9 @@
+
+ RUN  v4.1.9 /Users/caysi/.codex/worktrees/staging-preview-host/transitionpathfinder-ai
+
+
+ Test Files  4 passed (4)
+      Tests  90 passed (90)
+   Start at  17:32:20
+   Duration  1.07s (transform 140ms, setup 0ms, import 449ms, tests 369ms, environment 960ms)
+

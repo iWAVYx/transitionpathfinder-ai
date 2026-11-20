@@ -1,7 +1,6 @@
-import { Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
 import {
   Loader2,
   FileText,
@@ -27,69 +26,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
-import { listStudents, type Student } from "@/lib/students.functions";
+  HISTORY_FILTERS as FILTERS,
+  classifyEntry,
+  humanizeAction,
+  actorLabel,
+  type HistoryFilterKey,
+} from "@/lib/history-display";
+import { HistoryPrintPreview, type PreparedHistory } from "./HistoryPrintPreview";
+import { createHistoryCsv } from "@/lib/history-export";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import type { HistoryStudent, HistoryOrganization } from "@/lib/organization-history.types";
 import {
-  listStudentAuditTrail,
+  listHistoryStudents,
+  listStudentAuditPage,
+  exportStudentAuditRecords,
+  type AuditCursor,
   type AuditEntry,
 } from "@/lib/audit.functions";
 
+export type { HistoryFilterKey } from "@/lib/history-display";
+
 /* -------------------- filters -------------------- */
-
-export type HistoryFilterKey =
-  | "all"
-  | "documents"
-  | "sharing"
-  | "meetings"
-  | "plan";
-
-const FILTERS: { key: HistoryFilterKey; label: string }[] = [
-  { key: "all", label: "All activity" },
-  { key: "documents", label: "Documents" },
-  { key: "sharing", label: "Sharing & consent" },
-  { key: "meetings", label: "Meetings" },
-  { key: "plan", label: "Plan & goals" },
-];
-
-function classifyEntry(entry: AuditEntry): HistoryFilterKey {
-  const t = (entry.entity_type || "").toLowerCase();
-  const a = (entry.action || "").toLowerCase();
-  if (
-    t.includes("document") ||
-    t.includes("upload") ||
-    t.includes("storage") ||
-    a.includes("download") ||
-    a.includes("upload") ||
-    a.includes("view_document")
-  )
-    return "documents";
-  if (
-    t.includes("permission") ||
-    t.includes("share") ||
-    t.includes("consent") ||
-    t.includes("collaborator") ||
-    t.includes("relationship") ||
-    a.includes("grant") ||
-    a.includes("revoke") ||
-    a.includes("invite")
-  )
-    return "sharing";
-  if (t.includes("meeting") || t.includes("agenda") || t.includes("ppt"))
-    return "meetings";
-  if (
-    t.includes("goal") ||
-    t.includes("plan") ||
-    t.includes("pathway") ||
-    t.includes("action_item") ||
-    t.includes("student")
-  )
-    return "plan";
-  return "all";
-}
 
 function entryIcon(entry: AuditEntry) {
   const bucket = classifyEntry(entry);
@@ -106,18 +63,6 @@ function entryIcon(entry: AuditEntry) {
   return Sparkles;
 }
 
-function humanizeAction(entry: AuditEntry): string {
-  const a = entry.action.replace(/[_.]/g, " ").toLowerCase();
-  const t = entry.entity_type.replace(/[_.]/g, " ").toLowerCase();
-  return `${a.charAt(0).toUpperCase() + a.slice(1)}${t ? ` — ${t}` : ""}`;
-}
-
-function actorLabel(entry: AuditEntry): string {
-  if (entry.actor_email) return entry.actor_email;
-  if (entry.actor_id) return "Team member";
-  return "System";
-}
-
 function formatWhen(iso: string): string {
   try {
     return new Date(iso).toLocaleString(undefined, {
@@ -132,6 +77,10 @@ function formatWhen(iso: string): string {
 /* -------------------- component -------------------- */
 
 export type StudentActivityHistoryProps = {
+  roster?: HistoryStudent[];
+  requestedStudentId?: string;
+  onStudentSelection?: (id?: string) => void;
+  organization?: HistoryOrganization;
   /**
    * Optional CTA route shown in the empty state (e.g. sharing settings for
    * families, caseload for educators). Falls back to /dashboard.
@@ -146,38 +95,236 @@ export type StudentActivityHistoryProps = {
   footer?: React.ReactNode;
 };
 
-export function StudentActivityHistory({
+export function RoutedStudentActivityHistory(props: StudentActivityHistoryProps) {
+  const navigate = useNavigate();
+  const location = useRouterState({ select: (state) => state.location });
+  const mountedPath = useRef(location.pathname);
+  const currentLocation = useRef(location);
+  currentLocation.current = location;
+  const alive = useRef(false);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  const requested = (location.search as Record<string, unknown>).student_id;
+  const requestedStudentId = typeof requested === "string" ? requested : undefined;
+  const onStudentSelection = (id?: string) => {
+    if (!alive.current || currentLocation.current.pathname !== mountedPath.current) return;
+    void navigate({
+      to: mountedPath.current,
+      search: (previous: Record<string, unknown>) => ({ ...previous, student_id: id }),
+      hash: currentLocation.current.hash,
+      resetScroll: false,
+    });
+  };
+  if (location.pathname !== mountedPath.current) return null;
+  return (
+    <StudentActivityHistory
+      {...props}
+      requestedStudentId={requestedStudentId}
+      onStudentSelection={onStudentSelection}
+    />
+  );
+}
+
+export function StudentActivityHistory(props: StudentActivityHistoryProps) {
+  const loadStudents = useServerFn(listHistoryStudents);
+  const [students, setStudents] = useState<HistoryStudent[]>([]);
+  const [studentId, setStudentId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
+    setStudents([]);
+    setStudentId("");
+    void (async () => {
+      try {
+        if (props.roster) {
+          setStudents(props.roster);
+          setStudentId(props.roster[0]?.id ?? "");
+          return;
+        }
+        const result = await loadStudents();
+        if (cancelled) return;
+        if (result.loadFailed) throw new Error("Student records could not be loaded.");
+        setStudents(result.students);
+        setStudentId(result.students[0]?.id ?? "");
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [loadStudents, attempt, props.roster]);
+
+  if (loading)
+    return (
+      <div
+        data-testid={props.testId}
+        role="status"
+        className="flex items-center gap-2 text-foreground/75"
+      >
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Loading student records…
+      </div>
+    );
+  if (error)
+    return (
+      <div data-testid={props.testId}>
+        <HistoryLoadFailure
+          message="Student records could not be loaded. Please try again."
+          onRetry={() => setAttempt((value) => value + 1)}
+        />
+      </div>
+    );
+  const activeStudentId = props.onStudentSelection
+    ? (props.requestedStudentId ?? students[0]?.id ?? "")
+    : studentId;
+  if (
+    props.requestedStudentId &&
+    !students.some((student) => student.id === props.requestedStudentId)
+  ) {
+    return (
+      <div role="alert" className="rounded-lg border p-4 text-sm">
+        <p>The selected student is not available in this history view.</p>
+        <Button
+          className="mt-3"
+          variant="outline"
+          onClick={() => props.onStudentSelection?.(undefined)}
+        >
+          Choose an Available Student
+        </Button>
+      </div>
+    );
+  }
+  if (!students.length)
+    return (
+      <div data-testid={props.testId}>
+        <EmptyState
+          title="No Student Record Available"
+          body="Once a student is linked to your account, their access history shows here."
+          cta={props.emptyCta ?? { label: "Go to dashboard", to: "/dashboard" }}
+        />
+      </div>
+    );
+
+  // A newly selected student starts with a fresh reader, filters and empty counts.
+  return (
+    <StudentHistoryReader
+      key={`${props.organization?.scope ?? "personal"}:${props.organization?.id ?? ""}:${activeStudentId}`}
+      {...props}
+      students={students}
+      studentId={activeStudentId}
+      onStudentChange={props.onStudentSelection ?? setStudentId}
+    />
+  );
+}
+
+function StudentHistoryReader({
+  students,
+  studentId,
+  onStudentChange,
+  organization,
   emptyCta,
   testId,
   footer,
-}: StudentActivityHistoryProps) {
-  const loadStudents = useServerFn(listStudents);
-  const loadAudit = useServerFn(listStudentAuditTrail);
-
-  const [students, setStudents] = useState<Student[]>([]);
-  const [studentId, setStudentId] = useState<string>("");
+}: StudentActivityHistoryProps & {
+  students: HistoryStudent[];
+  studentId: string;
+  onStudentChange: (id: string) => void;
+}) {
+  const loadAudit = useServerFn(listStudentAuditPage);
+  const exportRecords = useServerFn(exportStudentAuditRecords);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [nextCursor, setNextCursor] = useState<AuditCursor | null>(null);
+  const [olderLoading, setOlderLoading] = useState(false);
+  const [olderError, setOlderError] = useState(false);
+  const pageBusy = useRef(false);
+  const alive = useRef(false);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState(false);
+  const exportBusy = useRef(false);
+  const exportGeneration = useRef(0);
+  const [prepared, setPrepared] = useState<PreparedHistory | null>(null);
   const [tab, setTab] = useState<HistoryFilterKey>("all");
 
-  useEffect(() => {
-    loadStudents()
-      .then(({ students }) => {
-        setStudents(students);
-        if (students[0]) setStudentId(students[0].id);
-        else setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [loadStudents]);
+  const activeFilter = useRef(tab);
+  activeFilter.current = tab;
 
   useEffect(() => {
-    if (!studentId) return;
+    let cancelled = false;
     setLoading(true);
-    loadAudit({ data: { student_id: studentId, limit: 200 } })
-      .then(({ entries }) => setEntries(entries))
-      .catch(() => toast.error("Could not load history"))
-      .finally(() => setLoading(false));
-  }, [studentId, loadAudit]);
+    setError(false);
+    setEntries([]);
+    setNextCursor(null);
+    setOlderError(false);
+    void (async () => {
+      try {
+        const result = await loadAudit({
+          data: { student_id: studentId, limit: 200, ...(organization ? { organization } : {}) },
+        });
+        if (!cancelled) {
+          setEntries(result.entries);
+          setNextCursor(result.next_cursor ?? null);
+        }
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId, organization?.scope, organization?.id, loadAudit, attempt]);
+
+  const loadOlder = async () => {
+    if (!alive.current || pageBusy.current || !nextCursor) return;
+    pageBusy.current = true;
+    setOlderLoading(true);
+    setOlderError(false);
+    try {
+      const result = await loadAudit({
+        data: {
+          student_id: studentId,
+          limit: 200,
+          ...(organization ? { organization } : {}),
+          cursor: nextCursor,
+        },
+      });
+      if (!alive.current) return;
+      setEntries((previous) => {
+        const known = new Set(previous.map((entry) => entry.id));
+        return [...previous, ...result.entries.filter((entry) => !known.has(entry.id))];
+      });
+      setNextCursor(result.next_cursor ?? null);
+    } catch {
+      if (alive.current) setOlderError(true);
+    } finally {
+      if (alive.current) {
+        pageBusy.current = false;
+        setOlderLoading(false);
+      }
+    }
+  };
 
   const counts = useMemo(() => {
     const c: Record<HistoryFilterKey, number> = {
@@ -199,30 +346,94 @@ export function StudentActivityHistory({
     return entries.filter((e) => classifyEntry(e) === tab);
   }, [entries, tab]);
 
+  const downloadSelection = async (format: "csv" | "preview" | "print") => {
+    if (
+      !alive.current ||
+      exportBusy.current ||
+      loading ||
+      error ||
+      olderLoading ||
+      !filtered.length ||
+      filtered.length > 10000
+    )
+      return;
+    const ticket = ++exportGeneration.current;
+    const requestedFilter = tab;
+    const loadedCount = entries.length;
+    const olderAvailable = !!nextCursor;
+    exportBusy.current = true;
+    setExporting(true);
+    setExportError(false);
+    try {
+      const result = await exportRecords({
+        data: {
+          student_id: studentId,
+          filter: requestedFilter,
+          entry_ids: filtered.map((entry) => entry.id),
+          ...(organization ? { organization } : {}),
+        },
+      });
+      if (
+        !alive.current ||
+        activeFilter.current !== requestedFilter ||
+        ticket !== exportGeneration.current
+      )
+        return;
+      const context = {
+        filter: requestedFilter,
+        loadedCount,
+        olderAvailable,
+        exportedAt: new Date().toISOString(),
+      };
+      if (format !== "csv") {
+        setPrepared({ records: result, context, printNow: format === "print" });
+        return;
+      }
+      const csv = createHistoryCsv(result, context);
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      try {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "transitionforward-loaded-activity.csv";
+        document.body.appendChild(link);
+        try {
+          link.click();
+        } finally {
+          link.remove();
+        }
+      } finally {
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+    } catch {
+      if (
+        alive.current &&
+        activeFilter.current === requestedFilter &&
+        ticket === exportGeneration.current
+      )
+        setExportError(true);
+    } finally {
+      if (alive.current) {
+        exportBusy.current = false;
+        setExporting(false);
+      }
+    }
+  };
+
   const activeStudent = students.find((s) => s.id === studentId) ?? null;
   const cta = emptyCta ?? { label: "Go to dashboard", to: "/dashboard" };
-
-  if (students.length === 0 && !loading) {
-    return (
-      <div data-testid={testId}>
-        <EmptyState
-          title="No student record available"
-          body="Once a student is linked to your account, their access history shows here."
-          cta={cta}
-        />
-      </div>
-    );
-  }
 
   return (
     <div data-testid={testId}>
       {students.length > 1 ? (
         <div className="mb-6 max-w-sm">
-          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <label
+            htmlFor="history-student"
+            className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          >
             Student
           </label>
-          <Select value={studentId} onValueChange={setStudentId}>
-            <SelectTrigger className="mt-1">
+          <Select value={studentId} onValueChange={onStudentChange}>
+            <SelectTrigger id="history-student" className="mt-1">
               <SelectValue placeholder="Choose a student" />
             </SelectTrigger>
             <SelectContent>
@@ -236,7 +447,65 @@ export function StudentActivityHistory({
         </div>
       ) : null}
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as HistoryFilterKey)}>
+      <p className="mb-4 text-sm text-foreground/75">
+        Recent activity{activeStudent ? ` for ${activeStudent.first_name}` : ""}. This view loads up
+        to 200 records at a time. Counts and filters apply to the {entries.length} loaded records.
+      </p>
+      <div className="mb-4">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            disabled={
+              loading ||
+              error ||
+              olderLoading ||
+              exporting ||
+              !filtered.length ||
+              filtered.length > 10000
+            }
+            onClick={() => void downloadSelection("csv")}
+          >
+            {exporting ? "Preparing Activity Export…" : "Export Loaded Activity (CSV)"}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={
+              loading ||
+              error ||
+              olderLoading ||
+              exporting ||
+              !filtered.length ||
+              filtered.length > 10000
+            }
+            onClick={() => void downloadSelection("preview")}
+          >
+            Prepare Printable History
+          </Button>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Exports the selected category from your loaded records, with a fresh access check. Private
+          record details are excluded.
+        </p>
+        {filtered.length > 10000 && (
+          <p className="mt-2 text-sm">
+            Choose a smaller category to export up to 10,000 loaded records.
+          </p>
+        )}
+        {exportError && (
+          <p role="alert" className="mt-2 text-sm">
+            Activity could not be exported. Please try again.
+          </p>
+        )}
+      </div>
+      <Tabs
+        value={tab}
+        onValueChange={(v) => {
+          ++exportGeneration.current;
+          setPrepared(null);
+          setExportError(false);
+          setTab(v as HistoryFilterKey);
+        }}
+      >
         <TabsList className="flex flex-wrap gap-1">
           {FILTERS.map((f) => (
             <TabsTrigger key={f.key} value={f.key} className="gap-2">
@@ -254,15 +523,20 @@ export function StudentActivityHistory({
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading history…
               </div>
+            ) : error ? (
+              <HistoryLoadFailure
+                message="History could not be loaded. Please try again."
+                onRetry={() => setAttempt((value) => value + 1)}
+              />
             ) : filtered.length === 0 ? (
               <EmptyState
-                title="Nothing to show yet"
+                title="No Recent Activity Available"
                 body={
                   activeStudent
-                    ? `No ${
+                    ? `No recent ${
                         f.key === "all" ? "" : f.label.toLowerCase() + " "
-                      }activity recorded yet for ${activeStudent.first_name}.`
-                    : "No activity recorded yet."
+                      }activity is available in this view for ${activeStudent.first_name}.`
+                    : "No recent activity is available in this view."
                 }
                 cta={cta}
               />
@@ -277,9 +551,7 @@ export function StudentActivityHistory({
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
-                          <div className="font-medium">
-                            {humanizeAction(e)}
-                          </div>
+                          <div className="font-medium">{humanizeAction(e)}</div>
                           <div className="text-xs text-muted-foreground">
                             {formatWhen(e.created_at)}
                           </div>
@@ -296,9 +568,7 @@ export function StudentActivityHistory({
                         !Array.isArray(e.metadata) &&
                         Object.keys(e.metadata as object).length > 0 ? (
                           <details className="mt-2 text-xs text-muted-foreground">
-                            <summary className="cursor-pointer select-none">
-                              Details
-                            </summary>
+                            <summary className="cursor-pointer select-none">Details</summary>
                             <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted/40 p-2 text-[11px] leading-snug">
                               {JSON.stringify(e.metadata, null, 2)}
                             </pre>
@@ -314,7 +584,52 @@ export function StudentActivityHistory({
         ))}
       </Tabs>
 
+      {!loading && !error && nextCursor && (
+        <div className="mt-4">
+          {olderError && (
+            <p role="alert" className="mb-2 text-sm">
+              Older activity could not be loaded. Your loaded records are still available. Please
+              try again.
+            </p>
+          )}
+          <Button variant="outline" disabled={olderLoading} onClick={() => void loadOlder()}>
+            {olderLoading
+              ? "Loading Older Activity…"
+              : olderError
+                ? "Retry Older Activity"
+                : "Load Older Activity"}
+          </Button>
+        </div>
+      )}
+      {!loading && !error && !nextCursor && entries.length > 0 && (
+        <p className="mt-4 text-sm text-muted-foreground">
+          No older recorded activity is available in this view.
+        </p>
+      )}
+      {prepared && (
+        <HistoryPrintPreview
+          prepared={prepared}
+          busy={exporting}
+          failed={exportError}
+          onClose={() => {
+            ++exportGeneration.current;
+            setPrepared(null);
+          }}
+          onPrint={() => void downloadSelection("print")}
+        />
+      )}
       {footer}
+    </div>
+  );
+}
+
+function HistoryLoadFailure({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div role="alert" className="rounded-lg border p-5">
+      <p className="text-sm text-foreground/75">{message}</p>
+      <Button variant="outline" className="mt-3" onClick={onRetry}>
+        Retry
+      </Button>
     </div>
   );
 }

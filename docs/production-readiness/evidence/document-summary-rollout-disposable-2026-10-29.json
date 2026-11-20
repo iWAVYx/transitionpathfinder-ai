@@ -1,0 +1,45 @@
+{
+  "schema": "document-summary-rollout-inventory-v1",
+  "by_state": [
+    {
+      "bound": 0,
+      "state": "completed",
+      "unbound": 0
+    },
+    {
+      "bound": 0,
+      "state": "failed",
+      "unbound": 0
+    },
+    {
+      "bound": 0,
+      "state": "needs_review",
+      "unbound": 0
+    },
+    {
+      "bound": 0,
+      "state": "processing",
+      "unbound": 0
+    },
+    {
+      "bound": 0,
+      "state": "queued",
+      "unbound": 0
+    }
+  ],
+  "cleanup_authorized": false,
+  "rollout_authorized": false,
+  "unknown_state_count": 0,
+  "read_only_transaction": true,
+  "private_values_emitted": false,
+  "retained_binding_count": 0,
+  "provider_work_reconciled": false,
+  "retention_review_complete": false,
+  "nonprocessing_locked_count": 0,
+  "worker_quiescence_verified": false,
+  "complete_relation_visibility": true,
+  "unbound_reconciliation_count": 0,
+  "processing_claim_conflict_count": 0,
+  "retained_job_identity_conflict_count": 0,
+  "retained_document_identity_conflict_count": 0
+}

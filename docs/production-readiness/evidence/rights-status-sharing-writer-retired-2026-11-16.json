@@ -1,0 +1,62 @@
+{
+  "schema": "transitionforward-rights-status-sharing-writer-retirement-v1",
+  "date": "2026-11-16",
+  "source_base": "edef84e635a812381f8dfa0a809d4ba78b1cb841",
+  "status": "source-local-verified",
+  "workstreams": [
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "src/lib/rights.functions.ts",
+      "sha256": "a375ab56b396f4fa66c2330e72f546679ac4b5468841f158c4a1cc3cab73b0ba"
+    },
+    {
+      "path": "src/components/students/RightsStatusCard.tsx",
+      "sha256": "1ef4c3acc7f612d6af5edc633dfdc7569320f3b1b6950da451f3323df5da2a3d"
+    },
+    {
+      "path": "tests/unit/rights-status-sharing-boundary.test.ts",
+      "sha256": "4f6f6c362f2eb4a83042dec455f2e7f837b1345ed73180f56c33a175197a8c75"
+    }
+  ],
+  "completed": [
+    "Removed document enumeration and grant upserts from every rights-status recording action.",
+    "Recording a status cannot create, replace or revive document grants through this writer.",
+    "Account-linked student access remains governed by unchanged canonical access routines; explicit sharing remains the acknowledged document-sharing workflow.",
+    "The shared rights-status dialog distinguishes recording a status from changing document access."
+  ],
+  "verification": {
+    "focused_tests": 10,
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed",
+    "service_worker": "passed",
+    "isolated_copy_fingerprint_matches": true,
+    "runtime_source_fingerprint": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "c026868ae3cf689cf1d7b73b84d3cb4d2db48ff6e44a028ae3df716cc8082aa2",
+      "fileCount": 1229
+    },
+    "full_unit_suite": "passed",
+    "sql_changed": false,
+    "native_database_rerun_claimed": false,
+    "unit_tests": 6220,
+    "unit_files": 380,
+    "readiness_navigation_contracts": 103,
+    "release_security_contracts": 72
+  },
+  "remaining": [
+    "Legacy document visibility/private-family scopes.",
+    "Other rights-status history/mirror/consent/audit and stale-form behavior needs review; removing this hidden grant writer does not make the broader workflow atomic or certify its legal/consent interpretation.",
+    "Raw document DELETE/admin scope and non-document feature permissions.",
+    "Final canonical/ledger packaging, combined regression, authorized hosted/provider acceptance and merge/production gates."
+  ],
+  "whole_workstream_complete": false,
+  "complete_release_manifest": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "document-rescan-outcome-queue-verified-v1",
+  "date": "2026-11-01",
+  "verified_source": "0126134b83f8fcbffba01271f6e6c4dff57b43b0",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-rescan-outcome-queue.sql",
+    "sha256": "02d44e5eb75159b2aaa722e367e9010834713108e9c38a6aab180cbd6f0891a6"
+  },
+  "runs": [
+    {
+      "run": 41281391140,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41281391140",
+      "native_tests": 1234,
+      "passed": 1234,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 12,
+      "artifact": "docs/production-readiness/evidence/document-rescan-outcome-queue-proof-41281391140-2026-11-01.json",
+      "artifact_sha256": "3b77487e0ea6e1600ccef991b538996853777298c60a8f7ea1ec12299da55283",
+      "log_sha256": "88e8ab00798efa018182b33a558decab95faa2f5a8784b4754eebf81e6bc340a"
+    },
+    {
+      "run": 41281389551,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41281389551",
+      "native_tests": 1234,
+      "passed": 1234,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 12,
+      "artifact": "docs/production-readiness/evidence/document-rescan-outcome-queue-proof-41281389551-2026-11-01.json",
+      "artifact_sha256": "3b77487e0ea6e1600ccef991b538996853777298c60a8f7ea1ec12299da55283",
+      "log_sha256": "0b49604658102c6902571776987d8370162a38b3628f96f383d9b5783f7ff299"
+    }
+  ],
+  "scope": "Exact private atomic rescan outcome/selected counted queue and metadata snapshot/deferred-commit boundary only. Native full suite, local model partitions and canonical225+12 all pass. No ordinary execution, endpoint/worker wiring, rescan finish/settlement or physical/provider acceptance.",
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "document-summary-capacity-settlement-verified-v1",
+  "date": "2026-10-31",
+  "verified_source": "5b3c9efbcbf9278edbd1e0adb1024a26178b4a43",
+  "automatic_checks": {
+    "successes": 9,
+    "failures": 0,
+    "pending": 0,
+    "skipped_not_performed": 7
+  },
+  "native_each": {
+    "tests": 995,
+    "passed": 995,
+    "failed": 0,
+    "skipped": 0,
+    "canonical_migrations": 225,
+    "noncanonical_proposals": 8
+  },
+  "proof_artifacts": [
+    {
+      "path": "docs/production-readiness/evidence/document-summary-capacity-settlement-proof-41218223227-2026-10-31.json",
+      "sha256": "002dbb27988f2dc196baf8e0ee0b322351156f99fa32e8470019512c989df911",
+      "run": 41218223227
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-summary-capacity-settlement-proof-41218216968-2026-10-31.json",
+      "sha256": "002dbb27988f2dc196baf8e0ee0b322351156f99fa32e8470019512c989df911",
+      "run": 41218216968
+    }
+  ],
+  "proof_scope": "Earlier summary-only stage. Exact seven hashes/owners/private grants and enabled guards; paused, unset policy, empty receipts. It does not prove later upload producer settlement, source-bound capacity adapters, physical provider behavior or hosted acceptance.",
+  "hosted_actions": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

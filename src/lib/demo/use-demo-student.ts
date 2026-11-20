@@ -82,6 +82,7 @@ export function useDemoStudent(): {
           student: id,
         }),
         replace: false,
+        resetScroll: false,
       });
     },
     [navigate, pathname, hash],

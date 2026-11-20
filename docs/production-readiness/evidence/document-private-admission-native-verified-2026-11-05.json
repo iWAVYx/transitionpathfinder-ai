@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.5",
+  "scope": "Private generic admission native implementation and competing-resume checks only; not full-schema or all legacy writer acceptance",
+  "run": 42102133922,
+  "head_source": "6bd6321272320f7d5f0da8aaa98c7fd3ef98f42c",
+  "checkout_commit": "1ff6487d4fd416f2014e4f296530c0ac102b23c2",
+  "native_aggregate": "success",
+  "native_cases": 1621,
+  "passed": 1621,
+  "failed": 0,
+  "skipped": 0,
+  "private_admission_cases": 27,
+  "native_competing_resume_cases": 2,
+  "all_seven_raw_partition_logs_independently_validated": true,
+  "proof": "docs/production-readiness/evidence/document-private-admission-native-proof-42102133922-2026-11-05.json",
+  "proof_sha256": "132e467cb577cb459d05398df1ee8d0048d6e919af0430714da1895a73ebbcb3",
+  "proposal": "docs/production-readiness/proposals/document-private-operation-admission.sql",
+  "proposal_sha256": "5e7861721abaa2022ded87715d3c1f4fc9929ab4e7bb9d8aff5526133ba7af88",
+  "verified_behavior": [
+    "Direct generic admission refuses for anon/authenticated/service roles across all four operation kinds",
+    "Exact trusted registration/rescan/Apply/summary callers still work",
+    "Distinct admission owner remains preserved without raw table grants",
+    "Previously admitted work may finish while paused",
+    "Grant rollback and concurrent resume commit/rollback preserve expected state"
+  ],
+  "native_full_schema_verified": false,
+  "remaining": [
+    "Private admission full225+28 schema replay",
+    "New raw summary writer1640-case/full225+29 gate",
+    "Remaining Storage/service/deployed writer and scheduled-job coverage"
+  ],
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

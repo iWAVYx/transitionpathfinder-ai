@@ -48,7 +48,7 @@ const PENDING: Pending[] = [
 function PendingInputPage() {
   return (
     <SiteShell>
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <Breadcrumbs trail={[{ label: "Caseload", to: "/hubs/caseload" }, { label: "Pending Input" }]} />
         <header className="mt-4 mb-8">
           <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ function PendingInputPage() {
             <Link to="/teacher-portal">Open Teacher Portal</Link>
           </Button>
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

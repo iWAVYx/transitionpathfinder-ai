@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -194,7 +195,7 @@ export function CoveragePanel({ orgId }: { orgId: string }) {
                           </Badge>
                         </div>
                         <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                          {[row.school, row.grade_band]
+                          {[row.school, row.grade_band ? formatGradeBand(row.grade_band) : null]
                             .filter(Boolean)
                             .join(" · ") || "No school on file"}
                         </p>

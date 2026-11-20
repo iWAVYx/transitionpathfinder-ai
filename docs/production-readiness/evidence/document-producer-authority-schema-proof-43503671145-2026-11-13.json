@@ -1,0 +1,15 @@
+{
+  "schema": "document-producer-authority-schema-proof-v1",
+  "canonical_count": 225,
+  "review_drafts": 39,
+  "exact_target_patches": 5,
+  "target_oids_owner_mode_path_grants_preserved": true,
+  "unrelated_public_routines_unchanged": true,
+  "exact_private_invoker_helper": true,
+  "read_only_drain_clear": true,
+  "paused": true,
+  "remaining_capacity_units": 0,
+  "provider_quiescence_verified": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

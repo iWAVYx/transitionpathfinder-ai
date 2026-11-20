@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Shield, ShieldAlert, ShieldCheck, Loader2 } from "lucide-react";
 import {
@@ -39,7 +40,7 @@ function statusTone(status: RightsStatus): {
       return {
         Icon: ShieldCheck,
         classes: "bg-emerald-50 text-emerald-900 border-emerald-200",
-        blurb: "Student controls sharing.",
+        blurb: "Student decision-making rights recorded.",
       };
     case "under_18_parent_rights_active":
       return {
@@ -69,10 +70,21 @@ function statusTone(status: RightsStatus): {
 }
 
 export function RightsStatusCard({ studentId }: Props) {
+  const { user, loading } = useAuth();
+  if (loading || !user?.id) return null;
+  return <RightsStatusSession key={`${user.id}:${studentId}`} studentId={studentId} viewerId={user.id} />;
+}
+function RightsStatusSession({ studentId, viewerId }: Props & { viewerId: string }) {
   const fetchStatus = useServerFn(getRightsStatus);
   const saveStatus = useServerFn(setRightsStatus);
 
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [needsRefresh, setNeedsRefresh] = useState(false);
+  const [needsReview, setNeedsReview] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
+  const [revision, setRevision] = useState<string | null>(null);
+  const session = useRef({ alive: true, load: 0, saving: false });
   const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<RightsStatus>("unknown_needs_review");
@@ -87,50 +99,45 @@ export function RightsStatusCard({ studentId }: Props) {
   const [legalNotes, setLegalNotes] = useState("");
 
   const refresh = async () => {
-    setLoading(true);
+    const current = session.current;
+    const serial = ++current.load;
+    setLoading(true); setLoadError(false);
     try {
-      const res = await fetchStatus({ data: { student_id: studentId } });
-      setStatus(res.student.rights_status);
-      setLatest(res.latest);
-      setAge(res.student.age ?? null);
-      setFormStatus(res.student.rights_status);
-      setTransferDate(res.latest?.transfer_notice_date ?? "");
+      const res = await fetchStatus({ data: { student_id: studentId, expected_viewer_id: viewerId } });
+      if (!current.alive || serial !== current.load) return;
+      setStatus(res.student.rights_status); setRevision(res.student.rights_status_revision);
+      setLatest(res.latest); setAge(res.student.age ?? null); setCanEdit(res.can_edit); setNeedsReview(res.needs_review);
+      setFormStatus(res.student.rights_status); setTransferDate(res.latest?.transfer_notice_date ?? "");
       setAuthorizedParent(res.latest?.student_authorized_parent_access ?? false);
-      setDecisionNotes(res.latest?.decision_making_notes ?? "");
-      setLegalNotes(res.latest?.legal_representative_notes ?? "");
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+      setDecisionNotes(res.latest?.decision_making_notes ?? ""); setLegalNotes(res.latest?.legal_representative_notes ?? "");
+      setNeedsRefresh(false);
+    } catch {
+      if (!current.alive || serial !== current.load) return;
+      setLoadError(true); setCanEdit(false); setRevision(null); setNeedsRefresh(true);
+    } finally { if (current.alive && serial === current.load) setLoading(false); }
   };
-
   useEffect(() => {
-    void refresh();
+    const current = session.current; current.alive = true; void refresh();
+    return () => { current.alive = false; current.load++; };
+    // The keyed session fixes viewer/student identity for its lifetime.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studentId]);
-
+  }, []);
   const onSave = async () => {
-    setSaving(true);
+    const current = session.current;
+    if (current.saving || loading || loadError || needsRefresh || !canEdit || !revision) return;
+    current.saving = true; setSaving(true);
     try {
-      await saveStatus({
-        data: {
-          student_id: studentId,
-          current_status: formStatus,
-          transfer_notice_date: transferDate || null,
-          student_authorized_parent_access: authorizedParent,
-          decision_making_notes: decisionNotes || null,
-          legal_representative_notes: legalNotes || null,
-        },
-      });
-      toast.success("Rights status updated");
-      setOpen(false);
-      await refresh();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save");
-    } finally {
-      setSaving(false);
-    }
+      await saveStatus({ data: {
+        student_id: studentId, expected_viewer_id: viewerId, expected_revision: revision, request_id: crypto.randomUUID(),
+        current_status: formStatus, transfer_notice_date: transferDate || null, student_authorized_parent_access: authorizedParent,
+        decision_making_notes: decisionNotes || null, legal_representative_notes: legalNotes || null,
+      } });
+      if (!current.alive) return;
+      toast.success("Rights review recorded"); setOpen(false); await refresh();
+    } catch {
+      if (!current.alive) return;
+      setNeedsRefresh(true); toast.error("We couldn't confirm this review. Refresh the status before trying again.");
+    } finally { if (current.alive) { current.saving = false; setSaving(false); } }
   };
 
   const tone = statusTone(status);
@@ -145,18 +152,23 @@ export function RightsStatusCard({ studentId }: Props) {
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-semibold">Education rights status</p>
             <span className="rounded-full bg-white/70 px-2 py-0.5 text-xs font-medium">
-              {loading ? "…" : RIGHTS_STATUS_LABELS[status]}
+              {loading ? "Loading…" : loadError ? "Status Unavailable" : RIGHTS_STATUS_LABELS[status]}
             </span>
           </div>
-          <p className="mt-1 text-xs opacity-90">{tone.blurb}</p>
-          {showAge17Reminder && (
+          {!loading && !loadError && <p className="mt-1 text-xs opacity-90">{tone.blurb}</p>}
+          {(loadError || needsRefresh) && <div className="mt-2 text-xs" role="status">
+            Refresh to confirm your sign-in, access and current review before continuing.
+            <Button size="sm" variant="outline" className="ml-2" disabled={loading || saving} onClick={() => void refresh()}>Refresh Status</Button>
+          </div>}
+          {needsReview && !loading && !loadError && <p className="mt-2 text-xs">An earlier review does not match this status. Record a new review to reconcile it.</p>}
+          {!loading && !loadError && showAge17Reminder && (
             <p className="mt-2 text-xs font-medium">
               Reminder: education rights generally transfer to the student at age 18 in Connecticut.
               Talk with the team about transfer-of-rights notice and any continued parent/guardian
               involvement the student wants to authorize.
             </p>
           )}
-          {latest && (
+          {!loading && !loadError && latest && (
             <p className="mt-2 text-xs opacity-70">
               Last reviewed {new Date(latest.created_at).toLocaleDateString()}
             </p>
@@ -164,7 +176,7 @@ export function RightsStatusCard({ studentId }: Props) {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="secondary">
+            <Button size="sm" variant="secondary" disabled={loading || loadError || !canEdit || needsRefresh}>
               Review
             </Button>
           </DialogTrigger>
@@ -174,7 +186,8 @@ export function RightsStatusCard({ studentId }: Props) {
               <DialogDescription>
                 Record who holds education decision-making rights for this student. This is a
                 planning note — it is not legal advice. Check district or official guidance for
-                anything you're unsure about.
+                anything you're unsure about. Saving this status does not change anyone's
+                access to documents. Review document sharing separately.
               </DialogDescription>
             </DialogHeader>
 
@@ -182,6 +195,7 @@ export function RightsStatusCard({ studentId }: Props) {
               <div>
                 <Label className="text-xs">Current status</Label>
                 <select
+                  disabled={saving || loading || needsRefresh}
                   className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as RightsStatus)}
@@ -200,6 +214,7 @@ export function RightsStatusCard({ studentId }: Props) {
                 </Label>
                 <Input
                   id="transfer-date"
+                  disabled={saving || loading || needsRefresh}
                   type="date"
                   value={transferDate}
                   onChange={(e) => setTransferDate(e.target.value)}
@@ -208,11 +223,12 @@ export function RightsStatusCard({ studentId }: Props) {
 
               <label className="flex items-start gap-2 text-sm">
                 <Checkbox
+                  disabled={saving || loading || needsRefresh}
                   checked={authorizedParent}
                   onCheckedChange={(c) => setAuthorizedParent(c === true)}
                 />
                 <span>
-                  Student has authorized continued parent/guardian access after age 18
+                  Record that the student has authorized continued parent/guardian involvement after age 18
                 </span>
               </label>
 
@@ -222,6 +238,8 @@ export function RightsStatusCard({ studentId }: Props) {
                 </Label>
                 <Textarea
                   id="decision-notes"
+                  maxLength={2000}
+                  disabled={saving || loading || needsRefresh}
                   rows={2}
                   value={decisionNotes}
                   onChange={(e) => setDecisionNotes(e.target.value)}
@@ -235,6 +253,8 @@ export function RightsStatusCard({ studentId }: Props) {
                 </Label>
                 <Textarea
                   id="legal-notes"
+                  maxLength={2000}
+                  disabled={saving || loading || needsRefresh}
                   rows={2}
                   value={legalNotes}
                   onChange={(e) => setLegalNotes(e.target.value)}
@@ -242,6 +262,10 @@ export function RightsStatusCard({ studentId }: Props) {
                 />
               </div>
 
+              {needsRefresh && <div className="text-xs" role="status">
+                Refresh the current status before another save.
+                <Button variant="outline" size="sm" disabled={loading || saving} onClick={() => void refresh()}>Refresh Current Review</Button>
+              </div>}
               <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
                 TransitionForward does not provide legal advice and does not replace official IEP,
                 PPT team, or district decisions. Please verify rights status with your school team
@@ -253,7 +277,7 @@ export function RightsStatusCard({ studentId }: Props) {
               <Button variant="ghost" onClick={() => setOpen(false)} disabled={saving}>
                 Cancel
               </Button>
-              <Button onClick={onSave} disabled={saving}>
+              <Button onClick={onSave} disabled={saving || loading || loadError || needsRefresh || !canEdit || !revision}>
                 {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Save status
               </Button>

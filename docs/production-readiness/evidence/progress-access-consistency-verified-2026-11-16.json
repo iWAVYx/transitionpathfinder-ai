@@ -1,0 +1,267 @@
+{
+  "schema": "transitionforward-progress-access-consistency-verified-v1",
+  "date": "2026-11-16",
+  "source_commit": "979a3e3c61e34c8108f3a9b1564881b5991bede5",
+  "run_id": 43958004224,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43958004224",
+  "status": "shared roadmap and personal goal progress verified in source/disposable scope",
+  "workstreams": [
+    "4.1",
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/progress-access-consistency/guard-progress-access.review.sql",
+      "sha256": "330ebd618f9280b5d635c1d67d2883d424b1a1885183009e58ce6319e072b1bd"
+    },
+    {
+      "path": "tests/database/progress-access-consistency.test.mjs",
+      "sha256": "f69d80dc951b18317657d5e081377c4a7264e137af6f923773b630af512f5c6e"
+    },
+    {
+      "path": "tests/database/run-progress-access-consistency-schema.mjs",
+      "sha256": "c4c14173e987c686a00f05b58fadada278e09dab34f257fb09aa8a954c01c2bd"
+    },
+    {
+      "path": ".github/workflows/progress-access-consistency-review.yml",
+      "sha256": "05a27159af65f81df14923f63333c8ab49e48f59f6d147ac4419df6de824e440"
+    }
+  ],
+  "application_source_manifest": [
+    {
+      "path": "src/components/students/PathwayProgress.tsx",
+      "sha256": "b57e9da887af2bfc94faf9870751246006b57c12e7445d0e48ba47e0fe984beb"
+    },
+    {
+      "path": "src/lib/progress.functions.ts",
+      "sha256": "619e1ea6d8a251e127c108ee8330b275da438a802299b2e10e316457e22fa1f1"
+    },
+    {
+      "path": "src/lib/progress-contract.ts",
+      "sha256": "9c3538eafde000f071dbcdb1053528c9781510400fc9589c49f4ed30441d1bd6"
+    },
+    {
+      "path": "src/lib/progress.server.ts",
+      "sha256": "87a36515cde0b133b19b9e6c9f41ee7168a28e03f8fca1fd0745ce59766177aa"
+    },
+    {
+      "path": "src/lib/transition-roadmap.ts",
+      "sha256": "c69ceb9660bdde58034e3eacb29cc30fe7d4639106a4693e8c306d735789b6ef"
+    },
+    {
+      "path": "src/lib/goal-statuses.functions.ts",
+      "sha256": "484bc314202e6b6a5af09a23a6c8507ea9ebec80ae1c2988a9d4d23dfe106c56"
+    },
+    {
+      "path": "src/lib/goal-progress-read.server.ts",
+      "sha256": "b5d38ae8fe1d6d194444e4d13ceaa44bb0e8d14f6959a0930aaf607fde233b58"
+    },
+    {
+      "path": "tests/unit/goal-progress-viewer-intent.test.ts",
+      "sha256": "163c148336a7dc5cfb9192282d66eb00a78a92c06f87ba66d7199594165c03ae"
+    },
+    {
+      "path": "tests/unit/goal-status-load-result.test.ts",
+      "sha256": "8b3e3be2edfdd18c210721bb3b7d12c1edd1614936f9024773deadadcd18efe6"
+    },
+    {
+      "path": "tests/unit/progress-receipts.test.ts",
+      "sha256": "d11191efc7ab12d37b5537ca46fc91712794ff51fc03828ebe3d7708163f9663"
+    },
+    {
+      "path": "tests/unit/pathway-progress-lifetime.test.tsx",
+      "sha256": "2e498e6d68dd3296caf92838840109f58ab47316f0bf603d6d40b5277bbd9a53"
+    }
+  ],
+  "local": {
+    "tests": 48,
+    "passed": 48,
+    "failed": 0,
+    "skipped": 0,
+    "raw_tap_sha256": "42ceea92473a76bce227c6a91b26e5a373d8aa35a69590880de6cdea6aa4e9e6"
+  },
+  "native": {
+    "tests": 109,
+    "passed": 109,
+    "failed": 0,
+    "skipped": 0,
+    "fresh_database_per_case": true,
+    "case_names": [
+      "current roadmap step 0 saves with exact identity and attribution",
+      "current roadmap step 1 saves with exact identity and attribution",
+      "current roadmap step 2 saves with exact identity and attribution",
+      "current roadmap step 100 saves with exact identity and attribution",
+      "current roadmap step 101 saves with exact identity and attribution",
+      "current roadmap step 102 saves with exact identity and attribution",
+      "current roadmap step 200 saves with exact identity and attribution",
+      "current roadmap step 201 saves with exact identity and attribution",
+      "current roadmap step 202 saves with exact identity and attribution",
+      "current roadmap step 300 saves with exact identity and attribution",
+      "current roadmap step 301 saves with exact identity and attribution",
+      "current roadmap step 302 saves with exact identity and attribution",
+      "baseline broad own-row policy permits goal association and reads without student access",
+      "restrictive goal boundary closes inherited permissive access without deleting old rows",
+      "eligible family can use the shared roadmap and personal report progress",
+      "eligible student can use the shared roadmap and personal report progress",
+      "eligible educator can use the shared roadmap and personal report progress",
+      "eligible school can use the shared roadmap and personal report progress",
+      "eligible district can use the shared roadmap and personal report progress",
+      "eligible owner can use the shared roadmap and personal report progress",
+      "ineligible family cannot write shared roadmap progress",
+      "ineligible student cannot write shared roadmap progress",
+      "ineligible educator cannot write shared roadmap progress",
+      "ineligible school cannot write shared roadmap progress",
+      "ineligible district cannot write shared roadmap progress",
+      "ineligible owner cannot write shared roadmap progress",
+      "ineligible partner cannot write shared roadmap progress",
+      "read-only student relationship can keep personal goals without editing the shared roadmap",
+      "partner-only access is denied on raw roadmap and personal goal rows",
+      "a stale roadmap row cannot overwrite newer completion or notes",
+      "expected absence never replaces an existing roadmap record",
+      "a wrong row identity cannot redirect a roadmap update",
+      "multiple updates in one transaction get strictly increasing database revisions",
+      "raw roadmap writes remain blocked with future grants and permissive policies",
+      "trusted raw roadmap writes cannot forge the actor or reassign identity",
+      "goal user/report/item identity is immutable even when both reports are readable",
+      "another actor cannot read or update someone else's personal goals",
+      "unlinked own reports give a controlled link-required result",
+      "report access loss hides old goal progress without deleting it",
+      "personal own-row deletion policy is preserved without granting access to other users' goals",
+      "aggregate returns every goal above the REST page limit and deduplicates reports",
+      "a mixed inaccessible report set fails rather than returning partial totals",
+      "aggregate and capability predicates bind the actual caller",
+      "legacy unknown roadmap rows are retained and returned without fabricating a current milestone",
+      "ordinary TRUNCATE is not a pathway_progress capability",
+      "ordinary TRUNCATE is not a goal_statuses capability",
+      "repeated installation stops before partial changes",
+      "installation rollback preserves old progress values and permissions",
+      "native roadmap family save-first through COMMIT",
+      "native roadmap family removal-first through COMMIT",
+      "native roadmap family save-first through ROLLBACK",
+      "native roadmap family removal-first through ROLLBACK",
+      "native roadmap student save-first through COMMIT",
+      "native roadmap student removal-first through COMMIT",
+      "native roadmap student save-first through ROLLBACK",
+      "native roadmap student removal-first through ROLLBACK",
+      "native roadmap educator save-first through COMMIT",
+      "native roadmap educator removal-first through COMMIT",
+      "native roadmap educator save-first through ROLLBACK",
+      "native roadmap educator removal-first through ROLLBACK",
+      "native roadmap school save-first through COMMIT",
+      "native roadmap school removal-first through COMMIT",
+      "native roadmap school save-first through ROLLBACK",
+      "native roadmap school removal-first through ROLLBACK",
+      "native roadmap district save-first through COMMIT",
+      "native roadmap district removal-first through COMMIT",
+      "native roadmap district save-first through ROLLBACK",
+      "native roadmap district removal-first through ROLLBACK",
+      "native roadmap owner save-first through COMMIT",
+      "native roadmap owner removal-first through COMMIT",
+      "native roadmap owner save-first through ROLLBACK",
+      "native roadmap owner removal-first through ROLLBACK",
+      "native roadmap partner-transition save-first through COMMIT",
+      "native roadmap partner-transition removal-first through COMMIT",
+      "native roadmap partner-transition save-first through ROLLBACK",
+      "native roadmap partner-transition removal-first through ROLLBACK",
+      "native goal family save-first through COMMIT",
+      "native goal family removal-first through COMMIT",
+      "native goal family save-first through ROLLBACK",
+      "native goal family removal-first through ROLLBACK",
+      "native goal student save-first through COMMIT",
+      "native goal student removal-first through COMMIT",
+      "native goal student save-first through ROLLBACK",
+      "native goal student removal-first through ROLLBACK",
+      "native goal educator save-first through COMMIT",
+      "native goal educator removal-first through COMMIT",
+      "native goal educator save-first through ROLLBACK",
+      "native goal educator removal-first through ROLLBACK",
+      "native goal school save-first through COMMIT",
+      "native goal school removal-first through COMMIT",
+      "native goal school save-first through ROLLBACK",
+      "native goal school removal-first through ROLLBACK",
+      "native goal district save-first through COMMIT",
+      "native goal district removal-first through COMMIT",
+      "native goal district save-first through ROLLBACK",
+      "native goal district removal-first through ROLLBACK",
+      "native goal owner save-first through COMMIT",
+      "native goal owner removal-first through COMMIT",
+      "native goal owner save-first through ROLLBACK",
+      "native goal owner removal-first through ROLLBACK",
+      "native goal partner-transition save-first through COMMIT",
+      "native goal partner-transition removal-first through COMMIT",
+      "native goal partner-transition save-first through ROLLBACK",
+      "native goal partner-transition removal-first through ROLLBACK",
+      "native competing roadmap creation through COMMIT",
+      "native competing roadmap update through COMMIT",
+      "native competing roadmap creation through ROLLBACK",
+      "native competing roadmap update through ROLLBACK",
+      "native prepared roadmap read rechecks current student access"
+    ],
+    "observed_cross_role_save_removal_races": 56,
+    "observed_competing_creation_update_races": 4,
+    "cached_read_cases": 1,
+    "raw_tap_sha256": "d1c7a6f724327f256a8e3e9469f58149d91ce50cd346586a4fab9e9535d89236"
+  },
+  "schema_installation": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 8,
+    "inherited_install_catalog_stages": 56,
+    "all_inherited_scripts_logs_independently_checked": true,
+    "original_sql_files_independently_checked": 297,
+    "proof": "docs/production-readiness/evidence/progress-access-consistency-progress-schema-2026-11-16.json",
+    "proof_sha256": "ef1ea30391c6d033295ceb019363370daa78a254aa781e55201f7c61aae2ce6a",
+    "new_routines": 6,
+    "authenticated_only_rpc_routines": 4,
+    "private_trigger_helpers": 2,
+    "new_restrictive_policies": 7,
+    "new_triggers": 2,
+    "all_existing_routines_policies_triggers_columns_indexes_and_data_preserved": true,
+    "personal_delete_policy_preserved": true,
+    "real_schema_smoke": {
+      "real_auth_student_intake_report_tables": true,
+      "authenticated_roadmap_save_read": true,
+      "launch_step_302": true,
+      "all_1205_personal_goals_counted": true,
+      "fictional_transaction_rolled_back": true
+    },
+    "prior_regression_cases_rerun_claimed": false
+  },
+  "application": {
+    "unit_tests": 6343,
+    "unit_files": 383,
+    "focused_tests": 101,
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed",
+    "service_worker": "passed",
+    "isolated_copy_fingerprint_matches": true,
+    "runtime_source": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "a8eef1ec0d93799d9eb877f89dcbe23231b945c88c9ee77f8b60b22047c30825",
+      "fileCount": 1235
+    },
+    "readiness_navigation_contracts": 103,
+    "release_security_contracts": 72
+  },
+  "completed": [
+    "All12 actual roadmap milestones save with exact account/student/pathway/row-version binding and database attribution.",
+    "Uncertain loads/saves remain explicit; no empty-success fallback or automatic write retry. Saving one note preserves other drafts; departed viewer/student replies are ignored.",
+    "Shared roadmap changes require editing proof; private personal goals retain read-only student proof and their original own-row deletion policy. Owner/admin requires explicit student access; Partner-only is denied.",
+    "Inherited permissive personal goal policies are constrained without deleting legacy rows or rewriting reports/history. Goal identity cannot be reassigned.",
+    "Complete personal totals cover every eligible own row beyond the REST page limit, reject mixed inaccessible report scopes and identify unlinked own reports.",
+    "Native verification observes all56 role/removal races and four competing creation/update races, with complete real-schema rollback-only smoke."
+  ],
+  "remaining": [
+    "Other tool data scopes, actual target legacy-row impact review and final security/privacy/role/demo launch review.",
+    "Canonical/ledger promotion, final combined package/regression, authorized coordinated staging rollout and hosted/provider acceptance.",
+    "Production/main merge controls and separate authorization."
+  ],
+  "canonical_or_ledger_promoted": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

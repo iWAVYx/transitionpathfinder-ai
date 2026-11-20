@@ -1,0 +1,13 @@
+{
+  "database": "disposable-in-memory-PGlite",
+  "canonicalIndexMigration": "20260715014612_cb7cf0b6-afe9-4d8d-a5d3-609f754b7395.sql",
+  "currentColumnConflictTargetSqlstate": "42P10",
+  "rowsAfterCurrentAttempt": 0,
+  "untargetedConflictFirstInsertRows": 1,
+  "untargetedDuplicateInsertRows": 0,
+  "hostedChanges": false,
+  "date": "2026-10-26",
+  "status": "confirmed-local-sql-compatibility-defect",
+  "not_full_schema_or_hosted_rls_acceptance": true,
+  "next": "Prepare reviewed persistence correction and exact bounded acceptance/cleanup; no hosted workaround authorized"
+}

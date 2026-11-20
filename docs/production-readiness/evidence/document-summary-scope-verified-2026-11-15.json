@@ -1,0 +1,209 @@
+{
+  "schema": "transitionforward-document-summary-scope-verified-v1",
+  "date": "2026-11-15",
+  "source_commit": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
+  "run_id": 43785774097,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43785774097",
+  "duplicate_pr_run": {
+    "run_id": 43785779243,
+    "conclusion": "success"
+  },
+  "status": "document-summary relationship/reader component verified in source/disposable scope",
+  "workstreams": [
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-summary-scope/separate-reviewed-summary-access.review.sql",
+      "sha256": "2cfc905c944941420e2bdcdf540e6cfe7ab9fb21cfac6d545b4928369d589aad"
+    },
+    {
+      "path": "tests/database/document-summary-scope.test.mjs",
+      "sha256": "00618fe0c9e000265a994649c5d159e66b56b3034ab746cd2d4335a170688fd6"
+    },
+    {
+      "path": "tests/database/run-document-summary-scope-schema.mjs",
+      "sha256": "b4726e0b4f8d7b88d37f81ce7a85ab0b8cc9f9ce6155c397d843f05f8634d26c"
+    },
+    {
+      "path": ".github/workflows/document-summary-scope-review.yml",
+      "sha256": "e79523a74e55b35be468704bb1104c371731c4d478cb9dc6f24430734c1ff1c6"
+    },
+    {
+      "path": "src/lib/student-summary-contract.ts",
+      "sha256": "4dd1803ca5a1896d821b5b41a7b1cd6e73ea32f5d3c5254b8f732f747bc27420"
+    },
+    {
+      "path": "src/lib/student-summary.server.ts",
+      "sha256": "584aad0019e2cf3ff54cce444ae04e42d56f64b7b2e890b582b44e3bc7ece07a"
+    },
+    {
+      "path": "src/lib/student-access.functions.ts",
+      "sha256": "8f9bbbe6babcfdf076feb99402a826136dda3490689969dbbd3d9c179e9bf072"
+    },
+    {
+      "path": "src/components/dashboard/MyIepSummaryCard.tsx",
+      "sha256": "f60bf47e869dbdbaa0a073274de9504437cedfbb97c583107ee04cd55725891a"
+    },
+    {
+      "path": "src/routes/_authenticated/students.$studentId.tsx",
+      "sha256": "257110860b163967cedf9615f7bab5f4cb1e728afda319e9e28216c60255f4fc"
+    },
+    {
+      "path": "tests/unit/student-summary-reader.test.ts",
+      "sha256": "ad44387bfbb17643726282d6504ab24fc342be05ffeb148ae8882acae4a3e920"
+    },
+    {
+      "path": "tests/unit/student-summary-lifetime.test.tsx",
+      "sha256": "7346250ee0053dcf06a78cadabab8497b03f767a5f8f1e34cd7ce6cbfc86a7e2"
+    },
+    {
+      "path": "tests/unit/student-goal-extraction-lifetime.test.tsx",
+      "sha256": "5a67eff1c3410cd697fcdfbfa097b8b5bbb0bd509a3e42368041fafcda20f8a0"
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "530af5d8b924cd2084441a3daafcbba908196502597718e7bbaf7fe9f2c91406"
+    },
+    {
+      "path": "tests/unit/family-document-upload-outcomes.test.tsx",
+      "sha256": "e41072e619916c643dc39d8b9f8e438ad27e93b3c4f0bbc5b71c28f2a80d077d"
+    }
+  ],
+  "native": {
+    "tests": 63,
+    "passed": 63,
+    "failed": 0,
+    "skipped": 0,
+    "fresh_database_per_case": true,
+    "case_names": [
+      "a mismatched child review cannot be projected or read through raw policies",
+      "anon cannot execute the definer projection",
+      "approved collaborate retains full original authority",
+      "approved manage_documents retains full original authority",
+      "approved manage_plan retains full original authority",
+      "approved summary-only district relationship is projected rather than raw",
+      "approved summary-only educator relationship is projected rather than raw",
+      "approved summary-only family relationship is projected rather than raw",
+      "approved summary-only owner relationship is projected rather than raw",
+      "approved summary-only school relationship is projected rather than raw",
+      "approved summary-only student relationship is projected rather than raw",
+      "baseline: approved summary relationship can read original files and raw extraction/summary rows",
+      "confirmed absence of a review returns an empty pending projection with a null review version",
+      "contradictory infected scan verdict prevents summary projection even with a clean status",
+      "explicit individual full-document grant can add original access to a summary relationship",
+      "extra permissive raw policies cannot reopen summary-only rows",
+      "full original authority and safe projection are preserved for district",
+      "full original authority and safe projection are preserved for educator",
+      "full original authority and safe projection are preserved for family",
+      "full original authority and safe projection are preserved for school",
+      "full original authority and safe projection are preserved for student",
+      "independent accepted viewer collaboration is not revoked by a summary relationship",
+      "list is bounded to50 recent documents and contains no section values",
+      "management role alone cannot call the projection",
+      "native cached Storage read after installation COMMIT",
+      "native cached Storage read after installation ROLLBACK",
+      "native cached document_extractions read after installation COMMIT",
+      "native cached document_extractions read after installation ROLLBACK",
+      "native cached document_summaries read after installation COMMIT",
+      "native cached document_summaries read after installation ROLLBACK",
+      "native cached documents read after installation COMMIT",
+      "native cached documents read after installation ROLLBACK",
+      "native document_extractions writer-first installation waits through COMMIT",
+      "native document_extractions writer-first installation waits through ROLLBACK",
+      "native documents writer-first installation waits through COMMIT",
+      "native documents writer-first installation waits through ROLLBACK",
+      "native prepared projection rechecks removed relationship access",
+      "native prepared projection refuses stale review versions after an editor update",
+      "needs_review extraction never exposes section values",
+      "needs_review relationship cannot invoke the summary projection",
+      "partner-only accounts remain denied even with an approved summary relationship",
+      "pending extraction never exposes section values",
+      "pending relationship cannot invoke the summary projection",
+      "raw child rows with the wrong student remain hidden even when the actor can access both students",
+      "read without the document revision is refused",
+      "read-only installation preserves current data and original-view routine metadata",
+      "rejected/pending/malformed/private section fields are never projected",
+      "repeated installation stops before partial changes",
+      "revoked relationship cannot invoke the summary projection",
+      "rollback restores prior authority and removes the projection atomically",
+      "service_role cannot execute the definer projection",
+      "stale document or review revisions return no summary",
+      "summary list supplies identity/revisions/readiness but no section text",
+      "summary relationship receives reviewed projection without raw original access",
+      "the projection is fixed-path definer with authenticated-only execution",
+      "unavailable document archived_at is not listed or read",
+      "unavailable document deleted_at is not listed or read",
+      "unavailable document doc_type is not listed or read",
+      "unavailable document review_status is not listed or read",
+      "unavailable document scan_status is not listed or read",
+      "unrelated accounts cannot call the projection",
+      "unreviewed prerequisite changes stop before new projection creation",
+      "viewer mismatch is denied without a source-existence distinction"
+    ],
+    "observed_writer_installation_lock_cases": 4,
+    "cached_raw_read_commit_rollback_cases": 8,
+    "cached_projection_access_revision_cases": 2,
+    "raw_tap": "docs/production-readiness/evidence/document-summary-scope-native-2026-11-15.tap",
+    "raw_tap_sha256": "347474713580f56f5aadf4eb9018c9a964a57592842daf96fd28a62cdd5f9aec"
+  },
+  "schema_installation": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 4,
+    "inherited_install_catalog_stages": 56,
+    "all_inherited_scripts_logs_independently_checked": true,
+    "original_sql_files_independently_checked": 297,
+    "original_core_test_sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a",
+    "proof": "docs/production-readiness/evidence/document-summary-scope-schema-2026-11-15.json",
+    "proof_sha256": "d679351c461d321d50d5357328709881b49860484a5b065948a11bc7810e249b",
+    "prior_original_access_proof_sha256": "9c39b8ce98c83164c934646a8a523944106ed63fd9132ec3f478c251955db53a",
+    "projection_fixed_path_stable_definer_authenticated_only": true,
+    "new_restrictive_policies": 2,
+    "all_existing_policies_table_acl_triggers_data_preserved": true,
+    "prior_regression_cases_rerun_claimed": false
+  },
+  "application": {
+    "local_database_cases": 49,
+    "local_failed": 0,
+    "local_skipped": 0,
+    "local_log": "docs/production-readiness/evidence/document-summary-scope-local-2026-11-15.tap",
+    "local_log_sha256": "2640a9d772f540f723aba4778b1b3d288288ba66debdf9391b87d3647e9b64ba",
+    "focused_app_tests": 172,
+    "unit_tests": 6210,
+    "unit_files": 379,
+    "typescript": "passed",
+    "isolated_environment_file_free_build": "passed",
+    "runtime_source_fingerprint": "34f980f9d5087b49badc728cbcb386b0e7912b21e3d1fb2806d088d2e67cbbf9",
+    "runtime_source_file_count": 1229,
+    "inventory_navigation_contracts": 103,
+    "release_security_contracts": 72,
+    "isolated_copy_fingerprint_matches": true,
+    "actual_read_only_documents_integration": true
+  },
+  "completed": [
+    "Document original authority excludes the broad approved-summary relationship baseline while preserving ownership/self identity, accepted collaborations, editing relationships and explicit individual full-file grants. Global student access helpers are unchanged.",
+    "Two restrictive child-row policies bind actual document/student identity and protect raw extraction and legacy summary rows.",
+    "Authenticated-only fixed-path stable definer returns only eight allowlisted accepted/edited section values from current in-review/complete records. It excludes raw text, originals, notes, private section keys, pending/rejected/malformed/oversize values and blocked/rejected/archived/deleted sources.",
+    "Projection list returns at most50 recent eligible document identities/revisions/readiness flags with no section values. Read requires loaded actor/student/document/review revisions; changed versions return no row.",
+    "Existing summary APIs use caller RPC only, never service fallback or raw table reads. Strict receipts and generic errors prevent private diagnostic leaks.",
+    "Shared card is account/student keyed, ignores departed replies, handles unavailable reads distinctly and refreshes explicitly. It is now connected to the existing read-only student Documents tab with team-friendly wording, not added below dashboard widgets.",
+    "Read-only banners/empty-file wording do not promise original downloads or infer no documents were uploaded. Access and download-link audit wording reflect their actual scope."
+  ],
+  "remaining": [
+    "Permanent individual-grant retirement after recipient/grantor access removal and re-addition is not implemented here.",
+    "Legacy document visibility labels/private-family scopes and the rights-transfer writer remain open.",
+    "can_access_student is intentionally unchanged for profiles/reports/other tools; this is the document/original/raw-row boundary, not a whole-platform summary-permission certification.",
+    "The projection is a structural reviewed-section allowlist, not a clinical redaction or policy/legal-approval certificate.",
+    "Old copied/displayed data, existing bearer URLs, provider cessation and actual Storage/API behavior remain separate gates.",
+    "PostgREST RPC registration, exact hosted all-role/mobile/navigation acceptance and demo/live feature-claim review are pending. No new public-demo private-data query or role switch was added.",
+    "Canonical promotion/SECURITY DEFINER inventory and ledger/order/preflight/authorized hosted rollout remain separate."
+  ],
+  "canonical_or_ledger_promoted": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

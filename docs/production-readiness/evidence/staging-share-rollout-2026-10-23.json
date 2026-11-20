@@ -1,0 +1,41 @@
+{
+  "target": "qgrertkqbwanerqqemph",
+  "source": "a2c5564c7260e67ab3534d5fab433f46110cb058",
+  "first": {
+    "routines": [
+      {
+        "anon": false,
+        "name": "resolve_share_token(text)",
+        "service": true,
+        "authenticated": false
+      },
+      {
+        "anon": false,
+        "name": "track_share_view(text)",
+        "service": true,
+        "authenticated": false
+      }
+    ],
+    "migration": "20261006180000",
+    "canonical_ledger_md5": "ee1f6d402e57a0eca05328879ba1ef72"
+  },
+  "second": {
+    "migration": "20261023010000",
+    "restrictive_policy": {
+      "check": "((auth.uid() = created_by) AND (revoked = true))",
+      "using": "(auth.uid() = created_by)",
+      "permissive": "RESTRICTIVE"
+    },
+    "authenticated_delete": false,
+    "canonical_ledger_md5": "5557ea1ed448d7f610c1cebf491b992b",
+    "authenticated_update_columns": [
+      "revoked"
+    ]
+  },
+  "editorFailure": {
+    "error": "42601 near BEGIN",
+    "verifiedNoSecondLedger": true,
+    "verifiedColumnsUnchangedBeforeCorrection": true
+  },
+  "method": "native editor exact clipboard comparison after stale DOM editor mismatch"
+}

@@ -1,0 +1,322 @@
+{
+  "schema": "transitionforward-pr211-open-checklist-snapshot-v1",
+  "date": "2026-11-15",
+  "verified_source_commit": "7fa8dd0c85bc620732e9e9ae42b72c285feb7b52",
+  "roadmap": "docs/READINESS_ROADMAP.md",
+  "before_merge_entries": 38,
+  "production_rollout_entries": 4,
+  "closed_since_previous": [
+    "2.5f \u2014 source/disposable verification only"
+  ],
+  "previous_snapshot": "docs/production-readiness/evidence/pr211-open-checklist-2026-11-15.json",
+  "entries": [
+    {
+      "id": "2.3",
+      "title": "2.3 \u2014 Implement trusted reconciliation.",
+      "section": "2. Limits and Recovery",
+      "phase": "before-merge",
+      "umbrella": true
+    },
+    {
+      "id": "2.5",
+      "title": "2.5 \u2014 Fence older entry points.",
+      "section": "2. Limits and Recovery",
+      "phase": "before-merge",
+      "umbrella": true
+    },
+    {
+      "id": "2.6",
+      "title": "2.6 \u2014 Fence source and access changes.",
+      "section": "2. Limits and Recovery",
+      "phase": "before-merge",
+      "umbrella": true
+    },
+    {
+      "id": "2.7",
+      "title": "2.7 \u2014 Verify recovery and limit races.",
+      "section": "2. Limits and Recovery",
+      "phase": "before-merge",
+      "umbrella": true
+    },
+    {
+      "id": "3.1",
+      "title": "3.1 \u2014 Prepare bounded acceptance scopes.",
+      "section": "3. Real Storage and Providers",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "3.2",
+      "title": "3.2 \u2014 Verify actual file identity.",
+      "section": "3. Real Storage and Providers",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "3.3",
+      "title": "3.3 \u2014 Verify actual scanner outcomes.",
+      "section": "3. Real Storage and Providers",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "3.4",
+      "title": "3.4 \u2014 Verify the separate worker end to end.",
+      "section": "3. Real Storage and Providers",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "3.5",
+      "title": "3.5 \u2014 Reconcile outstanding external work.",
+      "section": "3. Real Storage and Providers",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "3.6",
+      "title": "3.6 \u2014 Verify real access and retention boundaries.",
+      "section": "3. Real Storage and Providers",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "4.1",
+      "title": "4.1 \u2014 Consolidate the final migration chain.",
+      "section": "4. Release Packaging",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "4.2",
+      "title": "4.2 \u2014 Prepare the metadata preflight.",
+      "section": "4. Release Packaging",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "4.3",
+      "title": "4.3 \u2014 Freeze release identities.",
+      "section": "4. Release Packaging",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "4.4",
+      "title": "4.4 \u2014 Write the ordered cutover procedure.",
+      "section": "4. Release Packaging",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "4.5",
+      "title": "4.5 \u2014 Prepare recovery and rollback.",
+      "section": "4. Release Packaging",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "4.6",
+      "title": "4.6 \u2014 Verify the complete package.",
+      "section": "4. Release Packaging",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "5.1",
+      "title": "5.1 \u2014 Reconcile the current security findings.",
+      "section": "5. Security and Product Consistency",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "5.2",
+      "title": "5.2 \u2014 Review role and privacy boundaries.",
+      "section": "5. Security and Product Consistency",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "5.3",
+      "title": "5.3 \u2014 Reconcile product claims with actual behavior.",
+      "section": "5. Security and Product Consistency",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "5.4",
+      "title": "5.4 \u2014 Complete data/provider approvals.",
+      "section": "5. Security and Product Consistency",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "5.5",
+      "title": "5.5 \u2014 Review environment and launch controls.",
+      "section": "5. Security and Product Consistency",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "5.6",
+      "title": "5.6 \u2014 Close the source launch review.",
+      "section": "5. Security and Product Consistency",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "6.1",
+      "title": "6.1 \u2014 Obtain exact rollout authorization.",
+      "section": "6. Coordinated Staging Release",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "6.2",
+      "title": "6.2 \u2014 Establish the cutover boundary.",
+      "section": "6. Coordinated Staging Release",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "6.3",
+      "title": "6.3 \u2014 Apply and verify the approved schema.",
+      "section": "6. Coordinated Staging Release",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "6.4",
+      "title": "6.4 \u2014 Release all approved runtime components.",
+      "section": "6. Coordinated Staging Release",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "6.5",
+      "title": "6.5 \u2014 Verify both stable staging sites.",
+      "section": "6. Coordinated Staging Release",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "7.1",
+      "title": "7.1 \u2014 Verify all seven signed-in roles.",
+      "section": "7. Final Acceptance",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "7.2",
+      "title": "7.2 \u2014 Verify public/demo and responsive journeys.",
+      "section": "7. Final Acceptance",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "7.3",
+      "title": "7.3 \u2014 Verify navigation direction and context.",
+      "section": "7. Final Acceptance",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "7.4",
+      "title": "7.4 \u2014 Verify documents and exports.",
+      "section": "7. Final Acceptance",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "7.5",
+      "title": "7.5 \u2014 Verify applicable generation and save flows.",
+      "section": "7. Final Acceptance",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "7.6",
+      "title": "7.6 \u2014 Reconcile acceptance and cleanup.",
+      "section": "7. Final Acceptance",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "8.1",
+      "title": "8.1 \u2014 Review the complete final PR.",
+      "section": "8. Merge Review",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "8.2",
+      "title": "8.2 \u2014 Verify external main/production delivery controls.",
+      "section": "8. Merge Review",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "8.3",
+      "title": "8.3 \u2014 Refresh production readiness under authorization.",
+      "section": "8. Merge Review",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "8.4",
+      "title": "8.4 \u2014 Record the release decision.",
+      "section": "8. Merge Review",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "8.5",
+      "title": "8.5 \u2014 Obtain and execute specific merge authorization.",
+      "section": "8. Merge Review",
+      "phase": "before-merge",
+      "umbrella": false
+    },
+    {
+      "id": "P.1",
+      "title": "P.1 \u2014 Obtain separate production authorization",
+      "section": "After the Eight Workstreams \u2014 Production Rollout",
+      "phase": "production-rollout",
+      "umbrella": false
+    },
+    {
+      "id": "P.2",
+      "title": "P.2 \u2014 Execute the approved production cutover",
+      "section": "After the Eight Workstreams \u2014 Production Rollout",
+      "phase": "production-rollout",
+      "umbrella": false
+    },
+    {
+      "id": "P.3",
+      "title": "P.3 \u2014 Verify production acceptance",
+      "section": "After the Eight Workstreams \u2014 Production Rollout",
+      "phase": "production-rollout",
+      "umbrella": false
+    },
+    {
+      "id": "P.4",
+      "title": "P.4 \u2014 Monitor and close the release",
+      "section": "After the Eight Workstreams \u2014 Production Rollout",
+      "phase": "production-rollout",
+      "umbrella": false
+    }
+  ],
+  "interpretation": "Named open entries include umbrella rows, testing, packaging and approvals; not a distinct bug count or time estimate.",
+  "remaining_release_workstreams": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "production_date_committed": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

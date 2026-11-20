@@ -1,0 +1,135 @@
+{
+  "schema": "document-counted-summary-handoff-review-v1",
+  "date": "2026-11-02",
+  "base_source": "462b6139",
+  "verified_parent": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
+    "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c"
+  },
+  "scope": "Fourteenth noncanonical/unapplied proposal. Replace only existing service claim and private rescan reader; no new function, table, owner, execution grant, canonical migration, provider IO or activation.",
+  "routines": [
+    {
+      "name": "guard_document_rescan_completion_receipt",
+      "signature": "public.guard_document_rescan_completion_receipt()",
+      "body_md5": "66fc62f3994165d4d1cc5d2baae32f88",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "record_internal_document_rescan_completion",
+      "signature": "public.record_internal_document_rescan_completion(uuid)",
+      "body_md5": "d33cda072581b15c7172ca9046d8b958",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_unfinished_document_rescan",
+      "signature": "public.guard_unfinished_document_rescan()",
+      "body_md5": "be1187efef8bef6e42bd2932bbc1f634",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_completed_document_rescan_lease",
+      "signature": "public.guard_completed_document_rescan_lease()",
+      "body_md5": "1217646df6772f74ae458ce269c71a49",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_document_capacity_rescan_settlement",
+      "signature": "public.guard_document_capacity_rescan_settlement()",
+      "body_md5": "d0847740f46ca699471dab7a2df59c00",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "settle_internal_document_rescan_capacity",
+      "signature": "public.settle_internal_document_rescan_capacity(uuid)",
+      "body_md5": "27739ecef53efbe6d20e553200bcca56",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "finish_document_operation",
+      "signature": "public.finish_document_operation(uuid,uuid,uuid,text)",
+      "body_md5": "02a82f905e1a198511cdeacade5f5138",
+      "definer": true,
+      "owner": "admission_owner"
+    },
+    {
+      "name": "guard_document_capacity_reservation",
+      "signature": "public.guard_document_capacity_reservation()",
+      "body_md5": "4c09f0f14edc20a934e14923c5d80ff6",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "claim_admitted_document_summary",
+      "signature": "public.claim_admitted_document_summary(uuid,integer)",
+      "body_md5": "c447fea2a55afefc6ad1451986ac1eea",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "read_internal_document_rescan_completion",
+      "signature": "public.read_internal_document_rescan_completion(uuid,text)",
+      "body_md5": "a8217daa37516c4f7a433a64acf8e43f",
+      "definer": false,
+      "owner": "migration_executor"
+    }
+  ],
+  "protocol": [
+    "Under READ COMMITTED, take control/pause and common capacity serialization before exact reservation/producer/source/job locks. Transfer only an already-counted producer-selected job; reserve no fresh unit.",
+    "Confirm exact immutable producer evidence before mutating the queue: guarded committed clean registration receipt, or earlier committed exact clean rescan outcome. Current actor/student/document/object/version/path/hash and selected job must match the existing reservation and current permitted source.",
+    "Atomically update one initially queued attempt, create immutable verified source binding, begin one worker operation, insert/check its exact actual operation binding, and attach/check the same existing reservation before returning the first one-use capability. Any missing, skipped, altered, duplicate or foreign write rolls back all these changes.",
+    "The private rescan reader may read a needs_review producer solely for an existing verified summary obligation. Actual producer finish still requires active; producer settlement still requires completed immutable receipt. Held producer accounting is not released by worker completion.",
+    "Pausing still blocks every new worker start. At capacity, an unpaused exact reserved transfer adds no unit. No broad pause bypass or model dispatch permission is introduced.",
+    "Registration starts only after guarded producer completion has committed. An active/held registration with typed clean/queued state has no trusted pre-finish outcome receipt and refuses. Supporting earlier confirmed registration handoff needs a separately reviewed durable outcome boundary; this proposal does not pretend that gap is closed.",
+    "No automatic claim retries or capability recovery. Lost committed responses remain processing/countable and require trusted reconciliation; unchanged Deno continuation schema can consume the one confirmed response only."
+  ],
+  "verification": {
+    "focused_cases": 44,
+    "focused_passed": 36,
+    "native_only_skips": 8,
+    "generated_ten_routine_proof": "passed in all applicable local fixtures",
+    "workflow_yaml_and_shell": "passed",
+    "full_local_pending": false,
+    "native_full_schema_pending": false,
+    "full_local_coverage": {
+      "tests": 1340,
+      "pass": 1176,
+      "fail": 0,
+      "skipped": 164
+    },
+    "model_groups": [
+      44,
+      847,
+      311,
+      86,
+      52
+    ],
+    "final_focused_overlay": "The full run covers all1340 cases; the final44 focused run additionally verifies the later exact generated proof, added prerequisite hash and unchanged RPC field set.",
+    "verified_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json"
+  },
+  "automatic_counted_transfer_prepared": true,
+  "paused_new_worker_starts_allowed": false,
+  "unconfirmed_registration_queue_claim_allowed": false,
+  "held_release_implemented": false,
+  "automatic_producer_settlement_hooks_installed": false,
+  "producer_source_endpoints_wired": false,
+  "general_application_limits_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "physical_copy_attested": false,
+  "provider_quiescence_verified": false,
+  "hosted_authorized": false,
+  "ready_for_cutover": false,
+  "required_next": [
+    "Finish complete local coverage and verify native COMMIT/ROLLBACK duplicate/pause/source/producer races plus full225+fourteen proposal replay under the actual distinct SQL owners.",
+    "Complete durable registration pre-finish outcome policy if earlier/held producer dispatch is required; keep current pause-stop semantics unless a separate explicit drain control is reviewed.",
+    "Integrate exact source producer adapters and automatic release, Apply/general limits, trusted held reconciliation, legacy/direct and relationship/writer fences.",
+    "Package exact website, separately identified worker and schema/ledger only after physical Storage/provider acceptance and fresh specific hosted rollout/test authorization. Main merge and production stay separate."
+  ],
+  "automatic_summary_settlement_hook_installed": false
+}

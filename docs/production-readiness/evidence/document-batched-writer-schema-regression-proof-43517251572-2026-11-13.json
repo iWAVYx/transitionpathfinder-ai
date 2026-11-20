@@ -1,0 +1,11 @@
+{
+  "schema": "document-extraction-writer-schema-proof-v1",
+  "paused": true,
+  "remaining_capacity_units": 0,
+  "scoped_original_writer_fence_prepared": true,
+  "manual_section_meta_edits_preserved": true,
+  "other_completion_marker_writers_verified": false,
+  "actual_provider_behavior_verified": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

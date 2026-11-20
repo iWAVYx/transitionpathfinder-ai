@@ -7,40 +7,43 @@ import {
   matchPartnersForStudent,
   type PartnerMatch,
 } from "@/lib/partner-matching.functions";
-import { createStudentActionItem } from "@/lib/action-items.functions";
+import {useCreatePlanningAction} from "@/hooks/use-create-planning-action";
+import {useAuth} from "@/hooks/use-auth";
 
 /**
  * Auto-suggests action items from the student's top partner matches.
  * Each suggestion can be added as a real action item with one click.
  * Dismissed (or added) suggestions are hidden for the session.
  */
-export function PartnerSuggestedActions({
-  studentId,
-  onAdded,
-}: {
-  studentId: string;
-  onAdded?: () => void;
-}) {
+type SuggestedProps={studentId:string;onAdded?:()=>void};
+export function PartnerSuggestedActions(props:SuggestedProps){
+ const{user,loading}=useAuth();if(loading||!user)return null;
+ return <PartnerSuggestedActionsSession key={`${user.id}:${props.studentId}`} {...props}/>;
+}
+function PartnerSuggestedActionsSession({studentId,onAdded}:SuggestedProps){
+ const action=useCreatePlanningAction(studentId);
+ const[loadError,setLoadError]=useState(false),[attempt,setAttempt]=useState(0);
   const fetchMatches = useServerFn(matchPartnersForStudent);
-  const createItem = useServerFn(createStudentActionItem);
   const [matches, setMatches] = useState<PartnerMatch[] | null>(null);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setLoadError(false);setMatches(null);
     fetchMatches({ data: { student_id: studentId, limit: 5 } })
       .then((r) => {
         if (!cancelled) setMatches(r.matches);
       })
       .catch(() => {
-        if (!cancelled) setMatches([]);
+        if (!cancelled) setLoadError(true);
       });
     return () => {
       cancelled = true;
     };
-  }, [studentId, fetchMatches]);
+  }, [studentId, fetchMatches,attempt]);
 
+  if(loadError)return <p role="status">Partner suggestions are unavailable. <Button size="sm" variant="outline" onClick={()=>setAttempt(n=>n+1)}>Refresh Suggestions</Button></p>;
   if (matches === null) {
     return (
       <div className="mt-5 flex items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
@@ -53,21 +56,21 @@ export function PartnerSuggestedActions({
   if (visible.length === 0) return null;
 
   async function onAdd(m: PartnerMatch) {
+    if(action.pending||action.uncertain)return;
     setBusyId(m.partner_id);
     try {
       const title = `Reach out to ${m.organization_name}`;
       const description = `${m.suggested_next_step}${
         m.reasons.length ? `\n\nWhy: ${m.reasons.slice(0, 3).join("; ")}` : ""
       }${m.website_url ? `\n\nWebsite: ${m.website_url}` : ""}`;
-      await createItem({
-        data: {
+      const saved=await action.run({
           student_id: studentId,
-          title,
-          description,
+          title:title.slice(0,200),
+          description:description.slice(0,2000),
           category: "family",
           priority: "medium",
-        },
       });
+      if(!saved)return;
       setDismissed((prev) => {
         const next = new Set(prev);
         next.add(m.partner_id);
@@ -76,9 +79,10 @@ export function PartnerSuggestedActions({
       toast.success("Added to action items");
       onAdded?.();
     } catch (err) {
+      if(!action.current())return;
       toast.error(err instanceof Error ? err.message : "Could not add.");
     } finally {
-      setBusyId(null);
+      if(action.current())setBusyId(null);
     }
   }
 
@@ -99,6 +103,7 @@ export function PartnerSuggestedActions({
       <p className="mt-1 text-xs text-muted-foreground">
         One-click action items based on partners matched to this student.
       </p>
+      {action.uncertain&&<p role="status" className="mt-2 text-sm">Check saved action items, then refresh this page before trying again.</p>}
       <ul className="mt-3 space-y-2">
         {visible.slice(0, 3).map((m) => (
           <li
@@ -121,7 +126,7 @@ export function PartnerSuggestedActions({
                 size="sm"
                 variant="outline"
                 onClick={() => onAdd(m)}
-                disabled={busyId === m.partner_id}
+                disabled={!action.available||!!busyId||action.pending||action.uncertain}
               >
                 {busyId === m.partner_id ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />

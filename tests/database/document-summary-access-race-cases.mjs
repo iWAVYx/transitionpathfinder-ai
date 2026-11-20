@@ -1,0 +1,3 @@
+import{applyAccessRoles}from'./document-apply-access-race-cases.mjs';
+export const summaryAccessCases=[{key:'baseline-editor',role:'educator',baseline:true,label:'Summary authority baseline reproduces unlocked editor removal'},...applyAccessRoles.flatMap(role=>['removal-first','source-first'].flatMap(direction=>['COMMIT','ROLLBACK'].map(ending=>({key:role+':'+direction+':'+ending,role,direction,ending,label:'Summary authority race '+role+' '+direction+' '+ending}))))];
+export const summaryAuthorityComponentKeys=[...applyAccessRoles.map(r=>'role-'+r),...['anon','authenticated','service_role'].map(r=>'private-'+r),...['unpaused','held','reader-drift','canonical-drift','trigger-disabled','reader-grant','rollback'].map(r=>'install-'+r)];

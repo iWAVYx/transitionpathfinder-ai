@@ -1,3 +1,8 @@
+import { toTitleCase } from "@/lib/title-case";
+import { isPendingInvitation, membershipStatusLabel } from "@/lib/membership-status";
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { useOrganizationOperation } from "@/hooks/use-organization-operation";
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useState } from "react";
@@ -32,12 +37,14 @@ import {
 } from "@/lib/school-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/school/team")({
+  ...schoolDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("school", "/school/team"),
   head: () => ({ meta: [{ title: "Staff & Team — TransitionForward" }] }),
   component: withRoleGuard(["school_admin", "admin"], SchoolTeamPage),
 });
 
 function SchoolTeamPage() {
-  const { data, loading, orgId, reload } = useSchoolDashboard();
+  const { data, loading, orgId, reload, refreshIfCurrent, recoverSelection } = useSchoolDashboard();
   return (
     <SchoolPageShell
       path="/school/team"
@@ -47,8 +54,9 @@ function SchoolTeamPage() {
       loading={loading}
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
-      {(org, d) => <TeamPanel orgId={org.id} members={d.members} pending={d.pending_members} onChanged={() => reload(org.id)} />}
+      {(org, d) => <TeamPanel key={org.id} orgId={org.id} members={d.members} pending={d.pending_members} onChanged={() => refreshIfCurrent(org.id)} />}
     </SchoolPageShell>
   );
 }
@@ -61,7 +69,7 @@ function TeamPanel({
 }: {
   orgId: string;
   members: Array<{ membership_id: string; full_name: string | null; email: string | null; role_within_org: string; primary_role: string | null; joined_at: string }>;
-  pending: Array<{ membership_id: string; full_name: string | null; email: string | null; role_within_org: string }>;
+  pending: Array<{ membership_id: string; full_name: string | null; email: string | null; role_within_org: string; status: string }>;
   onChanged: () => void;
 }) {
   type TeamMember = (typeof members)[number];
@@ -69,6 +77,7 @@ function TeamPanel({
     | { kind: "remove"; member: TeamMember }
     | { kind: "role"; member: TeamMember; nextRole: "member" | "admin" | "school_admin" | "owner" };
 
+  const beginOperation = useOrganizationOperation(orgId);
   const invite = useServerFn(inviteSchoolTeammate);
   const updateMember = useServerFn(updateMembershipStatus);
   const [email, setEmail] = useState("");
@@ -81,15 +90,18 @@ function TeamPanel({
     e.preventDefault();
     if (!email.trim()) return;
     setSending(true);
+    const isCurrent = beginOperation();
     try {
       await invite({ data: { organization_id: orgId, email: email.trim(), role_within_org: role } });
+      if (!isCurrent()) return;
       toast.success("Teammate added.");
       setEmail("");
       onChanged();
     } catch (err) {
+      if (!isCurrent()) return;
       toast.error(err instanceof Error ? err.message : "Could not add teammate.");
     } finally {
-      setSending(false);
+      if (isCurrent()) setSending(false);
     }
   }
 
@@ -97,11 +109,13 @@ function TeamPanel({
     const change = pendingChange;
     if (!change) return;
     setChangeBusy(true);
+    const isCurrent = beginOperation();
     try {
       if (change.kind === "remove") {
         await updateMember({
           data: { membership_id: change.member.membership_id, status: "removed" },
         });
+        if (!isCurrent()) return;
         toast.success("Teammate removed.");
       } else {
         await updateMember({
@@ -110,14 +124,26 @@ function TeamPanel({
             role_within_org: change.nextRole,
           },
         });
+        if (!isCurrent()) return;
         toast.success("Team access updated.");
       }
       setPendingChange(null);
       onChanged();
     } catch (err) {
+      if (!isCurrent()) return;
       toast.error(err instanceof Error ? err.message : "Could not update team access.");
     } finally {
-      setChangeBusy(false);
+      if (isCurrent()) setChangeBusy(false);
+    }
+  }
+
+  async function handleApprove(membershipId: string) {
+    const isCurrent = beginOperation();
+    try {
+      await updateMember({ data: { membership_id: membershipId, status: "active" } });
+      if (isCurrent()) onChanged();
+    } catch (err) {
+      if (isCurrent()) toast.error(err instanceof Error ? err.message : "Could not approve teammate.");
     }
   }
 
@@ -161,14 +187,14 @@ function TeamPanel({
 
       {pending.length > 0 && (
         <div className="rounded-2xl border bg-card shadow-soft">
-          <div className="border-b px-5 py-3 text-sm font-medium">Pending ({pending.length})</div>
+          <div className="border-b px-5 py-3 text-sm font-medium">Other Memberships ({pending.length})</div>
           <ul className="divide-y">
             {pending.map((m) => (
               <li key={m.membership_id} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
-                <span>{m.full_name ?? m.email ?? "—"}</span>
-                <Button size="sm" variant="outline" onClick={() => updateMember({ data: { membership_id: m.membership_id, status: "active" } }).then(onChanged)}>
+                <div><span>{m.full_name ?? m.email ?? "Name not recorded"}</span><p className="text-xs text-muted-foreground">{membershipStatusLabel(m.status)}</p></div>
+                {isPendingInvitation(m.status) && <Button size="sm" variant="outline" onClick={() => void handleApprove(m.membership_id)}>
                   Approve
-                </Button>
+                </Button>}
               </li>
             ))}
           </ul>
@@ -195,7 +221,7 @@ function TeamPanel({
                     {m.full_name ?? m.email ?? "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {m.email ?? ""} {m.primary_role ? `· ${m.primary_role}` : ""} · joined {new Date(m.joined_at).toLocaleDateString()}
+                    {m.email ?? ""} {m.primary_role ? `· ${toTitleCase(m.primary_role)}` : ""} · joined {new Date(m.joined_at).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -239,13 +265,13 @@ function TeamPanel({
               </dd>
               <dt className="text-muted-foreground">Current Access</dt>
               <dd className="text-right font-medium">
-                {pendingChange.member.role_within_org.replaceAll("_", " ")}
+                {toTitleCase(pendingChange.member.role_within_org)}
               </dd>
               <dt className="text-muted-foreground">New Access</dt>
               <dd className="text-right font-medium">
                 {pendingChange.kind === "remove"
                   ? "Removed"
-                  : pendingChange.nextRole.replaceAll("_", " ")}
+                  : toTitleCase(pendingChange.nextRole)}
               </dd>
             </dl>
           )}

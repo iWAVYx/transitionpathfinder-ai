@@ -3,6 +3,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 
 const header = readFileSync("src/components/site/SiteHeader.tsx", "utf8");
+const navigation = readFileSync("src/hooks/use-workspace-navigation.ts", "utf8");
 const siteShell = readFileSync("src/components/site/SiteShell.tsx", "utf8");
 const districtShell = readFileSync("src/components/district/DistrictPageShell.tsx", "utf8");
 const schoolShell = readFileSync("src/components/school/SchoolPageShell.tsx", "utf8");
@@ -40,7 +41,9 @@ test("shared signed-in tool shells expose the role's dashboard destination", () 
   assert.match(districtShell, /<SiteHeader\s*\/>/);
   assert.match(schoolShell, /<SiteShell/);
   assert.match(securityPage, /<SiteShell>/);
-  assert.match(header, /const dashboardHome = dashboardHomeForRoles\(roles, isPlatformAdmin\)/);
+  assert.match(header, /home: dashboardHome[\s\S]*?useWorkspaceNavigation\(viewerId\)/);
+  assert.match(navigation, /dashboardHomeForRoles\(roles, isPlatformAdmin\)/);
+  assert.match(navigation, /expected_viewer_id: viewerId/);
   assert.match(header, /to=\{dashboardHome\.to\}[\s\S]*?\{dashboardHome\.label\}/);
   assert.match(
     header,
