@@ -608,11 +608,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "ea18ea64c4685ef3c11cb02ca938d5b047add2c05436359a34deb591ebe54997"
+      "sha256": "70fc7555db0c6dc689bff23fef6fe64279d2eb26244d693b0d7bad7343557d23"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "921d2d9e5f968536c1d0e99a9e60f7ddbe6bd5b970aa0cb5f9b5ae29ab8cf137"
+      "sha256": "cdae229f663a5774b78487538705922898feff8855f5041716f1499f108d4cfa"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -845,6 +845,10 @@
     {
       "path": "docs/database-proposals/planning-record-delete/atomic-planning-delete.review.sql",
       "sha256": "1deca22478a819ae10a5d1da73f547262d40e0308a636dd971632f3dc0a0c141"
+    },
+    {
+      "path": "docs/database-proposals/planning-record-delete/README.md",
+      "sha256": "975201aa3f8c916d83b615816dc3b287f73c57994441c0495bf923e21e62f16c"
     }
   ],
   "batch": {
@@ -1449,7 +1453,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 210,
+    "declared_entries_checked": 211,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

@@ -1,0 +1,11 @@
+# Normal Goal and Action Deletion — Review Only
+
+The normal goal/action delete APIs now require the loaded student and microsecond timestamp and use one authenticated-only database function. The actual actor and current student editing proof stay locked through commit or rollback. A broad Owner/admin role, assignment alone, read-only access or partner-only membership does not grant deletion.
+
+The function accepts only the two fixed target kinds and contains no dynamic table SQL. It locks the exact current row, checks the loaded version, deletes with matching id/student/version and compares the complete deleted-row receipt. Missing, stale, repeated, wrong, suppressed or mismatched deletions fail without false success. Uncertain replies are not retried or sent to a raw fallback. Existing activity/report records and the other planning table are preserved.
+
+This twelfth draft changes no existing routines, policies, grants, triggers, columns, indexes, constraints or records on installation. Ordinary raw/trusted DELETE paths remain available under their existing rules and require separate review. Other CRUD, profiles, caseload, BridgeForward and wider P1/privacy work remain open; this is not all-writer retirement or an immutable deletion-audit ledger.
+
+Verified November20:40 local/106 native cases, including56 observed access-removal races for both tables across both transaction orders and commit/rollback outcomes, eight competing update/delete cases and two cached-RPC rechecks. Complete225-canonical +41-prior-control +twelve-separate-draft installation and real-schema authenticated deletion of both targets pass, preserving prior completion activity. All56 inherited scripts/logs and297 original SQL identities were independently checked. [Scoped evidence](../../production-readiness/evidence/planning-record-delete-verified-2026-11-20.json).
+
+Installation requires the exact prior authority functions, role-change trigger and eleventh-draft atomic-action RPC/permissions. Changed or repeated baselines stop for review. A later authorized release must install the reviewed schema before the RPC-based application. No canonical filename/ledger entry, hosted migration, deployment/publication or production approval is introduced here.

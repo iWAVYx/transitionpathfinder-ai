@@ -1,0 +1,250 @@
+TAP version 13
+# Subtest: goals deletion needs current family editing proof and exact receipt
+ok 1 - goals deletion needs current family editing proof and exact receipt
+  ---
+  duration_ms: 738.469625
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current student editing proof and exact receipt
+ok 2 - goals deletion needs current student editing proof and exact receipt
+  ---
+  duration_ms: 460.7035
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current educator editing proof and exact receipt
+ok 3 - goals deletion needs current educator editing proof and exact receipt
+  ---
+  duration_ms: 451.627083
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current school editing proof and exact receipt
+ok 4 - goals deletion needs current school editing proof and exact receipt
+  ---
+  duration_ms: 405.248042
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current district editing proof and exact receipt
+ok 5 - goals deletion needs current district editing proof and exact receipt
+  ---
+  duration_ms: 406.25925
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current owner editing proof and exact receipt
+ok 6 - goals deletion needs current owner editing proof and exact receipt
+  ---
+  duration_ms: 430.962
+  type: 'test'
+  ...
+# Subtest: goals rejects ineligible owner
+ok 7 - goals rejects ineligible owner
+  ---
+  duration_ms: 400.143625
+  type: 'test'
+  ...
+# Subtest: goals rejects ineligible partner
+ok 8 - goals rejects ineligible partner
+  ---
+  duration_ms: 403.746625
+  type: 'test'
+  ...
+# Subtest: goals rejects ineligible outsider
+ok 9 - goals rejects ineligible outsider
+  ---
+  duration_ms: 397.745666
+  type: 'test'
+  ...
+# Subtest: goals read-only relationship cannot delete (assigned=false)
+ok 10 - goals read-only relationship cannot delete (assigned=false)
+  ---
+  duration_ms: 389.830333
+  type: 'test'
+  ...
+# Subtest: goals read-only relationship cannot delete (assigned=true)
+ok 11 - goals read-only relationship cannot delete (assigned=true)
+  ---
+  duration_ms: 425.070916
+  type: 'test'
+  ...
+# Subtest: goals refuses wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 12 - goals refuses wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 388.358333
+  type: 'test'
+  ...
+# Subtest: goals refuses wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 13 - goals refuses wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 402.387167
+  type: 'test'
+  ...
+# Subtest: goals refuses wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+ok 14 - goals refuses wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+  ---
+  duration_ms: 388.343958
+  type: 'test'
+  ...
+# Subtest: goals refuses wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+ok 15 - goals refuses wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+  ---
+  duration_ms: 391.75975
+  type: 'test'
+  ...
+# Subtest: goals suppressed delete is never reported successful
+ok 16 - goals suppressed delete is never reported successful
+  ---
+  duration_ms: 385.220875
+  type: 'test'
+  ...
+# Subtest: goals stale newer content remains intact
+ok 17 - goals stale newer content remains intact
+  ---
+  duration_ms: 384.213375
+  type: 'test'
+  ...
+# Subtest: goals repeat deletion cannot fabricate a second receipt
+ok 18 - goals repeat deletion cannot fabricate a second receipt
+  ---
+  duration_ms: 390.683833
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current family editing proof and exact receipt
+ok 19 - action_items deletion needs current family editing proof and exact receipt
+  ---
+  duration_ms: 394.802208
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current student editing proof and exact receipt
+ok 20 - action_items deletion needs current student editing proof and exact receipt
+  ---
+  duration_ms: 389.071084
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current educator editing proof and exact receipt
+ok 21 - action_items deletion needs current educator editing proof and exact receipt
+  ---
+  duration_ms: 436.869333
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current school editing proof and exact receipt
+ok 22 - action_items deletion needs current school editing proof and exact receipt
+  ---
+  duration_ms: 410.690291
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current district editing proof and exact receipt
+ok 23 - action_items deletion needs current district editing proof and exact receipt
+  ---
+  duration_ms: 388.114833
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current owner editing proof and exact receipt
+ok 24 - action_items deletion needs current owner editing proof and exact receipt
+  ---
+  duration_ms: 386.174208
+  type: 'test'
+  ...
+# Subtest: action_items rejects ineligible owner
+ok 25 - action_items rejects ineligible owner
+  ---
+  duration_ms: 397.381541
+  type: 'test'
+  ...
+# Subtest: action_items rejects ineligible partner
+ok 26 - action_items rejects ineligible partner
+  ---
+  duration_ms: 390.614125
+  type: 'test'
+  ...
+# Subtest: action_items rejects ineligible outsider
+ok 27 - action_items rejects ineligible outsider
+  ---
+  duration_ms: 387.223333
+  type: 'test'
+  ...
+# Subtest: action_items read-only relationship cannot delete (assigned=false)
+ok 28 - action_items read-only relationship cannot delete (assigned=false)
+  ---
+  duration_ms: 396.116666
+  type: 'test'
+  ...
+# Subtest: action_items read-only relationship cannot delete (assigned=true)
+ok 29 - action_items read-only relationship cannot delete (assigned=true)
+  ---
+  duration_ms: 400.684125
+  type: 'test'
+  ...
+# Subtest: action_items refuses wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 30 - action_items refuses wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 387.628459
+  type: 'test'
+  ...
+# Subtest: action_items refuses wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 31 - action_items refuses wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 405.710625
+  type: 'test'
+  ...
+# Subtest: action_items refuses wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+ok 32 - action_items refuses wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+  ---
+  duration_ms: 387.540416
+  type: 'test'
+  ...
+# Subtest: action_items refuses wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+ok 33 - action_items refuses wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+  ---
+  duration_ms: 402.414708
+  type: 'test'
+  ...
+# Subtest: action_items suppressed delete is never reported successful
+ok 34 - action_items suppressed delete is never reported successful
+  ---
+  duration_ms: 387.5495
+  type: 'test'
+  ...
+# Subtest: action_items stale newer content remains intact
+ok 35 - action_items stale newer content remains intact
+  ---
+  duration_ms: 397.103958
+  type: 'test'
+  ...
+# Subtest: action_items repeat deletion cannot fabricate a second receipt
+ok 36 - action_items repeat deletion cannot fabricate a second receipt
+  ---
+  duration_ms: 388.956041
+  type: 'test'
+  ...
+# Subtest: unsupported or absent target kind is rejected without writes
+ok 37 - unsupported or absent target kind is rejected without writes
+  ---
+  duration_ms: 401.849542
+  type: 'test'
+  ...
+# Subtest: authenticated-only routine preserves prior rows, routines, policies, grants and triggers
+ok 38 - authenticated-only routine preserves prior rows, routines, policies, grants and triggers
+  ---
+  duration_ms: 383.339042
+  type: 'test'
+  ...
+# Subtest: repeat installation stops before replacing the routine
+ok 39 - repeat installation stops before replacing the routine
+  ---
+  duration_ms: 399.821584
+  type: 'test'
+  ...
+# Subtest: installation rollback keeps old deletion capability and data
+ok 40 - installation rollback keeps old deletion capability and data
+  ---
+  duration_ms: 412.298958
+  type: 'test'
+  ...
+1..40
+# tests 40
+# suites 0
+# pass 40
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16459.438875

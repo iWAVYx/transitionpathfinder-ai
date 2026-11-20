@@ -1,0 +1,646 @@
+TAP version 13
+# Subtest: goals deletion needs current family editing proof and exact receipt
+ok 1 - goals deletion needs current family editing proof and exact receipt
+  ---
+  duration_ms: 273.036239
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current student editing proof and exact receipt
+ok 2 - goals deletion needs current student editing proof and exact receipt
+  ---
+  duration_ms: 105.334089
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current educator editing proof and exact receipt
+ok 3 - goals deletion needs current educator editing proof and exact receipt
+  ---
+  duration_ms: 114.825531
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current school editing proof and exact receipt
+ok 4 - goals deletion needs current school editing proof and exact receipt
+  ---
+  duration_ms: 108.759655
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current district editing proof and exact receipt
+ok 5 - goals deletion needs current district editing proof and exact receipt
+  ---
+  duration_ms: 118.671365
+  type: 'test'
+  ...
+# Subtest: goals deletion needs current owner editing proof and exact receipt
+ok 6 - goals deletion needs current owner editing proof and exact receipt
+  ---
+  duration_ms: 101.111854
+  type: 'test'
+  ...
+# Subtest: goals rejects ineligible owner
+ok 7 - goals rejects ineligible owner
+  ---
+  duration_ms: 112.60824
+  type: 'test'
+  ...
+# Subtest: goals rejects ineligible partner
+ok 8 - goals rejects ineligible partner
+  ---
+  duration_ms: 105.333042
+  type: 'test'
+  ...
+# Subtest: goals rejects ineligible outsider
+ok 9 - goals rejects ineligible outsider
+  ---
+  duration_ms: 120.576575
+  type: 'test'
+  ...
+# Subtest: goals read-only relationship cannot delete (assigned=false)
+ok 10 - goals read-only relationship cannot delete (assigned=false)
+  ---
+  duration_ms: 99.879228
+  type: 'test'
+  ...
+# Subtest: goals read-only relationship cannot delete (assigned=true)
+ok 11 - goals read-only relationship cannot delete (assigned=true)
+  ---
+  duration_ms: 117.765891
+  type: 'test'
+  ...
+# Subtest: goals refuses wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 12 - goals refuses wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 101.340684
+  type: 'test'
+  ...
+# Subtest: goals refuses wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 13 - goals refuses wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 114.452019
+  type: 'test'
+  ...
+# Subtest: goals refuses wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+ok 14 - goals refuses wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+  ---
+  duration_ms: 110.436603
+  type: 'test'
+  ...
+# Subtest: goals refuses wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+ok 15 - goals refuses wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+  ---
+  duration_ms: 115.425403
+  type: 'test'
+  ...
+# Subtest: goals suppressed delete is never reported successful
+ok 16 - goals suppressed delete is never reported successful
+  ---
+  duration_ms: 102.722508
+  type: 'test'
+  ...
+# Subtest: goals stale newer content remains intact
+ok 17 - goals stale newer content remains intact
+  ---
+  duration_ms: 119.182029
+  type: 'test'
+  ...
+# Subtest: goals repeat deletion cannot fabricate a second receipt
+ok 18 - goals repeat deletion cannot fabricate a second receipt
+  ---
+  duration_ms: 104.24242
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current family editing proof and exact receipt
+ok 19 - action_items deletion needs current family editing proof and exact receipt
+  ---
+  duration_ms: 154.447955
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current student editing proof and exact receipt
+ok 20 - action_items deletion needs current student editing proof and exact receipt
+  ---
+  duration_ms: 134.386326
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current educator editing proof and exact receipt
+ok 21 - action_items deletion needs current educator editing proof and exact receipt
+  ---
+  duration_ms: 103.469347
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current school editing proof and exact receipt
+ok 22 - action_items deletion needs current school editing proof and exact receipt
+  ---
+  duration_ms: 116.010324
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current district editing proof and exact receipt
+ok 23 - action_items deletion needs current district editing proof and exact receipt
+  ---
+  duration_ms: 371.606999
+  type: 'test'
+  ...
+# Subtest: action_items deletion needs current owner editing proof and exact receipt
+ok 24 - action_items deletion needs current owner editing proof and exact receipt
+  ---
+  duration_ms: 118.074212
+  type: 'test'
+  ...
+# Subtest: action_items rejects ineligible owner
+ok 25 - action_items rejects ineligible owner
+  ---
+  duration_ms: 102.280731
+  type: 'test'
+  ...
+# Subtest: action_items rejects ineligible partner
+ok 26 - action_items rejects ineligible partner
+  ---
+  duration_ms: 193.212053
+  type: 'test'
+  ...
+# Subtest: action_items rejects ineligible outsider
+ok 27 - action_items rejects ineligible outsider
+  ---
+  duration_ms: 139.997687
+  type: 'test'
+  ...
+# Subtest: action_items read-only relationship cannot delete (assigned=false)
+ok 28 - action_items read-only relationship cannot delete (assigned=false)
+  ---
+  duration_ms: 105.191739
+  type: 'test'
+  ...
+# Subtest: action_items read-only relationship cannot delete (assigned=true)
+ok 29 - action_items read-only relationship cannot delete (assigned=true)
+  ---
+  duration_ms: 107.366909
+  type: 'test'
+  ...
+# Subtest: action_items refuses wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 30 - action_items refuses wrong loaded intent {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 109.561874
+  type: 'test'
+  ...
+# Subtest: action_items refuses wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 31 - action_items refuses wrong loaded intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 118.29938
+  type: 'test'
+  ...
+# Subtest: action_items refuses wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+ok 32 - action_items refuses wrong loaded intent {"id":"00000000-0000-4000-8000-000000000090"}
+  ---
+  duration_ms: 102.656576
+  type: 'test'
+  ...
+# Subtest: action_items refuses wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+ok 33 - action_items refuses wrong loaded intent {"version":"2026-11-19T12:00:00.000002Z"}
+  ---
+  duration_ms: 116.84781
+  type: 'test'
+  ...
+# Subtest: action_items suppressed delete is never reported successful
+ok 34 - action_items suppressed delete is never reported successful
+  ---
+  duration_ms: 107.951009
+  type: 'test'
+  ...
+# Subtest: action_items stale newer content remains intact
+ok 35 - action_items stale newer content remains intact
+  ---
+  duration_ms: 100.831589
+  type: 'test'
+  ...
+# Subtest: action_items repeat deletion cannot fabricate a second receipt
+ok 36 - action_items repeat deletion cannot fabricate a second receipt
+  ---
+  duration_ms: 108.464712
+  type: 'test'
+  ...
+# Subtest: unsupported or absent target kind is rejected without writes
+ok 37 - unsupported or absent target kind is rejected without writes
+  ---
+  duration_ms: 125.612531
+  type: 'test'
+  ...
+# Subtest: authenticated-only routine preserves prior rows, routines, policies, grants and triggers
+ok 38 - authenticated-only routine preserves prior rows, routines, policies, grants and triggers
+  ---
+  duration_ms: 126.663349
+  type: 'test'
+  ...
+# Subtest: repeat installation stops before replacing the routine
+ok 39 - repeat installation stops before replacing the routine
+  ---
+  duration_ms: 102.329154
+  type: 'test'
+  ...
+# Subtest: installation rollback keeps old deletion capability and data
+ok 40 - installation rollback keeps old deletion capability and data
+  ---
+  duration_ms: 124.936043
+  type: 'test'
+  ...
+# Subtest: native goals family delete-first through COMMIT
+ok 41 - native goals family delete-first through COMMIT
+  ---
+  duration_ms: 204.573519
+  type: 'test'
+  ...
+# Subtest: native goals family removal-first through COMMIT
+ok 42 - native goals family removal-first through COMMIT
+  ---
+  duration_ms: 171.023472
+  type: 'test'
+  ...
+# Subtest: native goals family delete-first through ROLLBACK
+ok 43 - native goals family delete-first through ROLLBACK
+  ---
+  duration_ms: 320.766324
+  type: 'test'
+  ...
+# Subtest: native goals family removal-first through ROLLBACK
+ok 44 - native goals family removal-first through ROLLBACK
+  ---
+  duration_ms: 150.306765
+  type: 'test'
+  ...
+# Subtest: native goals student delete-first through COMMIT
+ok 45 - native goals student delete-first through COMMIT
+  ---
+  duration_ms: 358.908098
+  type: 'test'
+  ...
+# Subtest: native goals student removal-first through COMMIT
+ok 46 - native goals student removal-first through COMMIT
+  ---
+  duration_ms: 157.24666
+  type: 'test'
+  ...
+# Subtest: native goals student delete-first through ROLLBACK
+ok 47 - native goals student delete-first through ROLLBACK
+  ---
+  duration_ms: 138.26031
+  type: 'test'
+  ...
+# Subtest: native goals student removal-first through ROLLBACK
+ok 48 - native goals student removal-first through ROLLBACK
+  ---
+  duration_ms: 133.918639
+  type: 'test'
+  ...
+# Subtest: native goals educator delete-first through COMMIT
+ok 49 - native goals educator delete-first through COMMIT
+  ---
+  duration_ms: 159.76117
+  type: 'test'
+  ...
+# Subtest: native goals educator removal-first through COMMIT
+ok 50 - native goals educator removal-first through COMMIT
+  ---
+  duration_ms: 227.977639
+  type: 'test'
+  ...
+# Subtest: native goals educator delete-first through ROLLBACK
+ok 51 - native goals educator delete-first through ROLLBACK
+  ---
+  duration_ms: 154.186892
+  type: 'test'
+  ...
+# Subtest: native goals educator removal-first through ROLLBACK
+ok 52 - native goals educator removal-first through ROLLBACK
+  ---
+  duration_ms: 141.009501
+  type: 'test'
+  ...
+# Subtest: native goals school delete-first through COMMIT
+ok 53 - native goals school delete-first through COMMIT
+  ---
+  duration_ms: 140.40472
+  type: 'test'
+  ...
+# Subtest: native goals school removal-first through COMMIT
+ok 54 - native goals school removal-first through COMMIT
+  ---
+  duration_ms: 152.034485
+  type: 'test'
+  ...
+# Subtest: native goals school delete-first through ROLLBACK
+ok 55 - native goals school delete-first through ROLLBACK
+  ---
+  duration_ms: 139.766448
+  type: 'test'
+  ...
+# Subtest: native goals school removal-first through ROLLBACK
+ok 56 - native goals school removal-first through ROLLBACK
+  ---
+  duration_ms: 146.508064
+  type: 'test'
+  ...
+# Subtest: native goals district delete-first through COMMIT
+ok 57 - native goals district delete-first through COMMIT
+  ---
+  duration_ms: 156.787944
+  type: 'test'
+  ...
+# Subtest: native goals district removal-first through COMMIT
+ok 58 - native goals district removal-first through COMMIT
+  ---
+  duration_ms: 138.645485
+  type: 'test'
+  ...
+# Subtest: native goals district delete-first through ROLLBACK
+ok 59 - native goals district delete-first through ROLLBACK
+  ---
+  duration_ms: 133.604891
+  type: 'test'
+  ...
+# Subtest: native goals district removal-first through ROLLBACK
+ok 60 - native goals district removal-first through ROLLBACK
+  ---
+  duration_ms: 152.424599
+  type: 'test'
+  ...
+# Subtest: native goals owner delete-first through COMMIT
+ok 61 - native goals owner delete-first through COMMIT
+  ---
+  duration_ms: 157.092317
+  type: 'test'
+  ...
+# Subtest: native goals owner removal-first through COMMIT
+ok 62 - native goals owner removal-first through COMMIT
+  ---
+  duration_ms: 134.581166
+  type: 'test'
+  ...
+# Subtest: native goals owner delete-first through ROLLBACK
+ok 63 - native goals owner delete-first through ROLLBACK
+  ---
+  duration_ms: 155.00267
+  type: 'test'
+  ...
+# Subtest: native goals owner removal-first through ROLLBACK
+ok 64 - native goals owner removal-first through ROLLBACK
+  ---
+  duration_ms: 147.25596
+  type: 'test'
+  ...
+# Subtest: native goals partner-transition delete-first through COMMIT
+ok 65 - native goals partner-transition delete-first through COMMIT
+  ---
+  duration_ms: 356.639077
+  type: 'test'
+  ...
+# Subtest: native goals partner-transition removal-first through COMMIT
+ok 66 - native goals partner-transition removal-first through COMMIT
+  ---
+  duration_ms: 313.373532
+  type: 'test'
+  ...
+# Subtest: native goals partner-transition delete-first through ROLLBACK
+ok 67 - native goals partner-transition delete-first through ROLLBACK
+  ---
+  duration_ms: 266.971484
+  type: 'test'
+  ...
+# Subtest: native goals partner-transition removal-first through ROLLBACK
+ok 68 - native goals partner-transition removal-first through ROLLBACK
+  ---
+  duration_ms: 139.58168
+  type: 'test'
+  ...
+# Subtest: native goals competing delete through COMMIT
+ok 69 - native goals competing delete through COMMIT
+  ---
+  duration_ms: 139.789299
+  type: 'test'
+  ...
+# Subtest: native goals competing update through COMMIT
+ok 70 - native goals competing update through COMMIT
+  ---
+  duration_ms: 153.667288
+  type: 'test'
+  ...
+# Subtest: native goals competing delete through ROLLBACK
+ok 71 - native goals competing delete through ROLLBACK
+  ---
+  duration_ms: 137.031645
+  type: 'test'
+  ...
+# Subtest: native goals competing update through ROLLBACK
+ok 72 - native goals competing update through ROLLBACK
+  ---
+  duration_ms: 132.032824
+  type: 'test'
+  ...
+# Subtest: native cached goals deletion rechecks removed access
+ok 73 - native cached goals deletion rechecks removed access
+  ---
+  duration_ms: 119.423338
+  type: 'test'
+  ...
+# Subtest: native action_items family delete-first through COMMIT
+ok 74 - native action_items family delete-first through COMMIT
+  ---
+  duration_ms: 134.900346
+  type: 'test'
+  ...
+# Subtest: native action_items family removal-first through COMMIT
+ok 75 - native action_items family removal-first through COMMIT
+  ---
+  duration_ms: 318.754039
+  type: 'test'
+  ...
+# Subtest: native action_items family delete-first through ROLLBACK
+ok 76 - native action_items family delete-first through ROLLBACK
+  ---
+  duration_ms: 162.962346
+  type: 'test'
+  ...
+# Subtest: native action_items family removal-first through ROLLBACK
+ok 77 - native action_items family removal-first through ROLLBACK
+  ---
+  duration_ms: 137.903647
+  type: 'test'
+  ...
+# Subtest: native action_items student delete-first through COMMIT
+ok 78 - native action_items student delete-first through COMMIT
+  ---
+  duration_ms: 244.610718
+  type: 'test'
+  ...
+# Subtest: native action_items student removal-first through COMMIT
+ok 79 - native action_items student removal-first through COMMIT
+  ---
+  duration_ms: 361.331025
+  type: 'test'
+  ...
+# Subtest: native action_items student delete-first through ROLLBACK
+ok 80 - native action_items student delete-first through ROLLBACK
+  ---
+  duration_ms: 148.309114
+  type: 'test'
+  ...
+# Subtest: native action_items student removal-first through ROLLBACK
+ok 81 - native action_items student removal-first through ROLLBACK
+  ---
+  duration_ms: 134.26152
+  type: 'test'
+  ...
+# Subtest: native action_items educator delete-first through COMMIT
+ok 82 - native action_items educator delete-first through COMMIT
+  ---
+  duration_ms: 220.690553
+  type: 'test'
+  ...
+# Subtest: native action_items educator removal-first through COMMIT
+ok 83 - native action_items educator removal-first through COMMIT
+  ---
+  duration_ms: 350.685311
+  type: 'test'
+  ...
+# Subtest: native action_items educator delete-first through ROLLBACK
+ok 84 - native action_items educator delete-first through ROLLBACK
+  ---
+  duration_ms: 207.24799
+  type: 'test'
+  ...
+# Subtest: native action_items educator removal-first through ROLLBACK
+ok 85 - native action_items educator removal-first through ROLLBACK
+  ---
+  duration_ms: 136.790908
+  type: 'test'
+  ...
+# Subtest: native action_items school delete-first through COMMIT
+ok 86 - native action_items school delete-first through COMMIT
+  ---
+  duration_ms: 140.476686
+  type: 'test'
+  ...
+# Subtest: native action_items school removal-first through COMMIT
+ok 87 - native action_items school removal-first through COMMIT
+  ---
+  duration_ms: 149.784154
+  type: 'test'
+  ...
+# Subtest: native action_items school delete-first through ROLLBACK
+ok 88 - native action_items school delete-first through ROLLBACK
+  ---
+  duration_ms: 139.471863
+  type: 'test'
+  ...
+# Subtest: native action_items school removal-first through ROLLBACK
+ok 89 - native action_items school removal-first through ROLLBACK
+  ---
+  duration_ms: 132.758263
+  type: 'test'
+  ...
+# Subtest: native action_items district delete-first through COMMIT
+ok 90 - native action_items district delete-first through COMMIT
+  ---
+  duration_ms: 154.250482
+  type: 'test'
+  ...
+# Subtest: native action_items district removal-first through COMMIT
+ok 91 - native action_items district removal-first through COMMIT
+  ---
+  duration_ms: 160.160494
+  type: 'test'
+  ...
+# Subtest: native action_items district delete-first through ROLLBACK
+ok 92 - native action_items district delete-first through ROLLBACK
+  ---
+  duration_ms: 134.213138
+  type: 'test'
+  ...
+# Subtest: native action_items district removal-first through ROLLBACK
+ok 93 - native action_items district removal-first through ROLLBACK
+  ---
+  duration_ms: 147.311654
+  type: 'test'
+  ...
+# Subtest: native action_items owner delete-first through COMMIT
+ok 94 - native action_items owner delete-first through COMMIT
+  ---
+  duration_ms: 153.625642
+  type: 'test'
+  ...
+# Subtest: native action_items owner removal-first through COMMIT
+ok 95 - native action_items owner removal-first through COMMIT
+  ---
+  duration_ms: 140.886487
+  type: 'test'
+  ...
+# Subtest: native action_items owner delete-first through ROLLBACK
+ok 96 - native action_items owner delete-first through ROLLBACK
+  ---
+  duration_ms: 147.04068
+  type: 'test'
+  ...
+# Subtest: native action_items owner removal-first through ROLLBACK
+ok 97 - native action_items owner removal-first through ROLLBACK
+  ---
+  duration_ms: 142.180665
+  type: 'test'
+  ...
+# Subtest: native action_items partner-transition delete-first through COMMIT
+ok 98 - native action_items partner-transition delete-first through COMMIT
+  ---
+  duration_ms: 197.370962
+  type: 'test'
+  ...
+# Subtest: native action_items partner-transition removal-first through COMMIT
+ok 99 - native action_items partner-transition removal-first through COMMIT
+  ---
+  duration_ms: 153.336132
+  type: 'test'
+  ...
+# Subtest: native action_items partner-transition delete-first through ROLLBACK
+ok 100 - native action_items partner-transition delete-first through ROLLBACK
+  ---
+  duration_ms: 157.725768
+  type: 'test'
+  ...
+# Subtest: native action_items partner-transition removal-first through ROLLBACK
+ok 101 - native action_items partner-transition removal-first through ROLLBACK
+  ---
+  duration_ms: 133.514422
+  type: 'test'
+  ...
+# Subtest: native action_items competing delete through COMMIT
+ok 102 - native action_items competing delete through COMMIT
+  ---
+  duration_ms: 137.736616
+  type: 'test'
+  ...
+# Subtest: native action_items competing update through COMMIT
+ok 103 - native action_items competing update through COMMIT
+  ---
+  duration_ms: 140.19449
+  type: 'test'
+  ...
+# Subtest: native action_items competing delete through ROLLBACK
+ok 104 - native action_items competing delete through ROLLBACK
+  ---
+  duration_ms: 148.583969
+  type: 'test'
+  ...
+# Subtest: native action_items competing update through ROLLBACK
+ok 105 - native action_items competing update through ROLLBACK
+  ---
+  duration_ms: 141.701117
+  type: 'test'
+  ...
+# Subtest: native cached action_items deletion rechecks removed access
+ok 106 - native cached action_items deletion rechecks removed access
+  ---
+  duration_ms: 120.610262
+  type: 'test'
+  ...
+1..106
+# tests 106
+# suites 0
+# pass 106
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16570.100303

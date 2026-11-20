@@ -1,0 +1,48 @@
+{
+  "schema": "progress-access-consistency-full-schema-v1",
+  "source_commit": "8659b61f5b7c73730468f8be6ac9eb61e79848df",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 8,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "all_existing_public_routines_preserved": true,
+  "existing_policies_preserved": true,
+  "new_restrictive_policies": 7,
+  "new_routines": 6,
+  "new_triggers": 2,
+  "all_existing_triggers_preserved": true,
+  "all_existing_progress_and_report_data_preserved": true,
+  "personal_delete_policy_preserved": true,
+  "real_schema_smoke": {
+    "real_auth_student_intake_report_tables": true,
+    "authenticated_roadmap_save_read": true,
+    "launch_step_302": true,
+    "all_1205_personal_goals_counted": true,
+    "fictional_transaction_rolled_back": true
+  },
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_rights_review_proof_sha256": "d5a9925505a2b877a9eb877271b81626a7c7c6502d7c4e88b539995743613ea4",
+  "before_catalog_sha256": "d622bdd9138ecc81c4fdb32e5e724f4e95f5261b3aa357856b6c325a03145433",
+  "after_catalog_sha256": "9498fd6c7e63a4bf4355532252c2a187046416bfbf294e639defa989aae041e9",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/progress-access-consistency/guard-progress-access.review.sql",
+      "sha256": "330ebd618f9280b5d635c1d67d2883d424b1a1885183009e58ce6319e072b1bd"
+    },
+    {
+      "path": "tests/database/progress-access-consistency.test.mjs",
+      "sha256": "f69d80dc951b18317657d5e081377c4a7264e137af6f923773b630af512f5c6e"
+    },
+    {
+      "path": "tests/database/run-progress-access-consistency-schema.mjs",
+      "sha256": "c4c14173e987c686a00f05b58fadada278e09dab34f257fb09aa8a954c01c2bd"
+    },
+    {
+      "path": ".github/workflows/progress-access-consistency-review.yml",
+      "sha256": "05a27159af65f81df14923f63333c8ab49e48f59f6d147ac4419df6de824e440"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

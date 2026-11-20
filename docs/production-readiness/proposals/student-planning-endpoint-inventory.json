@@ -119,8 +119,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/trusted deletion, other CRUD and wider student-planning privacy paths are closed. Verify the twelfth draft against disposable native/current schema before canonical or hosted rollout.",
-      "component_progress": "Normal API now requires loaded student/revision and uses one authenticated delete RPC with transaction-held editing proof and exact actor/kind/deleted-row receipts. Forty local database cases and52 focused API/receipt/lifetime tests pass; native/current-schema/removal-race verification is pending."
+      "next_action": "Keep review-required until raw/trusted deletion, other CRUD and broader student-planning/privacy paths are closed. Final catalogue/canonical/ledger review and hosted rollout remain separately gated.",
+      "component_progress": "Normal deletion requires loaded student/revision and uses one authenticated RPC with transaction-held editing proof and exact actor/kind/deleted-row receipts. Forty local/106 native cases,56 observed removal races,eight competing cases,two cached rechecks and full225+41+twelve-draft schema pass. This is normal deletion only; raw/trusted paths remain open."
     },
     {
       "id": "src/lib/students.functions.ts#createShareToken",
@@ -193,8 +193,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until raw/trusted deletion, other CRUD and wider student-planning privacy paths are closed. Verify the twelfth draft against disposable native/current schema before canonical or hosted rollout.",
-      "component_progress": "Normal API now requires loaded student/revision and uses one authenticated delete RPC with transaction-held editing proof and exact actor/kind/deleted-row receipts. Forty local database cases and52 focused API/receipt/lifetime tests pass; native/current-schema/removal-race verification is pending."
+      "next_action": "Keep review-required until raw/trusted deletion, other CRUD and broader student-planning/privacy paths are closed. Final catalogue/canonical/ledger review and hosted rollout remain separately gated.",
+      "component_progress": "Normal deletion requires loaded student/revision and uses one authenticated RPC with transaction-held editing proof and exact actor/kind/deleted-row receipts. Forty local/106 native cases,56 observed removal races,eight competing cases,two cached rechecks and full225+41+twelve-draft schema pass. This is normal deletion only; raw/trusted paths remain open."
     },
     {
       "id": "src/lib/counselor-notes.functions.ts#listCounselorNotes",
