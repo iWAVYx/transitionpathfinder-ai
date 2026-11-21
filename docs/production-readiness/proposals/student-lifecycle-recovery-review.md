@@ -11,9 +11,9 @@
 
 ## Still Required Before Completion
 
-- [ ] Persist the browser request identity across refresh/account changes and wire explicit reconciliation into both Add Student and onboarding. Do not store private form text in browser recovery storage. A new request after an uncertain response must remain blocked.
-- [ ] Reconcile canonical student self-profile setup separately; its request UUID is not the returned student UUID. Do not apply the non-self lookup to it.
-- [ ] Resolve onboarding completion after a confirmed existing profile without recreating that profile. Re-read current authorized data; do not replay original fields onto it.
+- [x] Source/local integration: persist the browser request identity across refresh/account changes and wire explicit reconciliation into both Add Student and onboarding. Do not store private form text in browser recovery storage. A new request after an uncertain response must remain blocked.
+- [x] Source/local integration: reconcile canonical student self-profile setup separately; its request UUID is not the returned student UUID. Do not apply the non-self lookup to it.
+- [x] Source/local integration: resolve onboarding completion after a confirmed existing profile without recreating that profile. Re-read current authorized data; do not replay original fields onto it.
 - [ ] Design approved document/storage/provider cleanup and its failure recovery. The new restrict safeguards prevent unsafe deletion; they do **not** perform cleanup. Archived documents still block deletion.
 - [ ] Review remaining soft references and retained reports/intakes/licenses. No cascade or guard should be bypassed to force removal. Preserve the existing 143-edge inventory as historical evidence, not an updated deletion forecast.
 - [ ] Decide lifecycle-receipt retention during account erasure. Minimal original-owner identifiers remain after student deletion; no claim of complete personal-data erasure.
@@ -41,3 +41,5 @@ The full-schema check identified thirteen UUID `student_id` columns without stud
 | `student_saved_partners` | Remove only the student's saved associations; retain shared partner directory records. |
 
 Meeting records now have a restrictive reference; existing orphan meetings require a separate read-only inventory before constraint validation. None of these rows were read or changed on staging or production.
+
+Application integration and scoped verification are tracked in [Add Student/onboarding recovery](student-creation-ui-recovery-review.md); hosted acceptance and unresolved-outcome handling remain separate.

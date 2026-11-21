@@ -608,11 +608,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "c958a4501431c51c1a70d00a202a00845ada59a5c806d8532081a0c8a260beb9"
+      "sha256": "e16b1673137a077606ea836f0e19aed578b0390550f8383c6c36a093b448b736"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "99ba10878a60d349899958eff2efc0c854424b443b31092d1d28d78cee669e98"
+      "sha256": "d9e0327d721a305ae138bd4201a8a749ba0a38de1c1ab631fe3b30dda49a5ab2"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -620,7 +620,7 @@
     },
     {
       "path": "tests/planning-release-inventory.test.mjs",
-      "sha256": "259ffeef9836c26a473ea61e29d939cf7b0823d1802533a237c165e364aa5d6e"
+      "sha256": "ba39561634e5e62c0d2e22e998e905d3db386ec99cc1c212ceb4a9b155a46ba2"
     },
     {
       "path": "tests/database/planning-review-package-catalog.mjs",
@@ -692,7 +692,7 @@
     },
     {
       "path": "src/lib/students.functions.ts",
-      "sha256": "4040a1a21e6cf6a59909891c348c312fb6af07acbbc6909c124f7b8f3525e95d"
+      "sha256": "ed60eff2c6c73f1ed89979b50d481061e1e35a91df390706780dfefcfda7c3a4"
     },
     {
       "path": "src/routes/_authenticated/action-items.tsx",
@@ -932,11 +932,11 @@
     },
     {
       "path": "src/lib/student-lifecycle.server.ts",
-      "sha256": "cda0d80cba8eefcf7118d747f5756ed2c72537f7e022cdae699d16d69d53c39c"
+      "sha256": "af3880763b93b1362939636186ed5a3f4ebb5d2a29869201a8b24aad72f2d797"
     },
     {
       "path": "tests/unit/student-lifecycle-receipts.test.ts",
-      "sha256": "86ec4dacce9de96eb77f4a5f2d59afdbb62b963bb6d172a88703a26f9e407eea"
+      "sha256": "e91c63cfa5a4007569792a2b9bfb3030d4a808e8b2dfaefafeb8aefd596118fa"
     },
     {
       "path": "tests/unit/remaining-planning-save-paths.test.ts",
@@ -948,7 +948,7 @@
     },
     {
       "path": "tests/unit/student-lifecycle-page.test.tsx",
-      "sha256": "02f73c30ba1088ff49b1b6cf5b39eb157bdd5f20281a1a25bae688c5c2f59f62"
+      "sha256": "959697ce48668afc4227e9c979c36f9ad96d2c701df5a294187c61bf040978c2"
     },
     {
       "path": "src/components/students/RecommendedPartnersPanel.tsx",
@@ -960,11 +960,11 @@
     },
     {
       "path": "src/routes/_authenticated/onboarding.tsx",
-      "sha256": "14b27c3ce9875958952c2daaa61293de1d5e12bc80521266680323d86867f612"
+      "sha256": "f53733710bb34410f57230fdf610df207a39c6848034e910bb8a71b0cdc9dead"
     },
     {
       "path": "src/routes/_authenticated/students.index.tsx",
-      "sha256": "d7ec2e83625abef2d77472d6a8ccd61091aab143dd45a59b59ed49afbfa478bf"
+      "sha256": "cedcc3bb87f05bad9899651148dd411a359f5326195fc4bee42ee0df198da822"
     },
     {
       "path": "tests/unit/license-activation-contract.test.ts",
@@ -1040,7 +1040,43 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-lifecycle-recovery-review.md",
-      "sha256": "0a9a68b7d4782a996a7208a955d2d6266b92956952bb036a15e09b5a8b77e102"
+      "sha256": "8d65926b2c58f1d63150f5a1e64a4c8dcdb042fe9e757a5b5aa97210f579147d"
+    },
+    {
+      "path": "src/lib/student-creation-recovery.ts",
+      "sha256": "c92846cd06d8de812aedcaa7ba8df018c2e7e51d7443f925d7d8a3b79db85638"
+    },
+    {
+      "path": "src/hooks/use-student-creation-recovery.ts",
+      "sha256": "9af1042f370eb9ff86b189ef7cfa048d4bbe15e01b290798520d6e771314049a"
+    },
+    {
+      "path": "src/components/StudentCreationRecovery.tsx",
+      "sha256": "6ef6f2ab8bf369a9160b70b97396d2fab4d6fca22791def81ba3d57b165021b7"
+    },
+    {
+      "path": "src/lib/profile.functions.ts",
+      "sha256": "ea7ab90e54ceb490409640bbee98be1c91eb684d44152b3c0796f9fa14b29c7d"
+    },
+    {
+      "path": "tests/unit/student-creation-recovery.test.ts",
+      "sha256": "249911bc36cb3ccaa10c1ff6928b6f9fe807f38b85e5046fd8c53f1e4e697d17"
+    },
+    {
+      "path": "tests/unit/onboarding-creation-recovery.test.tsx",
+      "sha256": "7ae3abedca5c189bc09d95f61e91be65717c04f39c4f4b3c8fd7c0942f624b2f"
+    },
+    {
+      "path": "tests/unit/onboarding-recovery-account.test.ts",
+      "sha256": "5f3778072bafff45be3ece322b2042012909e1e5c32dfe1e34f5c5be90007833"
+    },
+    {
+      "path": "docs/production-readiness/proposals/student-creation-ui-recovery-review.md",
+      "sha256": "341fb343acb4a328fecc634a904a9cfbc0a659b14772777ebf873355fde6dc1b"
+    },
+    {
+      "path": "tests/browser/student-creation-recovery.test.mjs",
+      "sha256": "43c7a132befcdd38cd0e6911659f52d850091323ffd67ea4ef76d74a896aa2c1"
     }
   ],
   "batch": {
@@ -1645,7 +1681,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 259,
+    "declared_entries_checked": 268,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

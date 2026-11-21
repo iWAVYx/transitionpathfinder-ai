@@ -159,7 +159,8 @@ export async function createStudentWithReceipt(
   }
 }
 
-export const STUDENT_REMOVAL_BLOCKED="This student still has linked records or document work that must be resolved before the profile can be removed.";
+export const STUDENT_REMOVAL_BLOCKED =
+  "This student still has linked records or document work that must be resolved before the profile can be removed.";
 class StudentRemovalBlocked extends Error {}
 /** Exact owner/version predicate and returned row; existing RLS/cascades remain authoritative.
  * This proves only the deleted student receipt, not external-storage cleanup. */
@@ -178,7 +179,13 @@ export async function deleteStudentWithReceipt(
       .eq("updated_at", input.expected_updated_at)
       .select("id, owner_id, updated_at")
       .single();
-    if(result.error && typeof result.error === "object" && "code" in result.error && (result.error.code === "23503" || result.error.code === "23001"))throw new StudentRemovalBlocked(STUDENT_REMOVAL_BLOCKED);
+    if (
+      result.error &&
+      typeof result.error === "object" &&
+      "code" in result.error &&
+      (result.error.code === "23503" || result.error.code === "23001")
+    )
+      throw new StudentRemovalBlocked(STUDENT_REMOVAL_BLOCKED);
     if (
       result.error !== null ||
       !result.data ||
@@ -189,8 +196,60 @@ export async function deleteStudentWithReceipt(
     )
       throw Error();
     return { ok: true as const, deleted_id: input.id };
-  } catch(error) {
-    if(error instanceof StudentRemovalBlocked)throw error;
+  } catch (error) {
+    if (error instanceof StudentRemovalBlocked) throw error;
     throw Error(STUDENT_DELETE_UNCONFIRMED);
+  }
+}
+
+/** Read-only reconciliation. Unknown/deleted outcomes never authorize a replay. */
+export async function readCreationOutcome(
+  client: Client,
+  actor: string,
+  input: Intent & { request_id: string; kind: "linked" | "self" },
+) {
+  assertExpectedViewer(input, actor);
+  const failure =
+    "We couldn't confirm the earlier student setup. Please check again before adding another student.";
+  try {
+    if (input.kind === "self") {
+      const result = await client
+        .from("students")
+        .select("*")
+        .eq("student_user_id", actor)
+        .maybeSingle();
+      if (result.error !== null) throw Error();
+      if (result.data === null) return { status: "unconfirmed" as const };
+      const row = student.parse(result.data);
+      if (row.student_user_id !== actor) throw Error();
+      return { status: "present" as const, student_id: row.id };
+    }
+    const result = await client.rpc("read_student_creation_outcome", {
+      _expected_viewer_id: actor,
+      _request_id: input.request_id,
+    });
+    if (result.error !== null) throw Error();
+    const receipt = z
+      .object({
+        schema: z.literal("student-creation-outcome-v1"),
+        actor_id: z.literal(actor),
+        request_id: z.literal(input.request_id),
+        status: z.enum(["present", "removed", "unconfirmed"]),
+      })
+      .strict()
+      .parse(result.data);
+    if (receipt.status !== "present") return { status: receipt.status };
+    const saved = await client
+      .from("students")
+      .select("*")
+      .eq("id", input.request_id)
+      .eq("owner_id", actor)
+      .single();
+    if (saved.error !== null) throw Error();
+    const row = student.parse(saved.data);
+    if (row.id !== input.request_id || row.owner_id !== actor) throw Error();
+    return { status: "present" as const, student_id: row.id };
+  } catch {
+    throw Error(failure);
   }
 }

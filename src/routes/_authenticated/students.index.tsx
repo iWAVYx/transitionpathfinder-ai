@@ -1,4 +1,6 @@
-import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
+import { useStudentCreationRecovery } from "@/hooks/use-student-creation-recovery";
+import { StudentCreationRecovery } from "@/components/StudentCreationRecovery";
+import { usePlanningLifetime } from "@/hooks/use-planning-lifetime";
 import { formatGradeBand } from "@/lib/grade-band-label";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -7,26 +9,29 @@ import { useServerFn } from "@tanstack/react-start";
 import { Plus, GraduationCap, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState";
-import {
-  listStudents,
-  createStudent,
-  deleteStudent,
-  type Student,
-} from "@/lib/students.functions";
+import { listStudents, createStudent, deleteStudent, type Student } from "@/lib/students.functions";
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/students/")({
   head: () => ({ meta: [{ title: "Students — TransitionForward" }] }),
-  component: () => (<RoleGuard path="/students"><StudentsPage /></RoleGuard>),
+  component: () => (
+    <RoleGuard path="/students">
+      <StudentsPage />
+    </RoleGuard>
+  ),
 });
 
 function StudentsPage() {
   const lifetime = usePlanningLifetime("student-list");
+  const recovery = useStudentCreationRecovery(
+    lifetime.viewerId,
+    lifetime.current,
+    lifetime.available,
+  );
   const list = useServerFn(listStudents);
   const create = useServerFn(createStudent);
   const remove = useServerFn(deleteStudent);
@@ -37,61 +42,113 @@ function StudentsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const reload = async () => {
-    const sequence=lifetime.nextRead();
-    try {const r=await list({data:{expected_viewer_id:lifetime.viewerId}});
-      if(!lifetime.currentRead(sequence))return;
-      if(r.loadFailed)throw Error("We couldn't load your students. Please refresh.");
+    const sequence = lifetime.nextRead();
+    try {
+      const r = await list({ data: { expected_viewer_id: lifetime.viewerId } });
+      if (!lifetime.currentRead(sequence)) return;
+      if (r.loadFailed) throw Error("We couldn't load your students. Please refresh.");
       setStudents(r.students);
-    }catch{if(lifetime.currentRead(sequence)){setStudents(null);setError("We couldn't load your students. Please refresh.");}}
+    } catch {
+      if (lifetime.currentRead(sequence)) {
+        setStudents(null);
+        setError("We couldn't load your students. Please refresh.");
+      }
+    }
   };
-  useEffect(()=>{setStudents(null);setSubmitting(false);setShowForm(false);setError(null);if(lifetime.available)void reload();},[lifetime.viewerId,lifetime.available]);
+  useEffect(() => {
+    setStudents(null);
+    setSubmitting(false);
+    setShowForm(false);
+    setError(null);
+    if (lifetime.available) void reload();
+  }, [lifetime.viewerId, lifetime.available]);
 
   async function handleCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if(!lifetime.begin())return;
+    if (!lifetime.begin()) return;
     setError(null);
     setSubmitting(true);
     const form = e.currentTarget;
     const fd = new FormData(form);
     const firstName = String(fd.get("first_name") || "").trim();
     try {
-      await create({
-        data: {
-          expected_viewer_id:lifetime.viewerId,
-          request_id:crypto.randomUUID(),
-          first_name: firstName,
-          last_name: String(fd.get("last_name") || "").trim() || undefined,
-          grade_band: (String(fd.get("grade_band") || "") || undefined) as never,
-          school: String(fd.get("school") || "").trim() || undefined,
-        },
+      await recovery.locked(async () => {
+        if (recovery.pending())
+          throw Error("Check the earlier student setup before adding another.");
+        const intent = {
+          version: 1 as const,
+          requestId: crypto.randomUUID(),
+          origin: "students" as const,
+          kind: "linked" as const,
+          role: "linked",
+        };
+        recovery.reserve(intent);
+        await create({
+          data: {
+            expected_viewer_id: lifetime.viewerId,
+            request_id: intent.requestId,
+            first_name: firstName,
+            last_name: String(fd.get("last_name") || "").trim() || undefined,
+            grade_band: (String(fd.get("grade_band") || "") || undefined) as never,
+            school: String(fd.get("school") || "").trim() || undefined,
+          },
+        });
+        if (!lifetime.current()) return;
+        recovery.clear(intent);
       });
-      if(!lifetime.current())return;
+      if (!lifetime.current()) return;
       form.reset();
       setShowForm(false);
       await reload();
-      if(!lifetime.current())return;
+      if (!lifetime.current()) return;
       toast.success(`${firstName} added to your dashboard.`);
     } catch (err) {
-      if(!lifetime.current())return;
+      if (!lifetime.current()) return;
       lifetime.markUncertain();
-      const msg = err instanceof Error ? err.message : "Student could not be added. Please check the required fields or try again.";
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Student could not be added. Please check the required fields or try again.";
       console.error("createStudent failed", err);
       setError(msg);
       toast.error(msg);
     } finally {
       lifetime.finish();
-      if(lifetime.current())setSubmitting(false);
+      if (lifetime.current()) setSubmitting(false);
     }
   }
 
-
   async function handleDelete(student: Student) {
-    if (!confirm("Remove this student profile? This does not delete every saved report or uploaded file. This cannot be undone.")) return;
-    if(!lifetime.begin())return;
+    if (
+      !confirm(
+        "Remove this student profile? This does not delete every saved report or uploaded file. This cannot be undone.",
+      )
+    )
+      return;
+    if (!lifetime.begin()) return;
     setSubmitting(true);
-    try{await remove({data:{id:student.id,expected_updated_at:student.updated_at,expected_viewer_id:lifetime.viewerId}});if(lifetime.current())await reload();}
-    catch(err){if(lifetime.current()){lifetime.markUncertain();setError(err instanceof Error?err.message:"Removal could not be confirmed. Refresh your student list.");}}
-    finally{lifetime.finish();if(lifetime.current())setSubmitting(false);}
+    try {
+      await remove({
+        data: {
+          id: student.id,
+          expected_updated_at: student.updated_at,
+          expected_viewer_id: lifetime.viewerId,
+        },
+      });
+      if (lifetime.current()) await reload();
+    } catch (err) {
+      if (lifetime.current()) {
+        lifetime.markUncertain();
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Removal could not be confirmed. Refresh your student list.",
+        );
+      }
+    } finally {
+      lifetime.finish();
+      if (lifetime.current()) setSubmitting(false);
+    }
   }
 
   return (
@@ -102,19 +159,64 @@ function StudentsPage() {
       <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Your hub</p>
-            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">Students</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Your hub
+            </p>
+            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              Students
+            </h1>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               Every report, goal, and uploaded document is organized by student. Add a student to
               keep their plan in one place — and to share securely with educators when ready.
             </p>
           </div>
-          <Button disabled={submitting||lifetime.uncertain||!lifetime.available} onClick={() => setShowForm((s) => !s)}>
+          <Button
+            disabled={
+              submitting ||
+              lifetime.uncertain ||
+              !lifetime.available ||
+              !recovery.ready ||
+              !!recovery.intent ||
+              !!recovery.error
+            }
+            onClick={() => setShowForm((s) => !s)}
+          >
             <Plus className="h-4 w-4" />
             {showForm ? "Close" : "Add student"}
           </Button>
         </div>
 
+        <StudentCreationRecovery
+          recovery={recovery}
+          onContinue={
+            recovery.intent?.origin === "students"
+              ? () =>
+                  void (async () => {
+                    try {
+                      await recovery.locked(async () => {
+                        const intent = recovery.pending();
+                        if (!intent || intent.origin !== "students") return;
+                        const result = await recovery.inspect(intent);
+                        if (result.status !== "present") return;
+                        recovery.clear(intent);
+                        lifetime.confirmRead();
+                        setError(null);
+                        setShowForm(false);
+                        await reload();
+                      });
+                    } catch {
+                      if (lifetime.current())
+                        setError("We couldn't check the saved profile. Please check again.");
+                    }
+                  })()
+              : undefined
+          }
+        />
+        {recovery.intent?.origin === "onboarding" && (
+          <Link to="/onboarding" className="text-sm underline">
+            Return to Account Setup
+          </Link>
+        )}
         {showForm && (
           <form
             onSubmit={handleCreate}
@@ -139,7 +241,10 @@ function StudentsPage() {
             </label>
             <label className="text-sm">
               <span className="mb-1 block font-medium">Grade band</span>
-              <select name="grade_band" className="w-full rounded-lg border bg-background px-3 py-2">
+              <select
+                name="grade_band"
+                className="w-full rounded-lg border bg-background px-3 py-2"
+              >
                 <option value="">—</option>
                 <option value="9-10">9–10</option>
                 <option value="11-12">11–12</option>
@@ -157,17 +262,33 @@ function StudentsPage() {
             </label>
             {error && <p className="sm:col-span-2 text-sm text-destructive">{error}</p>}
             <div className="sm:col-span-2 flex justify-end">
-              <Button type="submit" disabled={submitting||lifetime.uncertain||!lifetime.available}>
+              <Button
+                type="submit"
+                disabled={
+                  submitting ||
+                  lifetime.uncertain ||
+                  !lifetime.available ||
+                  !recovery.ready ||
+                  !!recovery.intent ||
+                  !!recovery.error
+                }
+              >
                 {submitting ? "Saving…" : "Save student"}
               </Button>
             </div>
           </form>
         )}
 
-        {error && !showForm && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
+        {error && !showForm && (
+          <p role="alert" className="mt-4 text-sm text-destructive">
+            {error}
+          </p>
+        )}
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {students === null ? (
-            <p className="text-sm text-muted-foreground">{error ? "Student information is unavailable." : "Loading…"}</p>
+            <p className="text-sm text-muted-foreground">
+              {error ? "Student information is unavailable." : "Loading…"}
+            </p>
           ) : students.length === 0 ? (
             <div className="sm:col-span-2 lg:col-span-3">
               <IllustratedEmptyState
@@ -196,7 +317,14 @@ function StudentsPage() {
                     </p>
                   </Link>
                   <button
-                    disabled={submitting||lifetime.uncertain||s.owner_id!==lifetime.viewerId}
+                    disabled={
+                      submitting ||
+                      lifetime.uncertain ||
+                      !recovery.ready ||
+                      !!recovery.intent ||
+                      !!recovery.error ||
+                      s.owner_id !== lifetime.viewerId
+                    }
                     onClick={() => handleDelete(s)}
                     aria-label={`Delete ${s.first_name}`}
                     className="opacity-0 transition-opacity group-hover:opacity-100"

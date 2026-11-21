@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import {
+  readCreationOutcome,
   createStudentWithReceipt,
   deleteStudentWithReceipt,
   ensureSelfProfile,
@@ -265,4 +266,112 @@ for (const fn of [createStudentWithReceipt, ensureSelfProfile, deleteStudentWith
     expect(s.client.rpc).not.toHaveBeenCalled();
   });
 
-it.each(['23503','23001'])('explains restrictive deletion reference %s without exposing database details',async(code)=>{const s=setup();s.results.students={data:null,error:{code,message:'private_constraint_internal_name'}};await expect(deleteStudentWithReceipt(s.client,actor,{id:record,expected_viewer_id:actor,expected_updated_at:stamp})).rejects.toThrow('linked records or document work');expect(s.client.from).toHaveBeenCalledOnce();});
+it.each(["23503", "23001"])(
+  "explains restrictive deletion reference %s without exposing database details",
+  async (code) => {
+    const s = setup();
+    s.results.students = {
+      data: null,
+      error: { code, message: "private_constraint_internal_name" },
+    };
+    await expect(
+      deleteStudentWithReceipt(s.client, actor, {
+        id: record,
+        expected_viewer_id: actor,
+        expected_updated_at: stamp,
+      }),
+    ).rejects.toThrow("linked records or document work");
+    expect(s.client.from).toHaveBeenCalledOnce();
+  },
+);
+
+const recoveryInput = { request_id: record, expected_viewer_id: actor, kind: "linked" as const };
+function recovery() {
+  const s = setup();
+  s.client.rpc.mockResolvedValue({
+    data: {
+      schema: "student-creation-outcome-v1",
+      actor_id: actor,
+      request_id: record,
+      status: "present",
+    } as any,
+    error: null,
+  });
+  return s;
+}
+it("recovery verifies the current owned row after the durable status", async () => {
+  const s = recovery();
+  await expect(readCreationOutcome(s.client, actor, recoveryInput)).resolves.toEqual({
+    status: "present",
+    student_id: record,
+  });
+  expect(s.predicates).toEqual([
+    ["id", record],
+    ["owner_id", actor],
+  ]);
+  expect(s.inserts).toEqual([]);
+});
+for (const status of ["removed", "unconfirmed"])
+  it("recovery " + status + " does not read or recreate a student", async () => {
+    const s = recovery();
+    s.client.rpc.mockResolvedValue({
+      data: {
+        schema: "student-creation-outcome-v1",
+        actor_id: actor,
+        request_id: record,
+        status,
+      } as any,
+      error: null,
+    });
+    await expect(readCreationOutcome(s.client, actor, recoveryInput)).resolves.toEqual({ status });
+    expect(s.client.from).not.toHaveBeenCalled();
+  });
+for (const patch of [
+  { actor_id: id(9) },
+  { request_id: id(9) },
+  { schema: "wrong" },
+  { status: "created" },
+  { extra: "private" },
+])
+  it("rejects contradictory recovery receipt " + JSON.stringify(patch), async () => {
+    const s = recovery();
+    s.client.rpc.mockResolvedValue({
+      data: {
+        schema: "student-creation-outcome-v1",
+        actor_id: actor,
+        request_id: record,
+        status: "present",
+        ...patch,
+      } as any,
+      error: null,
+    });
+    await expect(readCreationOutcome(s.client, actor, recoveryInput)).rejects.toThrow("confirm");
+  });
+it("recovery does not trust present status after row access disappears", async () => {
+  const s = recovery();
+  s.results.students = { data: null, error: null };
+  await expect(readCreationOutcome(s.client, actor, recoveryInput)).rejects.toThrow("confirm");
+});
+it("self recovery reads existing self identity without calling ensure/create", async () => {
+  const s = setup("student");
+  s.results.students.data.student_user_id = actor;
+  await expect(
+    readCreationOutcome(s.client, actor, { ...recoveryInput, kind: "self" }),
+  ).resolves.toEqual({ status: "present", student_id: record });
+  expect(s.client.rpc).not.toHaveBeenCalled();
+  expect(s.predicates).toEqual([["student_user_id", actor]]);
+});
+it("missing self identity remains unconfirmed instead of being recreated", async () => {
+  const s = setup("student");
+  s.results.students = { data: null, error: null };
+  await expect(
+    readCreationOutcome(s.client, actor, { ...recoveryInput, kind: "self" }),
+  ).resolves.toEqual({ status: "unconfirmed" });
+  expect(s.client.rpc).not.toHaveBeenCalled();
+});
+it("changed account is rejected before recovery reads", async () => {
+  const s = recovery();
+  await expect(readCreationOutcome(s.client, id(9), recoveryInput)).rejects.toThrow();
+  expect(s.client.rpc).not.toHaveBeenCalled();
+  expect(s.client.from).not.toHaveBeenCalled();
+});

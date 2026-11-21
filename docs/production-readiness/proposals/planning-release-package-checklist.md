@@ -105,7 +105,8 @@ Hosted/provider acceptance remains under Workstreams 3/7. Staging rollout and ma
 - [x] Prepared restrictive document/meeting deletion boundaries; existing files and notes are preserved.
 - [x] Local database and application receipt checks pass.
 - [x] Native/full-schema replay verification: 43 local /47 native cases;225+41+16 complete replay.
-- [ ] Browser/onboarding recovery integration and safe external cleanup.
+- [x] Browser/onboarding recovery source/local integration; see [scoped checklist](student-creation-ui-recovery-review.md).
+- [ ] Hosted recovery acceptance, unresolved-outcome resolution and safe external cleanup.
 - [ ] Canonical packaging and separately authorized hosted rollout/acceptance.
 
 See [component checklist](student-lifecycle-recovery-review.md). The preceding fifteen drafts retain their own historical proofs; this sixteenth draft now has its own passing full-schema proof on exact source613d9045 (run44947295433).
