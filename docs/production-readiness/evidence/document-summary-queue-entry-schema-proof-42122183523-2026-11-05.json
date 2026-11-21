@@ -1,0 +1,10 @@
+{
+  "paused": true,
+  "schema": "document-summary-queue-entry-proof-v1",
+  "hosted_applied": false,
+  "binder_body_md5": "96abd9342d6d508d1fe8157f6e24827f",
+  "records_removed": false,
+  "ready_for_cutover": false,
+  "legacy_rows_adopted": false,
+  "type_guard_body_md5": "c4b98274623c0102d707c806781c85aa"
+}

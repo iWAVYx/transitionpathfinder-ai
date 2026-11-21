@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.5",
+  "scope": "Private generic admission plus direct raw summary start/refresh fences only; broader legacy writer coverage remains open",
+  "run": 42105974150,
+  "head_source": "e75035162c99f12f9453bcb66ec267a8579a45ae",
+  "checkout_commit": "926c245599969efdc23a33a627d0694640ce2162",
+  "workflow": "success",
+  "native_cases": 1640,
+  "passed": 1640,
+  "failed": 0,
+  "skipped": 0,
+  "canonical_migrations": 225,
+  "control_drafts": 29,
+  "private_admission_cases": 27,
+  "raw_summary_writer_cases": 19,
+  "native_races": 4,
+  "all_raw_native_partitions_and_logs_independently_validated": true,
+  "trigger_bodies_modes_owners_privacy_and_exact_events_verified_by_complete_replay": true,
+  "native_proof": "docs/production-readiness/evidence/document-legacy-writers-native-proof-42105974150-2026-11-05.json",
+  "native_proof_sha256": "ad48dca7d697a11328c2c9b696e9e0c1debec8db8a4578c69fda0999bde3aa5a",
+  "generic_schema_proof": "docs/production-readiness/evidence/document-private-admission-schema-proof-42105974150-2026-11-05.json",
+  "generic_schema_proof_sha256": "d9085bf13618c9b7519b2f70f0433882d970426c85dab4d2b8a62fb0c52503c6",
+  "writer_schema_proof": "docs/production-readiness/evidence/document-summary-claim-writer-schema-proof-42105974150-2026-11-05.json",
+  "writer_schema_proof_sha256": "3092bad62b376a700b0b86716d9ed979b971f0c04d45c1162e8594ded2926ebe",
+  "replay_log_sha256": "15535825e8d9009ce05319d5512770d109714d6d1d183def7c7575157cc3b7f6",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-private-operation-admission.sql",
+      "sha256": "5e7861721abaa2022ded87715d3c1f4fc9929ab4e7bb9d8aff5526133ba7af88"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
+      "sha256": "f14500b6706e63921703b4957c9b257883c664770f0ea4153e9ec11ef7105fe0"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "8282a5df503db49e8e7785e954cb03fb465369b386adf7ddf30a0c123e11ed39"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "0a05474fa218e3799043b30c560a35870ac467901694a384877f8f5e2d5221e5"
+    }
+  ],
+  "completed_parts": [
+    "Generic app/service admission denied while exact source-bound callers and existing completion remain available",
+    "Raw starts/refreshes denied; an owner-context write also needs actual claim/source/operation/capacity records at commit",
+    "Installer/resume and installer/writer commit/rollback races pass without lost counts or broad grants"
+  ],
+  "whole_action_complete": false,
+  "remaining": [
+    "Explicit legacy queue-insert fallback and unsupported job-type conversion",
+    "Remaining Storage/service/scheduled writer inventory and source/access boundaries",
+    "Older hosted versions/provider quiescence and separately authorized rollout"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

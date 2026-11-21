@@ -1,0 +1,249 @@
+{
+  "schema": "transitionforward-rights-status-consistency-verified-v1",
+  "date": "2026-11-16",
+  "source_commit": "4ed236471fe775a8e98102c33407526acd54859c",
+  "run_id": 43898092951,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43898092951",
+  "duplicate_pr_run": {
+    "run_id": 43898112805,
+    "conclusion": "success"
+  },
+  "status": "atomic rights-review and scoped shared-form component verified in source/disposable scope",
+  "workstreams": [
+    "4.1",
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/rights-status-consistency/atomic-rights-review.review.sql",
+      "sha256": "4937ccb7464a01efdbcdc2144bf46a3119179e676a961de93a6f2e4dd89ebc53"
+    },
+    {
+      "path": "tests/database/rights-status-consistency.test.mjs",
+      "sha256": "df8c618a6bda831a37738cf6bda4747fe7aa3c78a22f85f1456c621e4542bf57"
+    },
+    {
+      "path": "tests/database/run-rights-status-consistency-schema.mjs",
+      "sha256": "8a4600affa0a249af9da518e2296f2a358ce8377853b4c1e5f0969a10041de4c"
+    },
+    {
+      "path": ".github/workflows/rights-status-consistency-review.yml",
+      "sha256": "6d03d39e060764200b932e34ec242efb0bed186d8fffff4114a75a62a8946017"
+    }
+  ],
+  "application_source_manifest": [
+    {
+      "path": "src/lib/rights-status-contract.ts",
+      "sha256": "65838e3455c8ba298dd0539ba5e49b4e4cd3da665b3ef517747d19116525e810"
+    },
+    {
+      "path": "src/lib/rights-status.server.ts",
+      "sha256": "68dd5c8328990db0e8db9de61a6acfd47a2e30399dcdc38d94d9054290bed964"
+    },
+    {
+      "path": "src/lib/rights.functions.ts",
+      "sha256": "c5a17d183ab316098f546e2fc75d52ad4abc032e28dd754469564e34460f5f2d"
+    },
+    {
+      "path": "src/components/students/RightsStatusCard.tsx",
+      "sha256": "09025927bbce877caecf54ec3c537009dca2f5adfdd0748c60c0cfb5f799229a"
+    },
+    {
+      "path": "tests/unit/rights-status-sharing-boundary.test.ts",
+      "sha256": "5b67c0d263d224985549a092357bb6d2eda7593bfdbf8f84164d607c12ce4f18"
+    },
+    {
+      "path": "tests/unit/rights-status-lifetime.test.tsx",
+      "sha256": "2f33d9458cc34666db608e30ef820bf781051870d31e438c1bf631acb68921b4"
+    }
+  ],
+  "local": {
+    "tests": 54,
+    "passed": 54,
+    "failed": 0,
+    "skipped": 0,
+    "raw_tap": "docs/production-readiness/evidence/rights-status-consistency-local-2026-11-16.tap",
+    "raw_tap_sha256": "4ff10865c11fdbaac0ffa2c00e0d86a71465cb4a9ce2bd36e38c88029107ebbc"
+  },
+  "native": {
+    "tests": 89,
+    "passed": 89,
+    "failed": 0,
+    "skipped": 0,
+    "fresh_database_per_case": true,
+    "case_names": [
+      "a stale revision cannot create a second review",
+      "anon cannot call read/save RPCs",
+      "atomic approaching_transfer_of_rights review saves matching status/history/audit once without sharing or consent",
+      "atomic audit contains no notes or raw authorization text",
+      "atomic legal_representative_or_conservator review saves matching status/history/audit once without sharing or consent",
+      "atomic parent_guardian_authorized_by_student review saves matching status/history/audit once without sharing or consent",
+      "atomic rights_transferred_to_student review saves matching status/history/audit once without sharing or consent",
+      "atomic student_shared_decision_making review saves matching status/history/audit once without sharing or consent",
+      "atomic under_18_parent_rights_active review saves matching status/history/audit once without sharing or consent",
+      "atomic unknown_needs_review review saves matching status/history/audit once without sharing or consent",
+      "audit failure rolls back student revision/history/audit/private operation together",
+      "audit row suppression cannot produce a false successful receipt",
+      "cached/raw student UPDATE cannot forge rights_status",
+      "cached/raw student UPDATE cannot forge rights_status_revision",
+      "cached/raw student UPDATE cannot forge transfer_notice_acknowledged_at",
+      "current operation wins deterministic display order over future-dated legacy history",
+      "eligible district writer has current caller-scoped atomic access",
+      "eligible educator writer has current caller-scoped atomic access",
+      "eligible family writer has current caller-scoped atomic access",
+      "eligible owner writer has current caller-scoped atomic access",
+      "eligible school writer has current caller-scoped atomic access",
+      "eligible student writer has current caller-scoped atomic access",
+      "forged session settings cannot mint the private transaction marker",
+      "history failure rolls back student revision/history/audit/private operation together",
+      "history row suppression cannot produce a false successful receipt",
+      "ineligible district cannot create a rights review",
+      "ineligible educator cannot create a rights review",
+      "ineligible family cannot create a rights review",
+      "ineligible owner cannot create a rights review",
+      "ineligible partner cannot create a rights review",
+      "ineligible school cannot create a rights review",
+      "ineligible student cannot create a rights review",
+      "installation rollback leaves status/history/data and old table permissions unchanged",
+      "invalid calendar date rolls back the complete transaction",
+      "legacy mismatch is shown for review and not silently normalized",
+      "native cached raw student/history writers lose authority after installation",
+      "native cached read rechecks removed editing relationship",
+      "native cached save rechecks removed editing relationship",
+      "native concurrent reviews keep one current version after COMMIT",
+      "native concurrent reviews keep one current version after ROLLBACK",
+      "native district removal-first rights review through COMMIT",
+      "native district removal-first rights review through ROLLBACK",
+      "native district save-first rights review through COMMIT",
+      "native district save-first rights review through ROLLBACK",
+      "native duplicate request is exactly once after COMMIT",
+      "native duplicate request is exactly once after ROLLBACK",
+      "native educator removal-first rights review through COMMIT",
+      "native educator removal-first rights review through ROLLBACK",
+      "native educator save-first rights review through COMMIT",
+      "native educator save-first rights review through ROLLBACK",
+      "native family removal-first rights review through COMMIT",
+      "native family removal-first rights review through ROLLBACK",
+      "native family save-first rights review through COMMIT",
+      "native family save-first rights review through ROLLBACK",
+      "native owner removal-first rights review through COMMIT",
+      "native owner removal-first rights review through ROLLBACK",
+      "native owner save-first rights review through COMMIT",
+      "native owner save-first rights review through ROLLBACK",
+      "native partner-transition removal-first rights review through COMMIT",
+      "native partner-transition removal-first rights review through ROLLBACK",
+      "native partner-transition save-first rights review through COMMIT",
+      "native partner-transition save-first rights review through ROLLBACK",
+      "native school removal-first rights review through COMMIT",
+      "native school removal-first rights review through ROLLBACK",
+      "native school save-first rights review through COMMIT",
+      "native school save-first rights review through ROLLBACK",
+      "native student removal-first rights review through COMMIT",
+      "native student removal-first rights review through ROLLBACK",
+      "native student save-first rights review through COMMIT",
+      "native student save-first rights review through ROLLBACK",
+      "non-read-committed save is refused without writes",
+      "parent authorization is a recorded planning note, not a consent or sharing grant",
+      "partner-only relationships cannot read raw recorded rights history",
+      "private operation rows remain inaccessible despite future permissive policy/grant",
+      "raw history replacement/deletion stays blocked despite permissive policies",
+      "removed recorded history cannot yield a false successful replay",
+      "repeated installation stops before a partial change",
+      "replay after lost access does not reveal the original private review",
+      "rights history TRUNCATE is not an ordinary-account capability",
+      "same request with changed intent cannot replace the recorded operation",
+      "same request/payload confirms a lost reply without duplicate history or audit",
+      "service_role cannot call read/save RPCs",
+      "student row suppression cannot produce a false successful receipt",
+      "summary-only viewer can read a planning review but cannot edit it",
+      "unrelated or partner-only 00000000-0000-4000-8000-000000000006 cannot load the rights review",
+      "unrelated or partner-only 00000000-0000-4000-8000-000000000007 cannot load the rights review",
+      "unrelated or partner-only 00000000-0000-4000-8000-000000000008 cannot load the rights review",
+      "unrelated student metadata edits preserve the rights revision and review history",
+      "viewer mismatch is refused before writes or private receipt lookup"
+    ],
+    "observed_cross_role_save_removal_races": 28,
+    "observed_concurrent_version_races": 2,
+    "observed_duplicate_request_races": 2,
+    "cached_paths_cases": 3,
+    "raw_tap": "docs/production-readiness/evidence/rights-status-consistency-native-2026-11-16.tap",
+    "raw_tap_sha256": "c450ef910506f97382bb9bca3f336cd9dbb7645b4adb4ac1854d8d80c675743d"
+  },
+  "schema_installation": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 7,
+    "inherited_install_catalog_stages": 56,
+    "all_inherited_scripts_logs_independently_checked": true,
+    "original_sql_files_independently_checked": 297,
+    "proof": "docs/production-readiness/evidence/rights-status-consistency-schema-2026-11-16.json",
+    "proof_sha256": "8e288a79197cf9ef356eb5f329abfefdfb7e242a22b35d0ae62ea5e45caa925c",
+    "prior_legacy_privacy_proof_sha256": "086689be43b328bc3d775579f7d201f8d541b5f5684045ad159ecb880c140e9c",
+    "new_routines": 5,
+    "authenticated_only_rpc_routines": 2,
+    "private_routines": 3,
+    "new_restrictive_policies": 5,
+    "new_row_triggers": 2,
+    "new_validated_fk_internal_triggers": 4,
+    "all_existing_routines_policies_triggers_preserved": true,
+    "history_client_writes_and_truncate_revoked": true,
+    "other_table_permissions_preserved": true,
+    "old_history_consent_audit_document_and_student_values_preserved": true,
+    "revision_metadata_only_added": true,
+    "private_operations_table_inaccessible_to_clients_and_service": true,
+    "real_schema_smoke": {
+      "real_auth_profile_student_history_audit_tables": true,
+      "authenticated_save_read_replay": true,
+      "exactly_once": true,
+      "no_consent_write": true,
+      "fictional_transaction_rolled_back": true
+    },
+    "prior_regression_cases_rerun_claimed": false
+  },
+  "application": {
+    "unit_tests": 6275,
+    "unit_files": 381,
+    "focused_rights_server_and_lifetime_tests": 59,
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed",
+    "service_worker": "passed",
+    "isolated_copy_fingerprint_matches": true,
+    "runtime_source": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "7f47f72a3637c74c3eedd744e3e02c82edb3724f72429eb6a7640c890dfe9298",
+      "fileCount": 1231
+    },
+    "readiness_navigation_contracts": 103,
+    "release_security_contracts": 72
+  },
+  "correction_history": [
+    {
+      "source": "807b67db2b4bea234f71ac0caad90644b1d4b9df",
+      "run_id": 43897176645,
+      "result": "All89 native cases passed; full-schema verifier stopped before real-schema smoke because it did not account for four new FK internal triggers. The corrected verifier checks that exact FK and all four triggers, preserving every old trigger assertion."
+    }
+  ],
+  "completed": [
+    "One caller-bound, version-checked transaction saves history, student status/revision and audit; failures or suppressed rows roll back all effects.",
+    "Private request hashes/identities confirm the same recorded operation after a lost reply without duplicate history/audit and require fresh actual editing proof. No automatic retry or hidden table fallback.",
+    "Canonical role/student editing proof is held across commit; all28 role/removal races, concurrent stale saves and duplicate requests are native verified.",
+    "Raw student rights changes and forged/replaced/deleted client history are blocked; raw partner-only history reads are denied.",
+    "One consistent bounded read identifies legacy mismatches without rewriting records and prioritizes the actual current operation.",
+    "The shared account/student-keyed form binds loaded revision, fences duplicates and ignores departed replies; unavailable/uncertain outcomes require explicit refresh.",
+    "Authorization is recorded as a planning field, not an automatic consent or document-sharing grant."
+  ],
+  "remaining": [
+    "Actual target legacy status/history and rights-origin consent impact review under existing4.2/5.4 gates.",
+    "Other non-document feature data scopes and parent/cascade/trusted writer review.",
+    "Canonical/ledger promotion, final combined regression, authorized coordinated staging rollout and hosted/provider acceptance.",
+    "Production/main merge controls and separate authorizations."
+  ],
+  "canonical_or_ledger_promoted": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

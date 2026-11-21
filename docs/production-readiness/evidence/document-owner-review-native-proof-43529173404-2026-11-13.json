@@ -1,0 +1,159 @@
+{
+  "schema": "document-owner-review-native-proof-v1",
+  "source_commit": "4b27fbab1dc7a1684cf8cb0c153f9caa1b5bc566",
+  "native": true,
+  "tests": 88,
+  "passed": 88,
+  "failed": 0,
+  "skipped": 0,
+  "component_cases": 64,
+  "role_races": 24,
+  "suites": [
+    {
+      "stem": "document-owner-review",
+      "tests": 64,
+      "passed": 64,
+      "failed": 0,
+      "skipped": 0,
+      "names": [
+        "Owner work review metadata",
+        "Owner work review retain",
+        "Owner work review replay",
+        "Owner work review lookup-missing",
+        "Owner work review stale-snapshot",
+        "Owner work review conflicting-review",
+        "Owner work review unpaused",
+        "Owner work review pagination",
+        "Owner work review unbound-metadata",
+        "Owner work review private-grants",
+        "Owner work review installer-rollback",
+        "Owner work review installer-unpaused",
+        "Owner work review installer-held",
+        "Owner work review coupled-queue",
+        "Owner work review coupled-inspect",
+        "Owner work review coupled-retain",
+        "Owner work review coupled-lost",
+        "Owner work review reason:provider_unknown",
+        "Owner work review reason:missing_receipt",
+        "Owner work review reason:source_changed",
+        "Owner work review reason:manual_review",
+        "Owner work review deny:family:queue",
+        "Owner work review deny:family:inspect",
+        "Owner work review deny:family:retain",
+        "Owner work review deny:student:queue",
+        "Owner work review deny:student:inspect",
+        "Owner work review deny:student:retain",
+        "Owner work review deny:educator:queue",
+        "Owner work review deny:educator:inspect",
+        "Owner work review deny:educator:retain",
+        "Owner work review deny:partner:queue",
+        "Owner work review deny:partner:inspect",
+        "Owner work review deny:partner:retain",
+        "Owner work review deny:school:queue",
+        "Owner work review deny:school:inspect",
+        "Owner work review deny:school:retain",
+        "Owner work review deny:district:queue",
+        "Owner work review deny:district:inspect",
+        "Owner work review deny:district:retain",
+        "Owner work review deny:app-admin:queue",
+        "Owner work review deny:app-admin:inspect",
+        "Owner work review deny:app-admin:retain",
+        "Owner work review deny:platform_admin:queue",
+        "Owner work review deny:platform_admin:inspect",
+        "Owner work review deny:platform_admin:retain",
+        "Owner work review deny:content_manager:queue",
+        "Owner work review deny:content_manager:inspect",
+        "Owner work review deny:content_manager:retain",
+        "Owner work review deny:support_admin:queue",
+        "Owner work review deny:support_admin:inspect",
+        "Owner work review deny:support_admin:retain",
+        "Owner work review claims:missing:queue",
+        "Owner work review claims:missing:inspect",
+        "Owner work review claims:missing:retain",
+        "Owner work review claims:mismatch:queue",
+        "Owner work review claims:mismatch:inspect",
+        "Owner work review claims:mismatch:retain",
+        "Owner work review claims:service-role:queue",
+        "Owner work review claims:service-role:inspect",
+        "Owner work review claims:service-role:retain",
+        "Owner work review aal1-read",
+        "Owner work review aal1-retain",
+        "Owner work review missing-aal-retain",
+        "Owner work review strong-isolation"
+      ],
+      "log_sha256": "b7dae521aee98482221f0b0f00a361fa14ffd5df6fd4c084710563f5d62892f8"
+    },
+    {
+      "stem": "document-owner-review-races",
+      "tests": 24,
+      "passed": 24,
+      "failed": 0,
+      "skipped": 0,
+      "names": [
+        "Owner review authority race queue delete revoke-first COMMIT",
+        "Owner review authority race queue delete revoke-first ROLLBACK",
+        "Owner review authority race queue delete request-first COMMIT",
+        "Owner review authority race queue delete request-first ROLLBACK",
+        "Owner review authority race queue demote revoke-first COMMIT",
+        "Owner review authority race queue demote revoke-first ROLLBACK",
+        "Owner review authority race queue demote request-first COMMIT",
+        "Owner review authority race queue demote request-first ROLLBACK",
+        "Owner review authority race inspect delete revoke-first COMMIT",
+        "Owner review authority race inspect delete revoke-first ROLLBACK",
+        "Owner review authority race inspect delete request-first COMMIT",
+        "Owner review authority race inspect delete request-first ROLLBACK",
+        "Owner review authority race inspect demote revoke-first COMMIT",
+        "Owner review authority race inspect demote revoke-first ROLLBACK",
+        "Owner review authority race inspect demote request-first COMMIT",
+        "Owner review authority race inspect demote request-first ROLLBACK",
+        "Owner review authority race retain delete revoke-first COMMIT",
+        "Owner review authority race retain delete revoke-first ROLLBACK",
+        "Owner review authority race retain delete request-first COMMIT",
+        "Owner review authority race retain delete request-first ROLLBACK",
+        "Owner review authority race retain demote revoke-first COMMIT",
+        "Owner review authority race retain demote revoke-first ROLLBACK",
+        "Owner review authority race retain demote request-first COMMIT",
+        "Owner review authority race retain demote request-first ROLLBACK"
+      ],
+      "log_sha256": "a985eb66004b598d0c851df073e5cbe46c2fc209733e836368382ab886f45e7d"
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-owner-review-boundary.sql",
+      "sha256": "70cdc3b80c1b5dbf7b92f06a4595ba910aae96be9bcc8821c8942d3b1305c160"
+    },
+    {
+      "path": "tests/database/document-owner-review-cases.mjs",
+      "sha256": "55a6aa800d081901c42434deb5193b4680b92d6d4cdadaf446a921ee8eb95f50"
+    },
+    {
+      "path": "tests/database/document-owner-review-fixture.mjs",
+      "sha256": "aa23640b35d87bad38c0dccad5a05b51e59d7ac969b62c20556d60eac40e302a"
+    },
+    {
+      "path": "tests/database/document-owner-review.test.mjs",
+      "sha256": "8719f15601c551195bd94bf222bc54b4b2fb5ed16b3ea6d2990c4d5cdc9c7463"
+    },
+    {
+      "path": "tests/database/document-owner-review-races.test.mjs",
+      "sha256": "c473b2b16d90d2f647dd14b433e18428bf69e8a558cf18790aad77da822a05b4"
+    },
+    {
+      "path": "src/lib/owner/document-work-review-contract.ts",
+      "sha256": "d7e47458d0a3d7c4dcfc7ca44c5f6762ecb95256d65ea91fd9228ba327c8c0ef"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.server.ts",
+      "sha256": "e5b1b71668e2fa14ba8ac77def2e6f44f72f1d2689490f711d7e58cfc65f9df5"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.functions.ts",
+      "sha256": "42408d86e1f71faf7d620cf83a2fad5b7fa5fb634bfeeb7384c6e92d7340eeb5"
+    }
+  ],
+  "provider_calls": false,
+  "hosted_actions": false,
+  "release_authority_added": false,
+  "ready_for_cutover": false
+}

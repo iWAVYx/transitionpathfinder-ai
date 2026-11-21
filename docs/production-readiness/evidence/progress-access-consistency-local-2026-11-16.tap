@@ -1,0 +1,298 @@
+TAP version 13
+# Subtest: current roadmap step 0 saves with exact identity and attribution
+ok 1 - current roadmap step 0 saves with exact identity and attribution
+  ---
+  duration_ms: 759.999292
+  type: 'test'
+  ...
+# Subtest: current roadmap step 1 saves with exact identity and attribution
+ok 2 - current roadmap step 1 saves with exact identity and attribution
+  ---
+  duration_ms: 479.2135
+  type: 'test'
+  ...
+# Subtest: current roadmap step 2 saves with exact identity and attribution
+ok 3 - current roadmap step 2 saves with exact identity and attribution
+  ---
+  duration_ms: 431.766708
+  type: 'test'
+  ...
+# Subtest: current roadmap step 100 saves with exact identity and attribution
+ok 4 - current roadmap step 100 saves with exact identity and attribution
+  ---
+  duration_ms: 426.82225
+  type: 'test'
+  ...
+# Subtest: current roadmap step 101 saves with exact identity and attribution
+ok 5 - current roadmap step 101 saves with exact identity and attribution
+  ---
+  duration_ms: 459.703583
+  type: 'test'
+  ...
+# Subtest: current roadmap step 102 saves with exact identity and attribution
+ok 6 - current roadmap step 102 saves with exact identity and attribution
+  ---
+  duration_ms: 444.891292
+  type: 'test'
+  ...
+# Subtest: current roadmap step 200 saves with exact identity and attribution
+ok 7 - current roadmap step 200 saves with exact identity and attribution
+  ---
+  duration_ms: 447.414917
+  type: 'test'
+  ...
+# Subtest: current roadmap step 201 saves with exact identity and attribution
+ok 8 - current roadmap step 201 saves with exact identity and attribution
+  ---
+  duration_ms: 440.962209
+  type: 'test'
+  ...
+# Subtest: current roadmap step 202 saves with exact identity and attribution
+ok 9 - current roadmap step 202 saves with exact identity and attribution
+  ---
+  duration_ms: 485.124459
+  type: 'test'
+  ...
+# Subtest: current roadmap step 300 saves with exact identity and attribution
+ok 10 - current roadmap step 300 saves with exact identity and attribution
+  ---
+  duration_ms: 445.70575
+  type: 'test'
+  ...
+# Subtest: current roadmap step 301 saves with exact identity and attribution
+ok 11 - current roadmap step 301 saves with exact identity and attribution
+  ---
+  duration_ms: 429.79525
+  type: 'test'
+  ...
+# Subtest: current roadmap step 302 saves with exact identity and attribution
+ok 12 - current roadmap step 302 saves with exact identity and attribution
+  ---
+  duration_ms: 582.113792
+  type: 'test'
+  ...
+# Subtest: baseline broad own-row policy permits goal association and reads without student access
+ok 13 - baseline broad own-row policy permits goal association and reads without student access
+  ---
+  duration_ms: 531.914584
+  type: 'test'
+  ...
+# Subtest: restrictive goal boundary closes inherited permissive access without deleting old rows
+ok 14 - restrictive goal boundary closes inherited permissive access without deleting old rows
+  ---
+  duration_ms: 433.568458
+  type: 'test'
+  ...
+# Subtest: eligible family can use the shared roadmap and personal report progress
+ok 15 - eligible family can use the shared roadmap and personal report progress
+  ---
+  duration_ms: 464.612916
+  type: 'test'
+  ...
+# Subtest: eligible student can use the shared roadmap and personal report progress
+ok 16 - eligible student can use the shared roadmap and personal report progress
+  ---
+  duration_ms: 455.081625
+  type: 'test'
+  ...
+# Subtest: eligible educator can use the shared roadmap and personal report progress
+ok 17 - eligible educator can use the shared roadmap and personal report progress
+  ---
+  duration_ms: 477.455834
+  type: 'test'
+  ...
+# Subtest: eligible school can use the shared roadmap and personal report progress
+ok 18 - eligible school can use the shared roadmap and personal report progress
+  ---
+  duration_ms: 526.041042
+  type: 'test'
+  ...
+# Subtest: eligible district can use the shared roadmap and personal report progress
+ok 19 - eligible district can use the shared roadmap and personal report progress
+  ---
+  duration_ms: 426.689417
+  type: 'test'
+  ...
+# Subtest: eligible owner can use the shared roadmap and personal report progress
+ok 20 - eligible owner can use the shared roadmap and personal report progress
+  ---
+  duration_ms: 436.075291
+  type: 'test'
+  ...
+# Subtest: ineligible family cannot write shared roadmap progress
+ok 21 - ineligible family cannot write shared roadmap progress
+  ---
+  duration_ms: 424.42825
+  type: 'test'
+  ...
+# Subtest: ineligible student cannot write shared roadmap progress
+ok 22 - ineligible student cannot write shared roadmap progress
+  ---
+  duration_ms: 429.878041
+  type: 'test'
+  ...
+# Subtest: ineligible educator cannot write shared roadmap progress
+ok 23 - ineligible educator cannot write shared roadmap progress
+  ---
+  duration_ms: 441.962833
+  type: 'test'
+  ...
+# Subtest: ineligible school cannot write shared roadmap progress
+ok 24 - ineligible school cannot write shared roadmap progress
+  ---
+  duration_ms: 419.535042
+  type: 'test'
+  ...
+# Subtest: ineligible district cannot write shared roadmap progress
+ok 25 - ineligible district cannot write shared roadmap progress
+  ---
+  duration_ms: 417.054042
+  type: 'test'
+  ...
+# Subtest: ineligible owner cannot write shared roadmap progress
+ok 26 - ineligible owner cannot write shared roadmap progress
+  ---
+  duration_ms: 436.664625
+  type: 'test'
+  ...
+# Subtest: ineligible partner cannot write shared roadmap progress
+ok 27 - ineligible partner cannot write shared roadmap progress
+  ---
+  duration_ms: 432.026083
+  type: 'test'
+  ...
+# Subtest: read-only student relationship can keep personal goals without editing the shared roadmap
+ok 28 - read-only student relationship can keep personal goals without editing the shared roadmap
+  ---
+  duration_ms: 436.264584
+  type: 'test'
+  ...
+# Subtest: partner-only access is denied on raw roadmap and personal goal rows
+ok 29 - partner-only access is denied on raw roadmap and personal goal rows
+  ---
+  duration_ms: 488.330584
+  type: 'test'
+  ...
+# Subtest: a stale roadmap row cannot overwrite newer completion or notes
+ok 30 - a stale roadmap row cannot overwrite newer completion or notes
+  ---
+  duration_ms: 513.408209
+  type: 'test'
+  ...
+# Subtest: expected absence never replaces an existing roadmap record
+ok 31 - expected absence never replaces an existing roadmap record
+  ---
+  duration_ms: 611.224125
+  type: 'test'
+  ...
+# Subtest: a wrong row identity cannot redirect a roadmap update
+ok 32 - a wrong row identity cannot redirect a roadmap update
+  ---
+  duration_ms: 572.572792
+  type: 'test'
+  ...
+# Subtest: multiple updates in one transaction get strictly increasing database revisions
+ok 33 - multiple updates in one transaction get strictly increasing database revisions
+  ---
+  duration_ms: 526.667792
+  type: 'test'
+  ...
+# Subtest: raw roadmap writes remain blocked with future grants and permissive policies
+ok 34 - raw roadmap writes remain blocked with future grants and permissive policies
+  ---
+  duration_ms: 617.71675
+  type: 'test'
+  ...
+# Subtest: trusted raw roadmap writes cannot forge the actor or reassign identity
+ok 35 - trusted raw roadmap writes cannot forge the actor or reassign identity
+  ---
+  duration_ms: 507.73325
+  type: 'test'
+  ...
+# Subtest: goal user/report/item identity is immutable even when both reports are readable
+ok 36 - goal user/report/item identity is immutable even when both reports are readable
+  ---
+  duration_ms: 626.279167
+  type: 'test'
+  ...
+# Subtest: another actor cannot read or update someone else's personal goals
+ok 37 - another actor cannot read or update someone else's personal goals
+  ---
+  duration_ms: 523.900209
+  type: 'test'
+  ...
+# Subtest: unlinked own reports give a controlled link-required result
+ok 38 - unlinked own reports give a controlled link-required result
+  ---
+  duration_ms: 510.914375
+  type: 'test'
+  ...
+# Subtest: report access loss hides old goal progress without deleting it
+ok 39 - report access loss hides old goal progress without deleting it
+  ---
+  duration_ms: 495.365959
+  type: 'test'
+  ...
+# Subtest: personal own-row deletion policy is preserved without granting access to other users' goals
+ok 40 - personal own-row deletion policy is preserved without granting access to other users' goals
+  ---
+  duration_ms: 532.420125
+  type: 'test'
+  ...
+# Subtest: aggregate returns every goal above the REST page limit and deduplicates reports
+ok 41 - aggregate returns every goal above the REST page limit and deduplicates reports
+  ---
+  duration_ms: 582.730917
+  type: 'test'
+  ...
+# Subtest: a mixed inaccessible report set fails rather than returning partial totals
+ok 42 - a mixed inaccessible report set fails rather than returning partial totals
+  ---
+  duration_ms: 539.695917
+  type: 'test'
+  ...
+# Subtest: aggregate and capability predicates bind the actual caller
+ok 43 - aggregate and capability predicates bind the actual caller
+  ---
+  duration_ms: 585.476917
+  type: 'test'
+  ...
+# Subtest: legacy unknown roadmap rows are retained and returned without fabricating a current milestone
+ok 44 - legacy unknown roadmap rows are retained and returned without fabricating a current milestone
+  ---
+  duration_ms: 654.892042
+  type: 'test'
+  ...
+# Subtest: ordinary TRUNCATE is not a pathway_progress capability
+ok 45 - ordinary TRUNCATE is not a pathway_progress capability
+  ---
+  duration_ms: 816.819292
+  type: 'test'
+  ...
+# Subtest: ordinary TRUNCATE is not a goal_statuses capability
+ok 46 - ordinary TRUNCATE is not a goal_statuses capability
+  ---
+  duration_ms: 697.362917
+  type: 'test'
+  ...
+# Subtest: repeated installation stops before partial changes
+ok 47 - repeated installation stops before partial changes
+  ---
+  duration_ms: 532.848417
+  type: 'test'
+  ...
+# Subtest: installation rollback preserves old progress values and permissions
+ok 48 - installation rollback preserves old progress values and permissions
+  ---
+  duration_ms: 540.414416
+  type: 'test'
+  ...
+1..48
+# tests 48
+# suites 0
+# pass 48
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 24595.254708

@@ -1,0 +1,178 @@
+TAP version 13
+# Subtest: caller RLS retained for parent
+ok 1 - caller RLS retained for parent
+  ---
+  duration_ms: 133.966289
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for guardian
+ok 2 - caller RLS retained for guardian
+  ---
+  duration_ms: 180.223887
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for educator
+ok 3 - caller RLS retained for educator
+  ---
+  duration_ms: 85.223543
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for teacher
+ok 4 - caller RLS retained for teacher
+  ---
+  duration_ms: 88.356055
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for case_manager
+ok 5 - caller RLS retained for case_manager
+  ---
+  duration_ms: 82.142214
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for administrator
+ok 6 - caller RLS retained for administrator
+  ---
+  duration_ms: 85.242966
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for school_admin
+ok 7 - caller RLS retained for school_admin
+  ---
+  duration_ms: 80.641777
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for admin
+ok 8 - caller RLS retained for admin
+  ---
+  duration_ms: 80.956069
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for district_admin
+ok 9 - caller RLS retained for district_admin
+  ---
+  duration_ms: 87.699253
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for partner
+ok 10 - caller RLS retained for partner
+  ---
+  duration_ms: 81.761149
+  type: 'test'
+  ...
+# Subtest: self setup reuses canonical identity without secondary student or relationship
+ok 11 - self setup reuses canonical identity without secondary student or relationship
+  ---
+  duration_ms: 87.419246
+  type: 'test'
+  ...
+# Subtest: rejects foreign owner without partial rows
+ok 12 - rejects foreign owner without partial rows
+  ---
+  duration_ms: 79.173694
+  type: 'test'
+  ...
+# Subtest: rejects foreign organization without partial rows
+ok 13 - rejects foreign organization without partial rows
+  ---
+  duration_ms: 78.659063
+  type: 'test'
+  ...
+# Subtest: rejects blank name without partial rows
+ok 14 - rejects blank name without partial rows
+  ---
+  duration_ms: 80.928185
+  type: 'test'
+  ...
+# Subtest: rejects wrong type without partial rows
+ok 15 - rejects wrong type without partial rows
+  ---
+  duration_ms: 77.784367
+  type: 'test'
+  ...
+# Subtest: rejects oversize name without partial rows
+ok 16 - rejects oversize name without partial rows
+  ---
+  duration_ms: 75.737989
+  type: 'test'
+  ...
+# Subtest: rejects bad grade without partial rows
+ok 17 - rejects bad grade without partial rows
+  ---
+  duration_ms: 75.985714
+  type: 'test'
+  ...
+# Subtest: rejects invalid date without partial rows
+ok 18 - rejects invalid date without partial rows
+  ---
+  duration_ms: 78.69584
+  type: 'test'
+  ...
+# Subtest: rejects stale actor before writes
+ok 19 - rejects stale actor before writes
+  ---
+  duration_ms: 79.653401
+  type: 'test'
+  ...
+# Subtest: missing profile does not become Parent
+ok 20 - missing profile does not become Parent
+  ---
+  duration_ms: 83.346911
+  type: 'test'
+  ...
+# Subtest: student_guardians failure rolls back all setup writes
+ok 21 - student_guardians failure rolls back all setup writes
+  ---
+  duration_ms: 79.176704
+  type: 'test'
+  ...
+# Subtest: student_team_members failure rolls back all setup writes
+ok 22 - student_team_members failure rolls back all setup writes
+  ---
+  duration_ms: 81.016247
+  type: 'test'
+  ...
+# Subtest: license_calls failure rolls back all setup writes
+ok 23 - license_calls failure rolls back all setup writes
+  ---
+  duration_ms: 83.467804
+  type: 'test'
+  ...
+# Subtest: contradictory relationship trigger rolls back inserted student
+ok 24 - contradictory relationship trigger rolls back inserted student
+  ---
+  duration_ms: 79.924855
+  type: 'test'
+  ...
+# Subtest: repeated request cannot duplicate student or relationship
+ok 25 - repeated request cannot duplicate student or relationship
+  ---
+  duration_ms: 85.350409
+  type: 'test'
+  ...
+# Subtest: does not bypass existing student insert policy
+ok 26 - does not bypass existing student insert policy
+  ---
+  duration_ms: 83.88253
+  type: 'test'
+  ...
+# Subtest: fixed path, invoker authority and authenticated-only grant
+ok 27 - fixed path, invoker authority and authenticated-only grant
+  ---
+  duration_ms: 78.014574
+  type: 'test'
+  ...
+# Subtest: competing same-request creation commits one complete setup
+ok 28 - competing same-request creation commits one complete setup
+  ---
+  duration_ms: 125.318866
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2556.37786

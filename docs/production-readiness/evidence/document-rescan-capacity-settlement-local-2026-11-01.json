@@ -1,0 +1,199 @@
+{
+  "schema": "document-rescan-capacity-settlement-local-v1",
+  "date": "2026-11-01",
+  "base_source": "f8b15c44f8e9638aab8c949964796832710bdbed",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql",
+    "sha256": "b86a3065a5cd7fd0a174398e27dfd727f8ed2bf3218234ca983e904c1c5e54d6"
+  },
+  "routines": [
+    {
+      "name": "read_internal_document_rescan_completion",
+      "signature": "public.read_internal_document_rescan_completion(uuid,text)",
+      "body_md5": "6027e68e0591c80ac53fe6e79024c513",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_document_rescan_completion_receipt",
+      "signature": "public.guard_document_rescan_completion_receipt()",
+      "body_md5": "66fc62f3994165d4d1cc5d2baae32f88",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "record_internal_document_rescan_completion",
+      "signature": "public.record_internal_document_rescan_completion(uuid)",
+      "body_md5": "d33cda072581b15c7172ca9046d8b958",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_unfinished_document_rescan",
+      "signature": "public.guard_unfinished_document_rescan()",
+      "body_md5": "be1187efef8bef6e42bd2932bbc1f634",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_completed_document_rescan_lease",
+      "signature": "public.guard_completed_document_rescan_lease()",
+      "body_md5": "1217646df6772f74ae458ce269c71a49",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_document_capacity_rescan_settlement",
+      "signature": "public.guard_document_capacity_rescan_settlement()",
+      "body_md5": "d0847740f46ca699471dab7a2df59c00",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "settle_internal_document_rescan_capacity",
+      "signature": "public.settle_internal_document_rescan_capacity(uuid)",
+      "body_md5": "27739ecef53efbe6d20e553200bcca56",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "finish_document_operation",
+      "signature": "public.finish_document_operation(uuid,uuid,uuid,text)",
+      "body_md5": "02a82f905e1a198511cdeacade5f5138",
+      "definer": true,
+      "owner": "admission_owner"
+    },
+    {
+      "name": "guard_document_capacity_reservation",
+      "signature": "public.guard_document_capacity_reservation()",
+      "body_md5": "4c09f0f14edc20a934e14923c5d80ff6",
+      "definer": false,
+      "owner": "migration_executor"
+    }
+  ],
+  "scope": "Thirteenth noncanonical/unapplied owner-internal exact producer completion receipt and conservative rescan capacity settlement. No endpoint, automatic capacity-release/worker hooks, held reconciliation, IO, selected limits or activation.",
+  "full_local": {
+    "tests": 1296,
+    "pass": 1140,
+    "fail": 0,
+    "skipped": 156
+  },
+  "model_groups": [
+    847,
+    311,
+    86,
+    52
+  ],
+  "focused": {
+    "tests": 52,
+    "passed": 41,
+    "native_only_skips": 11
+  },
+  "safety_contracts": 110,
+  "workflow_yaml_and_shell": "passed",
+  "runtime": {
+    "website": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "4697165c8043961d2b667850953c48548c992134a66d4a37cd716e208ee307d6",
+      "fileCount": 1205
+    },
+    "worker_changed": false,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_files": 4
+  },
+  "log_sha256": {
+    "full_model": "f69c0d486f8d0b2aecc1366b16c49767e11210b6a90f898521b8b89b54cb190a",
+    "focused": "6d682c6c3f1cf7a5d8b6208db63c3605beb1fc0fb7f246a49564e45db36ccc1e",
+    "safety": "6a7c52974b25323d62017dcc82e0674153c3c440c7adb62e25879117a9def634",
+    "final_docs": "9269c92682e8ba1c0937a204cdbf928544c9f9e0d308f380b4fbaf87f4d731eb"
+  },
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql",
+      "sha256": "b86a3065a5cd7fd0a174398e27dfd727f8ed2bf3218234ca983e904c1c5e54d6"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "05f06fc4cf63810fe26560a01b15714411e9f2616631a6c0413278c398d2c94e"
+    },
+    {
+      "path": "tests/database/run-document-path-local-model.mjs",
+      "sha256": "534696dad92e7c1f61c517c67d6c9d8da2e9eb680f1ffaeb2e77a9201e81f49a"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "3f37d75929efc0373722ad635542106badbcaaa6f452d2d866d20e05b6c13fcf"
+    }
+  ],
+  "native_full_schema_pending": false,
+  "ordinary_private_execution_grants": false,
+  "automatic_capacity_settlement_hooks_installed": false,
+  "endpoint_source_claim_wired": false,
+  "general_application_limits_implemented": false,
+  "held_release_implemented": false,
+  "trusted_reconciliation_implemented": false,
+  "physical_copy_attested": false,
+  "provider_quiescence_verified": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false,
+  "required_next": [
+    "Integrate exact source-bound claim/copy/committed-pending/result/finish/settlement wrappers; attach the already-reserved selected worker slot atomically and allow only that counted work to drain while paused/at cap. No broad pause or quota bypass.",
+    "Complete Apply/general hooks, trusted held reconciliation, legacy/direct/writer/relationship fences, physical Storage/provider acceptance and final canonical/ledger packaging.",
+    "Seek fresh specific authorization for coordinated isolated staging schema, separate website/worker rollout and bounded acceptance; production/main merge remain separate gates."
+  ],
+  "documentation_contracts": 44,
+  "native_attempts": [
+    {
+      "run": "41392222821",
+      "source": "7d145bef2ea8c71b555efc43ff5568b14eaca021",
+      "result": "failure",
+      "early_selected_tests": 251,
+      "passed": 249,
+      "failed": 2,
+      "full_schema_reached": false,
+      "failed_cases": [
+        "rescan settlement worker commit and producer finish serialize after COMMIT",
+        "rescan settlement worker commit and producer finish serialize after ROLLBACK"
+      ],
+      "failure": "Expected lock was not visible to observer; native cause remains pending corrected run confirmation.",
+      "retained_log_sha256": "e8b489a374faa7ddf79eee906de7e4cb3e044a9c8b2a8cf4fcbf17853363c6b7"
+    },
+    {
+      "run": "41392220982",
+      "source": "7d145bef2ea8c71b555efc43ff5568b14eaca021",
+      "result": "failure",
+      "early_selected_tests": 251,
+      "passed": 249,
+      "failed": 2,
+      "full_schema_reached": false,
+      "failed_cases": [
+        "rescan settlement worker commit and producer finish serialize after COMMIT",
+        "rescan settlement worker commit and producer finish serialize after ROLLBACK"
+      ],
+      "failure": "Expected lock was not visible to observer; native cause remains pending corrected run confirmation.",
+      "retained_log_sha256": "d87028e8635b2845155fc65e5396fdd6b65f951e2ebbeea851f1832c669e9552"
+    }
+  ],
+  "observer_correction": {
+    "date": "2026-11-02",
+    "scope": "Test-only; reset the independent observer from service_role to its existing session owner. Both operations explicitly retain service_role. Require exact producer pid in pg_blocking_pids as well as an observed Lock wait.",
+    "sql_changed": false,
+    "native_corrected_result": "Both corrected early251 cases, complete1296 native suites and full225+thirteen replay passed; exact proofs retained.",
+    "no_assertions_removed": true,
+    "no_test_retries": true,
+    "focused_local": {
+      "tests": 52,
+      "pass": 41,
+      "fail": 0,
+      "native_only_skipped": 11
+    },
+    "readiness_contracts_passed": 40,
+    "corrected_runs": [
+      41454884591,
+      41454894715
+    ],
+    "native_full_schema_pending": false
+  },
+  "verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
+}

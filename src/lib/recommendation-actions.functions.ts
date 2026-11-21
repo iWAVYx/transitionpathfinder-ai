@@ -1,3 +1,5 @@
+import {createPlanningRecordAtomically} from "./planning-record-write.server";
+import {assertExpectedViewer,viewerIntentSchema} from "./viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -13,6 +15,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 
 const inputBase = z.object({
+  ...viewerIntentSchema.shape,
+  request_id: z.string().uuid().optional(),
   student_id: z.string().uuid(),
   source_kind: z.enum(["resource", "partner"]),
   source_id: z.string().min(1),
@@ -26,6 +30,7 @@ export const addRecommendationToActionItems = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => inputBase.parse(i))
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data,context.userId);
     const { supabase, userId } = context;
     const description = [
       data.source_kind === "resource" ? "From recommended resource." : "From recommended partner.",
@@ -35,20 +40,12 @@ export const addRecommendationToActionItems = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n\n");
 
-    const { error } = await supabase
-      .from("action_items")
-      .insert({
-        student_id: data.student_id,
-        title: data.source_kind === "resource" ? `Review: ${data.title}` : `Follow up with: ${data.title}`,
-        description,
-        category: "family",
-        priority: "medium",
-        related_goal_area: data.related_goal_area ?? null,
-        created_by_user_id: userId,
-        status: "not_started",
-      });
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    const item = await createPlanningRecordAtomically(supabase,userId,"action_items",{
+      student_id:data.student_id,expected_viewer_id:data.expected_viewer_id,request_id:data.request_id,
+      title:data.source_kind === "resource" ? `Review: ${data.title}` : `Follow up with: ${data.title}`,
+      description,category:"family",priority:"medium",related_goal_area:data.related_goal_area??null,status:"not_started",
+    });
+    return {ok:true as const,item};
   });
 
 export const addRecommendationToCalendar = createServerFn({ method: "POST" })
@@ -60,6 +57,7 @@ export const addRecommendationToCalendar = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data,context.userId);
     const { supabase, userId } = context;
     const eventDate =
       data.event_date ??
@@ -77,7 +75,8 @@ export const addRecommendationToCalendar = createServerFn({ method: "POST" })
 
     const eventType =
       data.source_kind === "resource" ? "Resource Follow-Up" : "Partner Outreach Follow-Up";
-    const { error } = await supabase.from("calendar_events").insert({
+    const expected = {
+      id:data.request_id??crypto.randomUUID(),
       owner_user_id: userId,
       student_id: data.student_id,
       title: data.source_kind === "resource" ? `Review: ${data.title}` : `Follow up: ${data.title}`,
@@ -89,28 +88,30 @@ export const addRecommendationToCalendar = createServerFn({ method: "POST" })
       all_day: true,
       source_type: "manual",
       reminder_settings: [],
-    } as never);
-    if (error) throw new Error(error.message);
-    return { ok: true, event_date: eventDate };
+    };
+    const {data:saved,error}=await supabase.from("calendar_events").insert(expected as never).select("*").single();
+    if(error||!saved||Object.entries(expected).some(([key,value])=>JSON.stringify((saved as Record<string,unknown>)[key])!==JSON.stringify(value)))throw Error("We couldn't confirm this reminder was saved. Check your calendar before trying again.");
+    return {ok:true as const,event_date:eventDate,event_id:expected.id};
   });
 
 export const addRecommendationToNextMeetingPrep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => inputBase.parse(i))
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data,context.userId);
     const { supabase } = context;
 
     // Find the next upcoming meeting for this student
     const nowIso = new Date().toISOString();
     const { data: meetings, error: mErr } = await supabase
       .from("meetings")
-      .select("id, scheduled_at, status")
+      .select("id, student_id, scheduled_at, status")
       .eq("student_id", data.student_id)
       .gte("scheduled_at", nowIso)
-      .neq("status", "completed")
+      .eq("status", "upcoming")
       .order("scheduled_at", { ascending: true })
       .limit(1);
-    if (mErr) throw new Error(mErr.message);
+    if (mErr || !Array.isArray(meetings) || meetings.length>1) throw new Error("We couldn't check your upcoming meetings. Refresh before trying again.");
 
     const meeting = meetings?.[0];
     if (!meeting) {
@@ -122,6 +123,8 @@ export const addRecommendationToNextMeetingPrep = createServerFn({ method: "POST
       };
     }
 
+    if(!z.string().uuid().safeParse(meeting.id).success||meeting.student_id!==data.student_id||meeting.status!=="upcoming"||typeof meeting.scheduled_at!=="string"||!Number.isFinite(Date.parse(meeting.scheduled_at))||Date.parse(meeting.scheduled_at)<Date.parse(nowIso))throw Error("We couldn't confirm the upcoming meeting. Refresh before trying again.");
+
     const content = [
       data.source_kind === "resource"
         ? `Discuss this recommended resource: ${data.title}`
@@ -132,12 +135,14 @@ export const addRecommendationToNextMeetingPrep = createServerFn({ method: "POST
       .filter(Boolean)
       .join("\n\n");
 
-    const { error } = await supabase.from("meeting_prep_items").insert({
+    const expected = {
+      id:data.request_id??crypto.randomUUID(),
       meeting_id: meeting.id as string,
       student_id: data.student_id,
-      category: data.source_kind === "resource" ? "resource" : "partner",
+      category: "follow_up",
       content,
-    });
-    if (error) throw new Error(error.message);
-    return { ok: true as const, meeting_id: meeting.id as string };
+    };
+    const {data:saved,error}=await supabase.from("meeting_prep_items").insert(expected).select("*").single();
+    if(error||!saved||Object.entries(expected).some(([key,value])=>(saved as Record<string,unknown>)[key]!==value))throw Error("We couldn't confirm this discussion item was saved. Check your meeting preparation before trying again.");
+    return {ok:true as const,meeting_id:meeting.id as string,prep_item_id:expected.id};
   });

@@ -1,0 +1,274 @@
+TAP version 13
+# Subtest: unpatched canonical constraints reject current completion and team/educator actions
+ok 1 - unpatched canonical constraints reject current completion and team/educator actions
+  ---
+  duration_ms: 116.450334
+  type: 'test'
+  ...
+# Subtest: admitted action not_started / family
+ok 2 - admitted action not_started / family
+  ---
+  duration_ms: 155.571392
+  type: 'test'
+  ...
+# Subtest: admitted action not_started / student
+ok 3 - admitted action not_started / student
+  ---
+  duration_ms: 81.805125
+  type: 'test'
+  ...
+# Subtest: admitted action not_started / teacher
+ok 4 - admitted action not_started / teacher
+  ---
+  duration_ms: 77.640385
+  type: 'test'
+  ...
+# Subtest: admitted action not_started / educator
+ok 5 - admitted action not_started / educator
+  ---
+  duration_ms: 79.934948
+  type: 'test'
+  ...
+# Subtest: admitted action not_started / team
+ok 6 - admitted action not_started / team
+  ---
+  duration_ms: 100.131259
+  type: 'test'
+  ...
+# Subtest: admitted action not_started / school
+ok 7 - admitted action not_started / school
+  ---
+  duration_ms: 84.214249
+  type: 'test'
+  ...
+# Subtest: admitted action not_started / partner
+ok 8 - admitted action not_started / partner
+  ---
+  duration_ms: 76.685826
+  type: 'test'
+  ...
+# Subtest: admitted action in_progress / family
+ok 9 - admitted action in_progress / family
+  ---
+  duration_ms: 79.341167
+  type: 'test'
+  ...
+# Subtest: admitted action in_progress / student
+ok 10 - admitted action in_progress / student
+  ---
+  duration_ms: 69.793516
+  type: 'test'
+  ...
+# Subtest: admitted action in_progress / teacher
+ok 11 - admitted action in_progress / teacher
+  ---
+  duration_ms: 78.749071
+  type: 'test'
+  ...
+# Subtest: admitted action in_progress / educator
+ok 12 - admitted action in_progress / educator
+  ---
+  duration_ms: 70.762967
+  type: 'test'
+  ...
+# Subtest: admitted action in_progress / team
+ok 13 - admitted action in_progress / team
+  ---
+  duration_ms: 71.504794
+  type: 'test'
+  ...
+# Subtest: admitted action in_progress / school
+ok 14 - admitted action in_progress / school
+  ---
+  duration_ms: 80.734261
+  type: 'test'
+  ...
+# Subtest: admitted action in_progress / partner
+ok 15 - admitted action in_progress / partner
+  ---
+  duration_ms: 77.167707
+  type: 'test'
+  ...
+# Subtest: admitted action complete / family
+ok 16 - admitted action complete / family
+  ---
+  duration_ms: 71.189109
+  type: 'test'
+  ...
+# Subtest: admitted action complete / student
+ok 17 - admitted action complete / student
+  ---
+  duration_ms: 89.946673
+  type: 'test'
+  ...
+# Subtest: admitted action complete / teacher
+ok 18 - admitted action complete / teacher
+  ---
+  duration_ms: 120.251262
+  type: 'test'
+  ...
+# Subtest: admitted action complete / educator
+ok 19 - admitted action complete / educator
+  ---
+  duration_ms: 179.449031
+  type: 'test'
+  ...
+# Subtest: admitted action complete / team
+ok 20 - admitted action complete / team
+  ---
+  duration_ms: 67.914281
+  type: 'test'
+  ...
+# Subtest: admitted action complete / school
+ok 21 - admitted action complete / school
+  ---
+  duration_ms: 71.239935
+  type: 'test'
+  ...
+# Subtest: admitted action complete / partner
+ok 22 - admitted action complete / partner
+  ---
+  duration_ms: 70.709567
+  type: 'test'
+  ...
+# Subtest: admitted action completed / family
+ok 23 - admitted action completed / family
+  ---
+  duration_ms: 69.520408
+  type: 'test'
+  ...
+# Subtest: admitted action completed / student
+ok 24 - admitted action completed / student
+  ---
+  duration_ms: 80.302499
+  type: 'test'
+  ...
+# Subtest: admitted action completed / teacher
+ok 25 - admitted action completed / teacher
+  ---
+  duration_ms: 72.05969
+  type: 'test'
+  ...
+# Subtest: admitted action completed / educator
+ok 26 - admitted action completed / educator
+  ---
+  duration_ms: 92.404443
+  type: 'test'
+  ...
+# Subtest: admitted action completed / team
+ok 27 - admitted action completed / team
+  ---
+  duration_ms: 78.877777
+  type: 'test'
+  ...
+# Subtest: admitted action completed / school
+ok 28 - admitted action completed / school
+  ---
+  duration_ms: 76.569305
+  type: 'test'
+  ...
+# Subtest: admitted action completed / partner
+ok 29 - admitted action completed / partner
+  ---
+  duration_ms: 68.52236
+  type: 'test'
+  ...
+# Subtest: admitted action blocked / family
+ok 30 - admitted action blocked / family
+  ---
+  duration_ms: 71.068526
+  type: 'test'
+  ...
+# Subtest: admitted action blocked / student
+ok 31 - admitted action blocked / student
+  ---
+  duration_ms: 71.424458
+  type: 'test'
+  ...
+# Subtest: admitted action blocked / teacher
+ok 32 - admitted action blocked / teacher
+  ---
+  duration_ms: 87.18512
+  type: 'test'
+  ...
+# Subtest: admitted action blocked / educator
+ok 33 - admitted action blocked / educator
+  ---
+  duration_ms: 76.458312
+  type: 'test'
+  ...
+# Subtest: admitted action blocked / team
+ok 34 - admitted action blocked / team
+  ---
+  duration_ms: 76.421804
+  type: 'test'
+  ...
+# Subtest: admitted action blocked / school
+ok 35 - admitted action blocked / school
+  ---
+  duration_ms: 81.126615
+  type: 'test'
+  ...
+# Subtest: admitted action blocked / partner
+ok 36 - admitted action blocked / partner
+  ---
+  duration_ms: 104.672222
+  type: 'test'
+  ...
+# Subtest: unsupported action values remain refused invalid / family
+ok 37 - unsupported action values remain refused invalid / family
+  ---
+  duration_ms: 76.321436
+  type: 'test'
+  ...
+# Subtest: unsupported action values remain refused not_started / invalid
+ok 38 - unsupported action values remain refused not_started / invalid
+  ---
+  duration_ms: 204.71698
+  type: 'test'
+  ...
+# Subtest: unsupported action values remain refused done / team
+ok 39 - unsupported action values remain refused done / team
+  ---
+  duration_ms: 77.668205
+  type: 'test'
+  ...
+# Subtest: unsupported action values remain refused completed / district
+ok 40 - unsupported action values remain refused completed / district
+  ---
+  duration_ms: 74.785257
+  type: 'test'
+  ...
+# Subtest: old rows retain byte-identical values, identifiers, creator and timestamps
+ok 41 - old rows retain byte-identical values, identifiers, creator and timestamps
+  ---
+  duration_ms: 94.845516
+  type: 'test'
+  ...
+# Subtest: original policies, grants, RLS, triggers and routines are unchanged
+ok 42 - original policies, grants, RLS, triggers and routines are unchanged
+  ---
+  duration_ms: 258.408987
+  type: 'test'
+  ...
+# Subtest: changed or already-installed constraints stop instead of blind rerunning
+ok 43 - changed or already-installed constraints stop instead of blind rerunning
+  ---
+  duration_ms: 346.462034
+  type: 'test'
+  ...
+# Subtest: a rollback restores the canonical constraints and preserves records
+ok 44 - a rollback restores the canonical constraints and preserves records
+  ---
+  duration_ms: 79.354696
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4363.981369

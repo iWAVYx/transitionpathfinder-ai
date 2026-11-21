@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { DOCUMENT_METADATA_MESSAGE } from "@/lib/document-metadata-contract";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CheckCircle2, Loader2, Tag } from "lucide-react";
@@ -27,13 +29,16 @@ const DOC_TYPE_LABELS: Record<DocType, string> = {
   "other": "Other",
 };
 
-export function DocumentClassificationCard({
-  documentId,
-  className,
-}: {
-  documentId: string;
-  className?: string;
-}) {
+type Props={documentId:string;className?:string;disabled?:boolean};
+export function DocumentClassificationCard(props:Props){
+  const {user,loading}=useAuth();
+  if(loading||!user)return null;
+  return <DocumentClassificationSession key={`${user.id}:${props.documentId}`} {...props} viewerId={user.id}/>;
+}
+function DocumentClassificationSession({documentId,className,disabled=false,viewerId}:Props&{viewerId:string}){
+  const active=useRef(false),pending=useRef(false),readGeneration=useRef(0);
+  const [unconfirmed,setUnconfirmed]=useState(false),[loadError,setLoadError]=useState(false);
+  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
   const fnGet = useServerFn(getDocumentMeta);
   const fnClassify = useServerFn(classifyDocument);
   const fnReview = useServerFn(markDocumentReviewed);
@@ -41,41 +46,31 @@ export function DocumentClassificationCard({
   const [meta, setMeta] = useState<DocumentMetaRow | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fnGet({ data: { document_id: documentId } })
-      .then((r) => setMeta(r))
-      .catch(() => setMeta(null));
-  }, [documentId, fnGet]);
-
-  async function handleTypeChange(value: string) {
-    if (!meta || value === meta.doc_type) return;
-    setSaving(true);
+  async function reload(){
+    if(pending.current)return;
+    const generation=++readGeneration.current;setLoadError(false);
     try {
-      const row = await fnClassify({ data: { id: documentId, doc_type: value as DocType } });
-      setMeta(row);
-      toast.success("Document type updated.");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not update document type.");
-    } finally {
-      setSaving(false);
-    }
+      const row=await fnGet({data:{document_id:documentId,expected_viewer_id:viewerId}});
+      if(!active.current||generation!==readGeneration.current)return;
+      if(row.id!==documentId)throw new Error();
+      setMeta(row);setUnconfirmed(false);
+    } catch {if(active.current&&generation===readGeneration.current){setMeta(null);setLoadError(true);}}
   }
-
-  async function handleToggleReviewed() {
-    if (!meta) return;
-    setSaving(true);
+  useEffect(()=>{reload();},[documentId,fnGet]);
+  async function save(kind:"classify"|"review",value?:DocType){
+    if(!active.current||!meta||pending.current||unconfirmed||disabled||!meta.can_edit)return;
+    pending.current=true;setSaving(true);
+    const identity={id:documentId,student_id:meta.student_id,expected_viewer_id:viewerId,expected_updated_at:meta.updated_at};
     try {
-      const row = await fnReview({ data: { id: documentId, reviewed: !meta.reviewed_at } });
-      setMeta(row);
-      toast.success(row.reviewed_at ? "Marked as reviewed." : "Review cleared.");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not update review status.");
-    } finally {
-      setSaving(false);
-    }
+      const row=kind==="classify"?await fnClassify({data:{...identity,doc_type:value!}}):await fnReview({data:{...identity,reviewed:!meta.reviewed_at}});
+      if(!active.current)return;
+      if(row.id!==documentId||row.student_id!==meta.student_id||row.updated_at===meta.updated_at)throw new Error();
+      setMeta(row);toast.success(kind==="classify"?"Document type updated.":row.reviewed_at?"Marked as reviewed.":"Review cleared.");
+    } catch {if(active.current){setUnconfirmed(true);toast.error(DOCUMENT_METADATA_MESSAGE);}}
+    finally {pending.current=false;if(active.current)setSaving(false);}
   }
-
-  if (!meta) return null;
+  const blocked=saving||unconfirmed||disabled||!meta?.can_edit;
+  if(!meta)return loadError?<Card className={className}><CardContent className="space-y-2 p-4"><p role="alert" className="text-sm">{DOCUMENT_METADATA_MESSAGE}</p><Button size="sm" onClick={reload}>Refresh Details</Button></CardContent></Card>:null;
 
   const reviewed = !!meta.reviewed_at;
   const usedInReport = !!meta.used_in_report_at;
@@ -92,6 +87,8 @@ export function DocumentClassificationCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {unconfirmed&&<div role="alert" className="space-y-2 text-sm"><p>{DOCUMENT_METADATA_MESSAGE}</p><Button size="sm" onClick={reload}>Refresh Details</Button></div>}
+        {!meta.can_edit&&<p className="text-sm text-muted-foreground">{meta.archived_at?"This document is archived; its details are read-only.":"These details are read-only. Editing requires current student-team editing access."}</p>}
         <div>
           <Label htmlFor="doc-type-select" className="text-xs uppercase tracking-wider text-muted-foreground">
             Document Type
@@ -101,9 +98,10 @@ export function DocumentClassificationCard({
             data-testid="doc-type-select"
             className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
             value={meta.doc_type}
-            disabled={saving}
-            onChange={(e) => handleTypeChange(e.target.value)}
+            disabled={blocked}
+            onChange={(e) => {if(e.target.value!==meta.doc_type)save("classify",e.target.value as DocType);}}
           >
+            {!DOC_TYPES.includes(meta.doc_type as DocType)&&<option value={meta.doc_type}>Other (Existing Type)</option>}
             {DOC_TYPES.map((t) => (
               <option key={t} value={t}>
                 {DOC_TYPE_LABELS[t]}
@@ -132,8 +130,8 @@ export function DocumentClassificationCard({
           type="button"
           size="sm"
           variant={reviewed ? "outline" : "default"}
-          onClick={handleToggleReviewed}
-          disabled={saving}
+          onClick={()=>save("review")}
+          disabled={blocked}
           data-testid="toggle-reviewed-btn"
         >
           {saving ? (

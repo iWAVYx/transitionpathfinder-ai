@@ -1,0 +1,631 @@
+{
+  "schema": "student-planning-endpoint-inventory-v1",
+  "date": "2026-11-20",
+  "source_parent": "700afcaa4ed91d149de6d81da86d0a342e6b1ab6",
+  "scope": "Curated literal createServerFn exports in twelve named student-planning modules; source fingerprint/classification gate, not a global call graph or whole-platform security certificate.",
+  "modules": [
+    "src/lib/students.functions.ts",
+    "src/lib/action-items.functions.ts",
+    "src/lib/counselor-notes.functions.ts",
+    "src/lib/bridgeforward.functions.ts",
+    "src/lib/student-membership.functions.ts",
+    "src/lib/audit.functions.ts",
+    "src/lib/student-workflow/drafts.functions.ts",
+    "src/lib/readiness-insights.functions.ts",
+    "src/lib/student-voice.functions.ts",
+    "src/lib/progress.functions.ts",
+    "src/lib/goal-statuses.functions.ts",
+    "src/lib/student-access.functions.ts"
+  ],
+  "endpoints": [
+    {
+      "id": "src/lib/students.functions.ts#ensureOwnStudentProfile",
+      "path": "src/lib/students.functions.ts",
+      "name": "ensureOwnStudentProfile",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/students.functions.ts#listStudents",
+      "path": "src/lib/students.functions.ts",
+      "name": "listStudents",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/students.functions.ts#getStudent",
+      "path": "src/lib/students.functions.ts",
+      "name": "getStudent",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Current student/account identity and literal canonical capability checks are implemented for this reader. Remaining student creation/deletion/self-profile handlers, broader raw-table/privacy review and exact-release hosted acceptance remain separately open.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/students.functions.ts#canEditStudent",
+      "path": "src/lib/students.functions.ts",
+      "name": "canEditStudent",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Current student/account identity and literal canonical capability checks are implemented for this reader. Remaining student creation/deletion/self-profile handlers, broader raw-table/privacy review and exact-release hosted acceptance remain separately open.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/students.functions.ts#createStudent",
+      "path": "src/lib/students.functions.ts",
+      "name": "createStudent",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/students.functions.ts#deleteStudent",
+      "path": "src/lib/students.functions.ts",
+      "name": "deleteStudent",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/students.functions.ts#listGoals",
+      "path": "src/lib/students.functions.ts",
+      "name": "listGoals",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
+    },
+    {
+      "id": "src/lib/students.functions.ts#createGoal",
+      "path": "src/lib/students.functions.ts",
+      "name": "createGoal",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
+    },
+    {
+      "id": "src/lib/students.functions.ts#updateGoalStatus",
+      "path": "src/lib/students.functions.ts",
+      "name": "updateGoalStatus",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
+    },
+    {
+      "id": "src/lib/students.functions.ts#deleteGoal",
+      "path": "src/lib/students.functions.ts",
+      "name": "deleteGoal",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Keep review-required until raw/trusted deletion, other CRUD and broader student-planning/privacy paths are closed. Final catalogue/canonical/ledger review and hosted rollout remain separately gated.",
+      "component_progress": "Normal deletion requires loaded student/revision and uses one authenticated RPC with transaction-held editing proof and exact actor/kind/deleted-row receipts. Forty local/106 native cases,56 observed removal races,eight competing cases,two cached rechecks and full225+41+twelve-draft schema pass. This is normal deletion only; raw/trusted paths remain open."
+    },
+    {
+      "id": "src/lib/students.functions.ts#createShareToken",
+      "path": "src/lib/students.functions.ts",
+      "name": "createShareToken",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P3",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package."
+    },
+    {
+      "id": "src/lib/students.functions.ts#listShareTokens",
+      "path": "src/lib/students.functions.ts",
+      "name": "listShareTokens",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P3",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package."
+    },
+    {
+      "id": "src/lib/students.functions.ts#revokeShareToken",
+      "path": "src/lib/students.functions.ts",
+      "name": "revokeShareToken",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "review-required",
+      "bundle": "P3",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package."
+    },
+    {
+      "id": "src/lib/action-items.functions.ts#listStudentActionItems",
+      "path": "src/lib/action-items.functions.ts",
+      "name": "listStudentActionItems",
+      "source_sha256": "a18d0571453053b6a4b4fad66db7bd7928bcac37b77dba5bb3fc43d4611117b0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
+    },
+    {
+      "id": "src/lib/action-items.functions.ts#createStudentActionItem",
+      "path": "src/lib/action-items.functions.ts",
+      "name": "createStudentActionItem",
+      "source_sha256": "a18d0571453053b6a4b4fad66db7bd7928bcac37b77dba5bb3fc43d4611117b0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Keep review-required until raw/cached/trusted writer and access-removal/race review, atomic completion-side-effect handling and remaining educator caseload/profile/BridgeForward work are verified. Separate additive action-value draft is not hosted.",
+      "component_progress": "Exact application receipts, current actor/student checks, complete reads, loaded-row comparisons and affected page guards verified. Normal report/partner/resource/PPT action-creation screens now share request-bound receipts and departed/uncertain response fences. No transaction-held authority claim."
+    },
+    {
+      "id": "src/lib/action-items.functions.ts#updateStudentActionItem",
+      "path": "src/lib/action-items.functions.ts",
+      "name": "updateStudentActionItem",
+      "source_sha256": "a18d0571453053b6a4b4fad66db7bd7928bcac37b77dba5bb3fc43d4611117b0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Keep review-required until separate raw/cached/trusted writers and other action CRUD/privacy paths are closed and the final package is reviewed. Canonical/ledger promotion and hosted rollout remain separately gated.",
+      "component_progress": "Normal update API requires loaded student/revision and uses one authenticated atomic action/activity/report-marker RPC. Exact receipts and transaction-held current proof pass39 local/74 native cases,32 observed removal races,two competing updates,a cached recheck and full225+41+eleven-draft schema. This is the normal-update component only; raw/trusted writers and wider P1 remain open."
+    },
+    {
+      "id": "src/lib/action-items.functions.ts#deleteStudentActionItem",
+      "path": "src/lib/action-items.functions.ts",
+      "name": "deleteStudentActionItem",
+      "source_sha256": "a18d0571453053b6a4b4fad66db7bd7928bcac37b77dba5bb3fc43d4611117b0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Keep review-required until raw/trusted deletion, other CRUD and broader student-planning/privacy paths are closed. Final catalogue/canonical/ledger review and hosted rollout remain separately gated.",
+      "component_progress": "Normal deletion requires loaded student/revision and uses one authenticated RPC with transaction-held editing proof and exact actor/kind/deleted-row receipts. Forty local/106 native cases,56 observed removal races,eight competing cases,two cached rechecks and full225+41+twelve-draft schema pass. This is normal deletion only; raw/trusted paths remain open."
+    },
+    {
+      "id": "src/lib/counselor-notes.functions.ts#listCounselorNotes",
+      "path": "src/lib/counselor-notes.functions.ts",
+      "name": "listCounselorNotes",
+      "source_sha256": "c48365bec705fa5d9ba1f4df7704181f5c962ae6a6dead0d4ed3c426af5777b4",
+      "status": "review-required",
+      "bundle": "P2",
+      "finding": "Counselor notes expose raw database errors and contributor/admin semantics; UI cached notes and private author scope need current account/student verification. History has existing keyset/export guards but remaining current-scope/privacy applicability needs review.",
+      "next_action": "Retain the contributor-specific note rule while reviewing explicit student proof, account/student changes, safe errors, confirmed note identity and history/export scope. Do not broaden note visibility."
+    },
+    {
+      "id": "src/lib/counselor-notes.functions.ts#createCounselorNote",
+      "path": "src/lib/counselor-notes.functions.ts",
+      "name": "createCounselorNote",
+      "source_sha256": "c48365bec705fa5d9ba1f4df7704181f5c962ae6a6dead0d4ed3c426af5777b4",
+      "status": "review-required",
+      "bundle": "P2",
+      "finding": "Counselor notes expose raw database errors and contributor/admin semantics; UI cached notes and private author scope need current account/student verification. History has existing keyset/export guards but remaining current-scope/privacy applicability needs review.",
+      "next_action": "Retain the contributor-specific note rule while reviewing explicit student proof, account/student changes, safe errors, confirmed note identity and history/export scope. Do not broaden note visibility."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#getBridgeforwardProfile",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "getBridgeforwardProfile",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#upsertBridgeforwardProfile",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "upsertBridgeforwardProfile",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#listHighSchoolOptions",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "listHighSchoolOptions",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#upsertHighSchoolOption",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "upsertHighSchoolOption",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#deleteHighSchoolOption",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "deleteHighSchoolOption",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#getFitReview",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "getFitReview",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#upsertFitReview",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "upsertFitReview",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#listReadinessSnapshots",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "listReadinessSnapshots",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#generateReadinessSnapshot",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "generateReadinessSnapshot",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/bridgeforward.functions.ts#getProgramEligibility",
+      "path": "src/lib/bridgeforward.functions.ts",
+      "name": "getProgramEligibility",
+      "source_sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0",
+      "status": "review-required",
+      "bundle": "P1",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records."
+    },
+    {
+      "id": "src/lib/student-membership.functions.ts#listStudentMembership",
+      "path": "src/lib/student-membership.functions.ts",
+      "name": "listStudentMembership",
+      "source_sha256": "6dfb820455d3149caf3671ebb96a8b7ee9f6b4248bb7cf2968eec9003bcb0e85",
+      "status": "review-required",
+      "bundle": "P3",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package."
+    },
+    {
+      "id": "src/lib/student-membership.functions.ts#updateGuardian",
+      "path": "src/lib/student-membership.functions.ts",
+      "name": "updateGuardian",
+      "source_sha256": "6dfb820455d3149caf3671ebb96a8b7ee9f6b4248bb7cf2968eec9003bcb0e85",
+      "status": "review-required",
+      "bundle": "P3",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package."
+    },
+    {
+      "id": "src/lib/student-membership.functions.ts#deleteGuardian",
+      "path": "src/lib/student-membership.functions.ts",
+      "name": "deleteGuardian",
+      "source_sha256": "6dfb820455d3149caf3671ebb96a8b7ee9f6b4248bb7cf2968eec9003bcb0e85",
+      "status": "review-required",
+      "bundle": "P3",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package."
+    },
+    {
+      "id": "src/lib/student-membership.functions.ts#updateTeamMember",
+      "path": "src/lib/student-membership.functions.ts",
+      "name": "updateTeamMember",
+      "source_sha256": "6dfb820455d3149caf3671ebb96a8b7ee9f6b4248bb7cf2968eec9003bcb0e85",
+      "status": "review-required",
+      "bundle": "P3",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package."
+    },
+    {
+      "id": "src/lib/student-membership.functions.ts#deleteTeamMember",
+      "path": "src/lib/student-membership.functions.ts",
+      "name": "deleteTeamMember",
+      "source_sha256": "6dfb820455d3149caf3671ebb96a8b7ee9f6b4248bb7cf2968eec9003bcb0e85",
+      "status": "review-required",
+      "bundle": "P3",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package."
+    },
+    {
+      "id": "src/lib/audit.functions.ts#listStudentAuditTrail",
+      "path": "src/lib/audit.functions.ts",
+      "name": "listStudentAuditTrail",
+      "source_sha256": "8b99a4126cdc1644aa54ae169dcccbefe3a27709963503f6ffa7785d8c89d762",
+      "status": "review-required",
+      "bundle": "P2",
+      "finding": "Counselor notes expose raw database errors and contributor/admin semantics; UI cached notes and private author scope need current account/student verification. History has existing keyset/export guards but remaining current-scope/privacy applicability needs review.",
+      "next_action": "Retain the contributor-specific note rule while reviewing explicit student proof, account/student changes, safe errors, confirmed note identity and history/export scope. Do not broaden note visibility."
+    },
+    {
+      "id": "src/lib/audit.functions.ts#listHistoryStudents",
+      "path": "src/lib/audit.functions.ts",
+      "name": "listHistoryStudents",
+      "source_sha256": "8b99a4126cdc1644aa54ae169dcccbefe3a27709963503f6ffa7785d8c89d762",
+      "status": "review-required",
+      "bundle": "P2",
+      "finding": "Counselor notes expose raw database errors and contributor/admin semantics; UI cached notes and private author scope need current account/student verification. History has existing keyset/export guards but remaining current-scope/privacy applicability needs review.",
+      "next_action": "Retain the contributor-specific note rule while reviewing explicit student proof, account/student changes, safe errors, confirmed note identity and history/export scope. Do not broaden note visibility."
+    },
+    {
+      "id": "src/lib/audit.functions.ts#listStudentAuditPage",
+      "path": "src/lib/audit.functions.ts",
+      "name": "listStudentAuditPage",
+      "source_sha256": "8b99a4126cdc1644aa54ae169dcccbefe3a27709963503f6ffa7785d8c89d762",
+      "status": "review-required",
+      "bundle": "P2",
+      "finding": "Counselor notes expose raw database errors and contributor/admin semantics; UI cached notes and private author scope need current account/student verification. History has existing keyset/export guards but remaining current-scope/privacy applicability needs review.",
+      "next_action": "Retain the contributor-specific note rule while reviewing explicit student proof, account/student changes, safe errors, confirmed note identity and history/export scope. Do not broaden note visibility."
+    },
+    {
+      "id": "src/lib/audit.functions.ts#exportStudentAuditRecords",
+      "path": "src/lib/audit.functions.ts",
+      "name": "exportStudentAuditRecords",
+      "source_sha256": "8b99a4126cdc1644aa54ae169dcccbefe3a27709963503f6ffa7785d8c89d762",
+      "status": "review-required",
+      "bundle": "P2",
+      "finding": "Counselor notes expose raw database errors and contributor/admin semantics; UI cached notes and private author scope need current account/student verification. History has existing keyset/export guards but remaining current-scope/privacy applicability needs review.",
+      "next_action": "Retain the contributor-specific note rule while reviewing explicit student proof, account/student changes, safe errors, confirmed note identity and history/export scope. Do not broaden note visibility."
+    },
+    {
+      "id": "src/lib/student-workflow/drafts.functions.ts#getStudentWorkflowDraft",
+      "path": "src/lib/student-workflow/drafts.functions.ts",
+      "name": "getStudentWorkflowDraft",
+      "source_sha256": "75d0beaae9c8504fcabe8058364b3a8140424277c0f9cb9b69a55a62eeb9392f",
+      "status": "review-required",
+      "bundle": "P4",
+      "finding": "Current handlers turn failed reads into no draft, save by user/task without loaded revisions, accept an unchecked return path and claim writes without exact returned rows.",
+      "next_action": "Keep drafts private to the actual account; add truthful load/receipt/version handling, safe internal return destinations and account lifetime checks without treating navigation as an access grant."
+    },
+    {
+      "id": "src/lib/student-workflow/drafts.functions.ts#listStudentWorkflowDrafts",
+      "path": "src/lib/student-workflow/drafts.functions.ts",
+      "name": "listStudentWorkflowDrafts",
+      "source_sha256": "75d0beaae9c8504fcabe8058364b3a8140424277c0f9cb9b69a55a62eeb9392f",
+      "status": "review-required",
+      "bundle": "P4",
+      "finding": "Current handlers turn failed reads into no draft, save by user/task without loaded revisions, accept an unchecked return path and claim writes without exact returned rows.",
+      "next_action": "Keep drafts private to the actual account; add truthful load/receipt/version handling, safe internal return destinations and account lifetime checks without treating navigation as an access grant."
+    },
+    {
+      "id": "src/lib/student-workflow/drafts.functions.ts#saveStudentWorkflowDraft",
+      "path": "src/lib/student-workflow/drafts.functions.ts",
+      "name": "saveStudentWorkflowDraft",
+      "source_sha256": "75d0beaae9c8504fcabe8058364b3a8140424277c0f9cb9b69a55a62eeb9392f",
+      "status": "review-required",
+      "bundle": "P4",
+      "finding": "Current handlers turn failed reads into no draft, save by user/task without loaded revisions, accept an unchecked return path and claim writes without exact returned rows.",
+      "next_action": "Keep drafts private to the actual account; add truthful load/receipt/version handling, safe internal return destinations and account lifetime checks without treating navigation as an access grant."
+    },
+    {
+      "id": "src/lib/student-workflow/drafts.functions.ts#clearStudentWorkflowDraft",
+      "path": "src/lib/student-workflow/drafts.functions.ts",
+      "name": "clearStudentWorkflowDraft",
+      "source_sha256": "75d0beaae9c8504fcabe8058364b3a8140424277c0f9cb9b69a55a62eeb9392f",
+      "status": "review-required",
+      "bundle": "P4",
+      "finding": "Current handlers turn failed reads into no draft, save by user/task without loaded revisions, accept an unchecked return path and claim writes without exact returned rows.",
+      "next_action": "Keep drafts private to the actual account; add truthful load/receipt/version handling, safe internal return destinations and account lifetime checks without treating navigation as an access grant."
+    },
+    {
+      "id": "src/lib/readiness-insights.functions.ts#generateReadinessInsights",
+      "path": "src/lib/readiness-insights.functions.ts",
+      "name": "generateReadinessInsights",
+      "source_sha256": "706cb505f9b02b9bf39ce189a224e59bd1d5bfce3fa450ad08c7f7a3f3773365",
+      "status": "verified-source-local",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/readiness-reviewed-sources-local-2026-11-16.json"
+    },
+    {
+      "id": "src/lib/student-voice.functions.ts#getStudentVoiceResponses",
+      "path": "src/lib/student-voice.functions.ts",
+      "name": "getStudentVoiceResponses",
+      "source_sha256": "4f2f75090892cb3c0da9a4933c8ad1ab4fb5c6e3ed01b42292c016c2eab2c434",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json"
+    },
+    {
+      "id": "src/lib/student-voice.functions.ts#upsertStudentVoiceResponse",
+      "path": "src/lib/student-voice.functions.ts",
+      "name": "upsertStudentVoiceResponse",
+      "source_sha256": "4f2f75090892cb3c0da9a4933c8ad1ab4fb5c6e3ed01b42292c016c2eab2c434",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json"
+    },
+    {
+      "id": "src/lib/progress.functions.ts#listProgress",
+      "path": "src/lib/progress.functions.ts",
+      "name": "listProgress",
+      "source_sha256": "619e1ea6d8a251e127c108ee8330b275da438a802299b2e10e316457e22fa1f1",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json"
+    },
+    {
+      "id": "src/lib/progress.functions.ts#upsertProgress",
+      "path": "src/lib/progress.functions.ts",
+      "name": "upsertProgress",
+      "source_sha256": "619e1ea6d8a251e127c108ee8330b275da438a802299b2e10e316457e22fa1f1",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json"
+    },
+    {
+      "id": "src/lib/goal-statuses.functions.ts#listGoalStatuses",
+      "path": "src/lib/goal-statuses.functions.ts",
+      "name": "listGoalStatuses",
+      "source_sha256": "484bc314202e6b6a5af09a23a6c8507ea9ebec80ae1c2988a9d4d23dfe106c56",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json"
+    },
+    {
+      "id": "src/lib/goal-statuses.functions.ts#upsertGoalStatus",
+      "path": "src/lib/goal-statuses.functions.ts",
+      "name": "upsertGoalStatus",
+      "source_sha256": "484bc314202e6b6a5af09a23a6c8507ea9ebec80ae1c2988a9d4d23dfe106c56",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json"
+    },
+    {
+      "id": "src/lib/goal-statuses.functions.ts#summarizeGoalStatuses",
+      "path": "src/lib/goal-statuses.functions.ts",
+      "name": "summarizeGoalStatuses",
+      "source_sha256": "484bc314202e6b6a5af09a23a6c8507ea9ebec80ae1c2988a9d4d23dfe106c56",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json"
+    },
+    {
+      "id": "src/lib/student-access.functions.ts#getStudentFriendlyDocumentSummary",
+      "path": "src/lib/student-access.functions.ts",
+      "name": "getStudentFriendlyDocumentSummary",
+      "source_sha256": "8f9bbbe6babcfdf076feb99402a826136dda3490689969dbbd3d9c179e9bf072",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/document-summary-scope-verified-2026-11-15.json"
+    },
+    {
+      "id": "src/lib/student-access.functions.ts#listStudentFriendlyDocuments",
+      "path": "src/lib/student-access.functions.ts",
+      "name": "listStudentFriendlyDocuments",
+      "source_sha256": "8f9bbbe6babcfdf076feb99402a826136dda3490689969dbbd3d9c179e9bf072",
+      "status": "verified-source-disposable",
+      "bundle": "V",
+      "finding": "Named source component has retained scoped verification; this does not certify hosted or whole-product acceptance.",
+      "next_action": "Retain exact source applicability and include in final combined package/hosted acceptance.",
+      "evidence": "docs/production-readiness/evidence/document-summary-scope-verified-2026-11-15.json"
+    },
+    {
+      "id": "src/lib/students.functions.ts#readStudentCreationOutcome",
+      "path": "src/lib/students.functions.ts",
+      "name": "readStudentCreationOutcome",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "verified-source-local",
+      "bundle": "V",
+      "finding": "Strict read-only actor/request outcome plus current caller-RLS owned or self profile; never retries creation. Linked recovery requires separate draft16.",
+      "next_action": "Authorized release and hosted/browser acceptance; no whole onboarding or cleanup completion claim.",
+      "evidence": "docs/production-readiness/evidence/student-creation-ui-recovery-2026-11-21.json"
+    },
+    {
+      "id": "src/lib/students.functions.ts#closeStudentCreationRequest",
+      "path": "src/lib/students.functions.ts",
+      "name": "closeStudentCreationRequest",
+      "source_sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b",
+      "status": "verified-source-local",
+      "bundle": "V",
+      "finding": "Explicit linked-request closure changes a minimal lifecycle reservation, not a student; exact actor/request result and current owned profile are checked. Requires separate draft17.",
+      "next_action": "Canonical packaging and authorized hosted acceptance; self-profile and ownership-retired outcomes remain separate.",
+      "evidence": "docs/production-readiness/evidence/student-request-resolution-2026-11-21.json"
+    }
+  ],
+  "remaining_bundles": [
+    {
+      "id": "P1",
+      "name": "Student records, goals, action items and BridgeForward",
+      "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
+      "next_action": "Review the shared record/reader/writer contract together; verify actual row identity, current student proof, stale/uncertain results, linked report identity and UI failure/session behavior. Preserve intended roles and existing records.",
+      "endpoint_count": 24,
+      "status": "review-required"
+    },
+    {
+      "id": "P2",
+      "name": "Confidential notes and history",
+      "finding": "Counselor notes expose raw database errors and contributor/admin semantics; UI cached notes and private author scope need current account/student verification. History has existing keyset/export guards but remaining current-scope/privacy applicability needs review.",
+      "next_action": "Retain the contributor-specific note rule while reviewing explicit student proof, account/student changes, safe errors, confirmed note identity and history/export scope. Do not broaden note visibility.",
+      "endpoint_count": 6,
+      "status": "review-required"
+    },
+    {
+      "id": "P3",
+      "name": "Membership changes and report sharing",
+      "finding": "These functions have existing sharing/removal behavior that must retain chosen chat-history retention and permanent report-link retirement. Current loaded member/grant identities, failure handling and private reads still require final coordinated review.",
+      "next_action": "Audit exact member/student/actor identities and side effects; preserve the recorded chat-history choice and permanently retired links after re-addition; recheck access changes and cached clients under the final package.",
+      "endpoint_count": 8,
+      "status": "review-required"
+    },
+    {
+      "id": "P4",
+      "name": "Personal workflow drafts",
+      "finding": "Current handlers turn failed reads into no draft, save by user/task without loaded revisions, accept an unchecked return path and claim writes without exact returned rows.",
+      "next_action": "Keep drafts private to the actual account; add truthful load/receipt/version handling, safe internal return destinations and account lifetime checks without treating navigation as an access grant.",
+      "endpoint_count": 4,
+      "status": "review-required"
+    }
+  ],
+  "counts": {
+    "endpoints": 52,
+    "modules": 12,
+    "verified_source_components": 10,
+    "review_required": 42
+  },
+  "out_of_scope_but_retained": [
+    "Document/storage/worker/rights/report/PPT provider and generated-output paths retain their separate evidence and Workstreams2/3/4/5/7 gates.",
+    "Organization rosters, public directories, billing/licensing/channel and other platform APIs are not certified by this curated inventory.",
+    "Actual target legacy/consent/retention impact and hosted all-role/demo/mobile acceptance remain open."
+  ],
+  "whole_privacy_review_complete": false,
+  "hosted_verified": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,118 @@
+{
+  "schema": "student-setup-and-recommendation-saves-verified-v1",
+  "date": "2026-11-21",
+  "sql_review_head": "82d2b6177be494aaf062e4d6a7e335d0520a30db",
+  "native_run": {
+    "id": 44936149050,
+    "event": "pull_request",
+    "attempt": 1,
+    "synthetic_merge_commit": "f7b12e3a665858c10c15e19a9100b163e4bab8ff",
+    "conclusion": "success"
+  },
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "d8b70311cfc662999128d4531b39450ee64ddfd4828058d7203c177d701590a8",
+    "fileCount": 1252
+  },
+  "validation": {
+    "unit_tests": 6867,
+    "unit_files": 407,
+    "focused_tests": 101,
+    "readiness_inventory_role_tests": 51,
+    "release_security_tests": 72,
+    "local_database_cases": 27,
+    "native_database_cases": 28,
+    "canonical_migrations": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 14,
+    "inherited_schema_stages": 56,
+    "independently_matched_original_sql_sources": 297,
+    "independently_matched_inherited_manifest_entries": 51,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "source_copy_fingerprint": "exact match"
+  },
+  "scope": {
+    "atomic_student_setup": "one SECURITY INVOKER transaction preserving caller RLS and existing routines; no raw fallback or retry",
+    "native_role_smoke": [
+      "parent",
+      "educator",
+      "student"
+    ],
+    "native_concurrency": "same-request competing insert waits then rejects duplicate without a partial second setup",
+    "calendar_meeting_prep": "exact returned fields; valid follow_up category; upcoming/future/same-student meeting only; held-parent proof still open",
+    "deletion": "143 reachable FK edges,53 direct; actual creator-relationship cascades verified; no external-storage cleanup claim"
+  },
+  "open": [
+    "Cross-refresh uncertain creation recovery",
+    "Coordinated retained/restrictive-record and storage/provider deletion",
+    "Meeting/channel composed transactions and extracted-goal bulk/trusted writers",
+    "Held meeting-parent authority for recommendation prep",
+    "Remaining P1 BridgeForward/list and P2/P3/P4 scopes",
+    "Canonical promotion, authorized staging rollout and hosted acceptance"
+  ],
+  "hosted_changes": false,
+  "production_changes": false,
+  "provider_calls": 0,
+  "files": [
+    {
+      "path": "docs/database-proposals/student-creation-atomicity/create-student.review.sql",
+      "sha256": "b19004bfa832121e318af16d37261c692a1a53178775c021841c168cb7190c9f"
+    },
+    {
+      "path": "tests/database/student-creation-atomicity.test.mjs",
+      "sha256": "326daebe3132ec1aff1a541d447bd0c5d6eafb4d2e8fb5fa7aa8df0bc5be7d17"
+    },
+    {
+      "path": "tests/database/run-student-creation-atomicity-schema.mjs",
+      "sha256": "ce86ed30bb7511321ce142e057eb3cf93d8f657a24be025c0debdba6143cff02"
+    },
+    {
+      "path": ".github/workflows/student-creation-atomicity-review.yml",
+      "sha256": "a0aa930d859b68ea9b68b87410dd5900cd28a8fa7968d451b5692b967447562b"
+    },
+    {
+      "path": "docs/production-readiness/evidence/student-setup-2026-11-21-full-chain.json",
+      "sha256": "1fe78d28513e787d3bfe26918dc778bc2d5b6efc916c48c8cb0fc8beeac52733"
+    },
+    {
+      "path": "docs/production-readiness/evidence/student-setup-2026-11-21-student-deletion-dependencies.json",
+      "sha256": "d6dbd0ecbf40796afc5e2d4b7ea304cda5c16de5aed6d340c73eb313593e8ff0"
+    },
+    {
+      "path": "docs/production-readiness/evidence/student-setup-local-2026-11-21.tap",
+      "sha256": "489aa7f6b12d6afb4443e72de3a104e704f3d816c363638ea0f5514ad10ddd0a"
+    },
+    {
+      "path": "docs/production-readiness/evidence/student-setup-native-2026-11-21.tap",
+      "sha256": "7137e4efa27942bfef9c1813bac1d88e713248cf591a084e8bb96bbdbc4ffb7d"
+    }
+  ],
+  "local_logs": [
+    {
+      "path": "/private/tmp/tf-setup-all-final.log",
+      "sha256": "08d5992f6dac18107404b39ea3987737a9949f9b4377da08a68102d58660a915"
+    },
+    {
+      "path": "/private/tmp/tf-setup-focused-final.log",
+      "sha256": "f919e05fbcf2f664855b6d849b24ff29ee856431e71c8d52acdc7c87c108121a"
+    },
+    {
+      "path": "/private/tmp/tf-setup-contracts.log",
+      "sha256": "4db3b524571dbde4106f820a3403ab4c6476c269669b8eab6a089b169b240506"
+    },
+    {
+      "path": "/private/tmp/tf-setup-release.log",
+      "sha256": "80fe90dc8c86c8c44037417c07f19fdb248ee76ade2b5ae839891c6f6ea92ad8"
+    },
+    {
+      "path": "/private/tmp/tf-setup-tsc-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/tf-setup-isolated-build.log",
+      "sha256": "7e08dce8841915d265e95847a434580cbb383f54becfbfbf8403d7901de27c41"
+    }
+  ]
+}

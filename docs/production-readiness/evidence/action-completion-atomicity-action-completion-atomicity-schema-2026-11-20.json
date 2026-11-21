@@ -1,0 +1,50 @@
+{
+  "schema": "action-completion-atomicity-full-schema-v1",
+  "source_commit": "30024c2d464c9cd54cd557f4f66e38e6d661325a",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 11,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "new_routines": 2,
+  "new_private_revision_helpers": 1,
+  "new_authenticated_only_rpcs": 1,
+  "new_triggers": 1,
+  "all_existing_public_routines_preserved": true,
+  "all_existing_policies_preserved": true,
+  "all_existing_triggers_preserved": true,
+  "all_existing_columns_indexes_constraints_and_table_privileges_preserved": true,
+  "all_existing_action_data_preserved": true,
+  "real_schema_smoke": {
+    "real_auth_student_intake_report_action_feed_tables": true,
+    "authenticated_completion_and_linked_report_marker": true,
+    "no_duplicate_event_on_noop": true,
+    "fictional_transaction_rolled_back": true
+  },
+  "raw_writer_retirement_claimed": false,
+  "whole_p1_complete": false,
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_action_value_proof_sha256": "4c87d058360f10f9e3cebaf01862deb2d31a9453e1b1edf84bb1785034571641",
+  "before_catalog_sha256": "cfe1bebfc1a6dca3c008bfc5743940e4f071b32833d6b12d3039a2db9b85ef91",
+  "after_catalog_sha256": "eecb359048e0db68eba8164ababa61ebfc7190fd091a8c32041eb8bdda9ffdb6",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/action-completion-atomicity/atomic-action-update.review.sql",
+      "sha256": "84f3a0aa467731a37ef194ab3eb47e3dda19226a672001e7cbd5d0c4097822bc"
+    },
+    {
+      "path": "tests/database/action-completion-atomicity.test.mjs",
+      "sha256": "1d6a2ada5b3e52621265f5e99bcd7d30548158f10dba6d1999e709114e2e6834"
+    },
+    {
+      "path": "tests/database/run-action-completion-atomicity-schema.mjs",
+      "sha256": "70a5dbe486a576a5eda9b61b6b5e4fdf13c12fe6164afc6abe2d5c92dd0089c9"
+    },
+    {
+      "path": ".github/workflows/action-completion-atomicity-review.yml",
+      "sha256": "8617bba41f9bd6de76cebff262d701b68e84b397a385bd7458ffc23cb0562412"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

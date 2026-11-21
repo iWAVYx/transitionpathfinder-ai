@@ -1,0 +1,31 @@
+{
+  "schema": "student-lifecycle-source-verification-v1",
+  "source_commit": "613d90459a3028db286bc1b92d416fe034ba861c",
+  "ci_run": 44947295433,
+  "ci_event": "push",
+  "ci_attempt": 1,
+  "draft_sha256": "09774a579fa26b49ba688e3bca5df82fe656fdf8dbc7607e39449c2100af8436",
+  "local_database_cases": 43,
+  "native_database_cases": 47,
+  "unit_tests": 6915,
+  "unit_files": 409,
+  "focused_receipt_tests": 50,
+  "readiness_role_contracts": 51,
+  "release_security_contracts": 72,
+  "typescript": true,
+  "isolated_staging_build": true,
+  "runtime": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "0e485d267b1a092acabd1ce9c1ed108631b82aa1dad202cca86b13855e2b28a2",
+    "fileCount": 1253
+  },
+  "canonical_migrations": 225,
+  "prior_controls": 41,
+  "separate_review_drafts": 16,
+  "hosted_applied": false,
+  "ui_recovery_complete": false,
+  "external_cleanup_complete": false,
+  "whole_workstream_complete": false,
+  "original_sql_identities_matched": 297
+}

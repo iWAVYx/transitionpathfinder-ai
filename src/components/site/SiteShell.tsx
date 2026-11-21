@@ -1,4 +1,6 @@
+import { useNavigationOrigin } from "@/components/navigation/NavigationOriginProvider";
 import type { ReactNode } from "react";
+import { DashboardReturnContext } from "@/components/dashboard/dashboard-return-context";
 import { useLocation } from "@tanstack/react-router";
 import {
   DASHBOARD_TESTID_CONTRACT_VERSION,
@@ -6,6 +8,7 @@ import {
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
 import { SiteHeader } from "./SiteHeader";
+import { MainLandmarkContext } from "./main-landmark-context";
 import { SiteFooter } from "./SiteFooter";
 
 export function SiteShell({
@@ -16,26 +19,29 @@ export function SiteShell({
   dashboardTestId?: RoleDashboardTestId;
 }) {
   const location = useLocation();
+  const origin = useNavigationOrigin();
   const testId = dashboardTestId ?? dashboardTestIdForPath(location.pathname);
 
   return (
-    <div className="flex min-h-dvh flex-col overflow-x-clip bg-background text-foreground">
-      <SiteHeader />
-      <main
-        id="main-content"
-        tabIndex={-1}
-        className={`site-shell-main flex-1 focus:outline-none ${testId && !location.pathname.startsWith("/owner") ? "planning-dashboard" : ""}`}
-        style={{ minHeight: "60vh" }}
-        data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-        data-testid={testId ?? undefined}
-        data-dashboard-role={testId ?? undefined}
-        data-auth-state="ready"
-      >
-        <DashboardMainLandmark pathname={location.pathname} />
-        {children}
-      </main>
-      <SiteFooter />
-    </div>
+    <DashboardReturnContext.Provider value={Boolean(origin) || !location.pathname.startsWith("/demo")}>
+      <div className="flex min-h-dvh flex-col overflow-x-clip bg-background text-foreground">
+        <SiteHeader />
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className={`site-shell-main flex-1 focus:outline-none ${testId && !location.pathname.startsWith("/owner") ? "planning-dashboard" : ""}`}
+          style={{ minHeight: "60vh" }}
+          data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
+          data-testid={testId ?? undefined}
+          data-dashboard-role={testId ?? undefined}
+          data-auth-state="ready"
+        >
+          <DashboardMainLandmark pathname={location.pathname} />
+          <MainLandmarkContext.Provider value={true}>{children}</MainLandmarkContext.Provider>
+        </main>
+        <SiteFooter />
+      </div>
+    </DashboardReturnContext.Provider>
   );
 }
 

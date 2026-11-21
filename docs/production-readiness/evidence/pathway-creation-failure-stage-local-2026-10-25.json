@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-25 America/New_York",
+  "status": "locally implemented and validated; automatic review pending; not deployed and no new AI run authorized",
+  "problem": "Framework transports only Error.message, while the builder replaces details with a friendly uncertain-completion warning. Previous hosted diagnostic proved finished POSTs plus that warning, not which creation stage failed.",
+  "changes": [
+    "Wrap initial Pathway creation failures with validated metadata for intake_save, generation, validation, report_save or response_confirmation. Recognized structured provider status, finish reason, report-schema section names, validation codes and bounded SQLSTATE/PostgREST code only.",
+    "Catch both thrown persistence/transport failures and returned database errors, preserving original write order and no-retry behavior. Server logs for these failures now use the same bounded metadata rather than raw database errors.",
+    "Transmit the metadata through the framework message-only error boundary with a strict parser. Reject unknown/extra/oversized/tampered fields, raw error messages, private output and unknown schema paths.",
+    "Matching Family/Educator builder sessions keep the exact existing friendly warning, saved-report link and answers. Metadata is machine-readable only on the warning element; unknown errors remain null, reset on the next submission and departed viewer results are still ignored.",
+    "The bounded test can record only revalidated metadata before closing its failed context. No response bodies or credentials are added to artifacts."
+  ],
+  "validation": {
+    "focused_tests": 116,
+    "focused_files": 6,
+    "full_unit_tests": 4677,
+    "unit_files": 325,
+    "typescript": "passed",
+    "actual_sdk_contract": "mock HTTP only; invalid output survives message-only transport as a safe validation-stage packet",
+    "staging_build": "passed under bundled Node; service-worker generation passed",
+    "live_calls": 0,
+    "fixtures": 0
+  },
+  "candidate_runtime": {
+    "fingerprint": "06dbf4c67dc2ca7337a1197d26859082bb7d66a8f46264d79eed747f8c0b1c28",
+    "file_count": 1189
+  },
+  "deployed_runtime_unchanged": {
+    "app_commit": "b49880daffc199c41ce0dc8389334f695d1ec10a",
+    "fingerprint": "2e4d4362b11d4982db68b8922262d0db952f5fad1e852af3116746472db56b7c",
+    "file_count": 1188
+  },
+  "limitations": [
+    "Observability correction only: the historical hosted error cause and successful current-source Pathway generation remain unproven.",
+    "Unknown exceptions outside the covered creation stages remain unknown; metadata never supplies guessed causes.",
+    "No generation schema, model, action count, retry budget, ownership, entitlement or access grants changed. Demo has no provider failure transport; its visible sample layout/text is unchanged."
+  ],
+  "next": "Complete automatic review; prepare a concrete separately authorized staging rollout and bounded Pathway acceptance, with exact cleanup and independent absence checks. No automatic release or AI retry.",
+  "retained": "All TF-01\u2013TF-26/six milestones, remaining generator/applicable-role/document/IEP and production/privacy/security/operations gates; report polish and Parent Pilot/Pathway Snapshot deferred; production untouched."
+}

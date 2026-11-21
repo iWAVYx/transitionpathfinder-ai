@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-26 America/New_York",
+  "status": "local correction validated; not deployed; no live readiness acceptance",
+  "issue": "Shared ReadinessInsightsCard retains completed data and hasGenerated across student changes; old requests can update a new student/viewer context.",
+  "changes": [
+    "Key shared card session to authenticated viewer and student; clear results immediately on identity change and hide while authentication loads or is absent",
+    "Ignore departed completion/errors; prevent simultaneous duplicate actions and Strict Mode mount replay duplicates; retain existing once-per-session automatic generation and explicit refresh/retry",
+    "Use authenticated server-function adapter and reject mismatching optional expected_viewer_id before any source queries or provider call; existing RLS remains authoritative",
+    "Keep current errors generic and describe available planning information without claiming an IEP was reviewed"
+  ],
+  "coverage": {
+    "shared_consumer": "src/components/students/StudentPlanningTools.tsx",
+    "applicability": "Every existing authorized student-planning reader using this shared card; no new role/access grants",
+    "owner": "Management-only policy unchanged",
+    "demo": "No mock provider request or new demo control; no layout/document format change"
+  },
+  "validation": {
+    "focused_tests": 10,
+    "full_unit_tests": 4687,
+    "unit_files": 327,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "service_worker": "passed",
+    "live_ai_calls": 0,
+    "hosted_fixtures": 0
+  },
+  "candidate_runtime": {
+    "fingerprint": "98e3ed4f212165457bf98c6124aeb2ae0d0bfdd1138d6e0a3f62a2032b7e96f9",
+    "file_count": 1189
+  },
+  "remaining": [
+    "Readiness source queries currently discard errors: distinguish unavailable sources before AI rather than treating failure as no records",
+    "Validate recorded readiness scores, source labels and model-generated pillar scores/status against actual inputs; do not infer an assessed level from missing data",
+    "Separate applicable-role live readiness acceptance and remaining IEP/document/translation/evidence generator inventory",
+    "Original intermittent Pathway cause remains unproven; previous current-source Family/Educator functional acceptance remains passed"
+  ],
+  "authorization_boundary": "No deployment/publication/migration, hosted fixture/provider call, production/main merge, account/access, payment or secret changes. Separate concrete release/live-test approval required after review.",
+  "preserved": "TF-01\u2013TF-26/six milestones; deferred report polish and Parent Pilot/Pathway Snapshot; Lovable title-case widget edit"
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "document-grant-lifecycle-full-schema-v1",
+  "source_commit": "d11a1c1e7cc826c4bc90b3f35e6fc67e2089fdae",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 5,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "unrelated_routines_and_patched_metadata_preserved": true,
+  "existing_policies_preserved": true,
+  "new_restrictive_policies": 2,
+  "new_private_routines": 4,
+  "new_lifecycle_triggers": 6,
+  "all_table_permissions_preserved": true,
+  "unrelated_triggers_indexes_and_data_preserved": true,
+  "legacy_rows_retained_and_retired": 0,
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_summary_scope_proof_sha256": "23b0e5dca1bb50bcf25e1ebeb985af31b0f3714b01a95fc484f069d94c10e43b",
+  "before_catalog_sha256": "04d58cc3fffb9946053159fa041985fcaa5654a73c7e46ad487fc0cfef9635d5",
+  "after_catalog_sha256": "2d0fd69d22b4519215005abb8e30844ff2061d2ffaf6887fcc47c0b2a9f3a3fb",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-grant-lifecycle/retire-document-grants.review.sql",
+      "sha256": "48bde74faf84d99be3a2beb5c4f6e8dcb2c83a4349f1a5f7a20bb238795ce2fe"
+    },
+    {
+      "path": "tests/database/document-grant-lifecycle.test.mjs",
+      "sha256": "d20fb9527a0dbc8a5b0860e99d342d249f0687ed7144dcda6067f3715a751079"
+    },
+    {
+      "path": "tests/database/run-document-grant-lifecycle-schema.mjs",
+      "sha256": "a34087d727b306bf285b8c7e8ced18b00fe3e0aae79493170dcf8cfc4a05060f"
+    },
+    {
+      "path": ".github/workflows/document-grant-lifecycle-review.yml",
+      "sha256": "ab2c70a5ce65347191992f2a4e20a4b9d057155c5d7f9a7c07cd9f0b9b78e60f"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

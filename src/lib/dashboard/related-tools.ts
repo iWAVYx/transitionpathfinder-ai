@@ -7,6 +7,8 @@ export const RELATED_TOOLS: Record<string, RelatedTool[]> = {
       to: "/family/priorities",
       demoTo: "/demo/workspace/family?role=family",
     },
+  ],
+  "family:pathway-report": [
     { label: "Goals & Progress", to: "/goals", demoTo: "/demo/plan?role=family" },
   ],
   "family:documents": [
@@ -23,7 +25,7 @@ export const RELATED_TOOLS: Record<string, RelatedTool[]> = {
     { label: "Goals & Progress", to: "/goals", demoTo: "/demo/plan?role=educator" },
   ],
   "educator:pathway-reports": [
-    { label: "Start Pathway Builder", to: "/pathway", demoTo: "/demo/intake" },
+    { label: "Start Pathway Builder", to: "/pathway", demoTo: "/demo/intake?role=educator" },
   ],
   "educator:calendar": [
     { label: "PPT Meeting Prep", to: "/ppt-prep", demoTo: "/demo/feature/educator/meeting-prep" },

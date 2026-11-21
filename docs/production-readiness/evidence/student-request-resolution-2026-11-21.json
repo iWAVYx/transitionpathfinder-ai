@@ -1,0 +1,91 @@
+{
+  "schema": "student-request-resolution-verification-v1",
+  "source_parent": "7bef8ddca42e8a2953422c8592fb864ca460486d",
+  "sql_source_commit": "ceb9e9895bd3996c62c976d476c4e072113333a6",
+  "local_database_cases": 80,
+  "focused_tests": 125,
+  "full_unit_tests": 6985,
+  "full_unit_files": 413,
+  "hosted_verified": false,
+  "whole_workstream_complete": false,
+  "external_cleanup_complete": false,
+  "self_profile_resolution_complete": false,
+  "ready_for_cutover": false,
+  "ci": {
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "ceb9e9895bd3996c62c976d476c4e072113333a6",
+    "id": 44955869841,
+    "run_attempt": 1,
+    "status": "completed"
+  },
+  "native_database_cases": 91,
+  "full_schema": {
+    "canonical": 225,
+    "prior_controls": 41,
+    "separate_drafts": 17
+  },
+  "original_sql_identities_matched": 297,
+  "readiness_role_contracts": 51,
+  "release_security_contracts": 72,
+  "local_browser_cases": 1,
+  "typescript": true,
+  "isolated_staging_build": true,
+  "runtime": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "85bb2818bd4f90e4cb950645e8210eed8e420fcad73235f90d13540f9d6f2034",
+    "fileCount": 1256
+  },
+  "draft_sha256": "4b267abb3e3313bf1d5706d17c8010ab1dd9849fdf5d6a69d0e23b373376ef26",
+  "verified_sources": [
+    {
+      "path": "src/lib/student-lifecycle.server.ts",
+      "sha256": "4d79260698ce4e83cc8367ca45b0be3c51d2ccd01dba1de39796382dd9190f22"
+    },
+    {
+      "path": "src/lib/students.functions.ts",
+      "sha256": "9112c4d6cf794f80d525da1a6fa98bb77419aff11630afb48efab76da5e57a8b"
+    },
+    {
+      "path": "src/hooks/use-student-creation-recovery.ts",
+      "sha256": "e722d4cd3964678295cd76b147ec248612ebaccf4e6904281f544913513fdc42"
+    },
+    {
+      "path": "src/components/StudentCreationRecovery.tsx",
+      "sha256": "b55c635cc6443c8047f18c416fc7bfeb9b44e02853c03f23e644535ea69a52e0"
+    },
+    {
+      "path": "src/routes/_authenticated/students.index.tsx",
+      "sha256": "2e18c974c04d57ff4b3e669659a60b2c921427a216dac77a25166144389d573d"
+    },
+    {
+      "path": "src/routes/_authenticated/onboarding.tsx",
+      "sha256": "539eb83085a8935211b4ba070c27077df3b5dcb31896c8cac8ddbc9290e2209c"
+    },
+    {
+      "path": "tests/unit/student-request-closure-api.test.ts",
+      "sha256": "d4174776823ae091c7ac8a5589f0e9e300b3521a8a440b6636f62e16815d7fc1"
+    },
+    {
+      "path": "tests/unit/student-lifecycle-receipts.test.ts",
+      "sha256": "534e0525f4b324221cbdaf31773caf509dd223b13390939bbcd6d240bf91bac1"
+    },
+    {
+      "path": "tests/unit/student-lifecycle-page.test.tsx",
+      "sha256": "1b8f5596eeeec8b3554daf04608f7125f9e14fc72dd564f99da8d3ec95b7c898"
+    },
+    {
+      "path": "tests/unit/onboarding-creation-recovery.test.tsx",
+      "sha256": "b2616919c28f32b5c62f98087445432c4f5aa1659a1c41b065e864a77e510f7c"
+    },
+    {
+      "path": "tests/database/student-request-resolution.test.mjs",
+      "sha256": "8cb653039915223497c7e8a12c694b3a09b76fa3900a55c0a469f7ebe20d5a1e"
+    },
+    {
+      "path": "tests/database/run-student-request-resolution-schema.mjs",
+      "sha256": "6e0bb5e02b856fc30fb1185a638dbb64cefc6d0816041b63781677661d3f398a"
+    }
+  ]
+}

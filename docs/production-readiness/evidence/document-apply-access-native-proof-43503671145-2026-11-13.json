@@ -1,0 +1,18 @@
+{
+  "schema": "document-apply-access-native-proof-v1",
+  "source_commit": "406d0ba9dc0973ec4c3b1803947b51ea50e42508",
+  "tests": 28,
+  "passed": 28,
+  "failed": 0,
+  "skipped": 0,
+  "native": true,
+  "test_sha256": "25fce36151607f88676d81d32deceae46c9b5a55775c08c627d2e8cadcdab8f8",
+  "cases_sha256": "d790777bb303ead976acf56110321e5d48f2c2f9f6aaa5b4ae72cff78aec69d2",
+  "shared_fixture_sha256": "85947aaad7a32c4f120299cfdb0ab2e834605083745f14922a54c82606ef9e62",
+  "core_fixture_sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a",
+  "handler_sha256": "4e35e0778e5358486ffc6e51be5f5bd87f16ac48f7c37fd0e0236cea5ee47700",
+  "provider_calls": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false,
+  "log_sha256": "20eb5cc75e6de64c9434e97c252b9d512cd297ea199941c0d1b59ab94a972327"
+}

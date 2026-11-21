@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-25 America/New_York",
+  "run_id": 40252805605,
+  "test_revision": "7ef035d10a17ffda964a3f7d3e80cc45aec566aa",
+  "application_revision": "b49880daffc199c41ce0dc8389334f695d1ec10a",
+  "authorization": "One bounded Pathway diagnostic repeat explicitly authorized; GitHub human staging review recorded. No PPT repeat or deployment.",
+  "review": "All eight automatic checks passed; 4,657 unit tests across 323 files, TypeScript and offline browser discovery passed.",
+  "result": "Family stopped in initial generation; Educator skipped. Zero test retries. No regeneration/history/PDF/screenshot export reached.",
+  "diagnostics": {
+    "phase": "initial-generation",
+    "databaseErrorCode": null,
+    "operationPending": true,
+    "primaryFailurePreserved": true,
+    "primaryFailureKind": "timeout",
+    "failedPostStatuses": [],
+    "failedPostRequests": 0,
+    "reconciliationRequired": true
+  },
+  "interpretation": "Browser wait timed out. No failed same-origin POST status or transport failure was recorded. Successful/serialized-error 2xx responses were not classified by this observer, so no inference of successful application completion or a specific provider/schema cause is valid.",
+  "discovery": {
+    "intakes": [
+      {
+        "id": "f67b8acd-6b9a-45ae-aa1d-6b9b622fb8b2",
+        "user_id": "fee1b881-8d46-4375-949a-db15487af9dc",
+        "created_at": "2026-10-26T01:12:34.355889+00:00",
+        "student_id": "bc752170-2f94-43f5-9eb1-8a427b8e1a07",
+        "submitter_role": "family",
+        "student_first_name": "QA Pathway Creator 40252805605-1 parent"
+      }
+    ],
+    "reports": [],
+    "student": {
+      "id": "bc752170-2f94-43f5-9eb1-8a427b8e1a07",
+      "notes": "QA Pathway Creator 40252805605-1 parent",
+      "is_demo": true,
+      "owner_id": "fee1b881-8d46-4375-949a-db15487af9dc",
+      "last_name": "Synthetic",
+      "created_at": "2026-10-26T01:12:27.330412+00:00",
+      "first_name": "QA Pathway Creator 40252805605-1 parent",
+      "student_user_id": null
+    },
+    "operator": "postgres",
+    "read_only": "on",
+    "observed_at": "2026-10-26T01:18:13.376752+00:00"
+  },
+  "cleanup": "Guarded trusted transaction locked and validated exact owner/UUID/marker/demo/intake identity, required no related rows, and deleted only one disposable intake and one synthetic student. No report was found. Independent subsequent table-owner read-only verification returned all counts zero.",
+  "independent_cleanup": {
+    "operator": "postgres",
+    "read_only": "on",
+    "edge_count": 0,
+    "run_marker": "QA Pathway Creator 40252805605-1 parent",
+    "goals_count": 0,
+    "observed_at": "2026-10-26T01:19:57.528477+00:00",
+    "share_count": 0,
+    "intake_count": 0,
+    "report_count": 0,
+    "student_count": 0,
+    "version_count": 0,
+    "documents_count": 0,
+    "action_items_count": 0,
+    "evidence_items_count": 0,
+    "readiness_scores_count": 0,
+    "ppt_meeting_preps_count": 0,
+    "student_guardians_count": 0,
+    "document_extractions_count": 0,
+    "student_team_members_count": 0,
+    "report_evidence_links_count": 0,
+    "student_collaborators_count": 0,
+    "student_relationships_count": 0,
+    "student_saved_partners_count": 0,
+    "student_voice_responses_count": 0,
+    "student_opportunity_matches_count": 0,
+    "student_resource_recommendations_count": 0
+  },
+  "provider_limit": "At most one initial application generation action reached; actual model completion, retries and billing remain unobserved. No automatic repeat.",
+  "next": "Improve offline/test-only observation of completion-error UI state and successful-versus-error transport metadata before considering another separately authorized run. Original cause remains open; no speculative runtime patch.",
+  "retained": "PPT functional acceptance and wording caveats; full TF-01\u2013TF-26/six milestones; deferred report length/cosmetics and Parent Pilot/Pathway Snapshot; no production/main merge, migration, accounts/relationships/shares, payments or secret changes."
+}

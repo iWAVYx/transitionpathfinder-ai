@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-06",
+  "workstream_action": "2.6",
+  "scope": "Observed GitHub native step success; final raw artifacts/full-schema acceptance not yet retained",
+  "run": 42280730660,
+  "head_source": "191c6f47123cd103acd74a2feda39bf7a5ebee8c",
+  "job_id": 128108685817,
+  "steps": [
+    {
+      "name": "Test atomic text review saves without hosted credentials",
+      "conclusion": "success",
+      "completedAt": "2026-11-06T19:35:48Z"
+    },
+    {
+      "name": "Test atomic text review saves in disposable PostgreSQL",
+      "conclusion": "success",
+      "completedAt": "2026-11-06T19:35:49Z"
+    }
+  ],
+  "native_cases": 31,
+  "passed": 31,
+  "failed": 0,
+  "skipped": 0,
+  "native_cross_session_cases": 6,
+  "basis": "Successful native workflow step includes strict assertions for31 tests,31 pass,zero failures/skips and writes source/test/SQL/log hashes. This observation is not an independently validated raw artifact.",
+  "job_snapshot_sha256": "b4cfdc36ae52b37d8d77f09d00e825515beb2c6cd8f070b698286939424b26cd",
+  "raw_native_artifact_validated": false,
+  "full225_plus31_schema_verified": false,
+  "full_workflow_verified": false,
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

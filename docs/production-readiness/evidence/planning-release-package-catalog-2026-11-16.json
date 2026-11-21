@@ -1,0 +1,906 @@
+{
+  "schema": "planning-review-package-catalog-v1",
+  "source_commit": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
+  "canonical_count": 225,
+  "prior_control_drafts": 41,
+  "separate_review_drafts": 9,
+  "preserved_inherited_stages": 56,
+  "native_full_chain_installed": true,
+  "baseline_snapshot_before_first_separate_draft": true,
+  "all_unrelated_routines_preserved": true,
+  "added_routines": [
+    {
+      "oid": "23538",
+      "name": "enforce_document_permission_parent",
+      "signature": "public.enforce_document_permission_parent()",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "d02231bb007f3bea8c38a8f63004d57e",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "2c3f890b8010258ca980affbd70b41058eb1172cd9c36f64e0de03586d4645e4"
+    },
+    {
+      "oid": "23547",
+      "name": "read_reviewed_student_document_summaries",
+      "signature": "public.read_reviewed_student_document_summaries(uuid, uuid, uuid, timestamp with time zone, timestamp with time zone)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": "NULL::uuid, NULL::timestamp with time zone, NULL::timestamp with time zone",
+      "return_type": "TABLE(document_id uuid, student_id uuid, document_title text, doc_type text, created_at timestamp with time zone, document_updated_at timestamp with time zone, extraction_updated_at timestamp with time zone, summary_ready boolean, sections jsonb)",
+      "body_md5": "037e20b6141d406e5551d098226cdfef",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "7e7a37e32a77926b41a7f80b12a9a15cc6904ed6fb11f34fb18ed8c3873074f7"
+    },
+    {
+      "oid": "23551",
+      "name": "lock_internal_document_grant_recipient",
+      "signature": "public.lock_internal_document_grant_recipient(uuid, uuid)",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "void",
+      "body_md5": "3a43f15f80f82c44a4b217a06172efa2",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "e4fa9e5c1526c26ded23f94698085a050d896f346f79a10b8d141340a0649211"
+    },
+    {
+      "oid": "23552",
+      "name": "guard_document_grant_lifecycle",
+      "signature": "public.guard_document_grant_lifecycle()",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "ed92e7c6172caf48b4036e66f53e4350",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "b89cdc36945ef7e669d06f665481c967525a054a09604405947da5e4b626596f"
+    },
+    {
+      "oid": "23554",
+      "name": "retire_internal_document_grants",
+      "signature": "public.retire_internal_document_grants(uuid, uuid, uuid)",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": "NULL::uuid",
+      "return_type": "void",
+      "body_md5": "35f31b95cb76cfe28b1516e23d1ae91b",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "b893828f055ebbf52472bc14529963271a21699af084d3a325f18dfdb685e9a9"
+    },
+    {
+      "oid": "23555",
+      "name": "retire_document_grants_after_access_change",
+      "signature": "public.retire_document_grants_after_access_change()",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "90c82144c17b6f6013c7f0834d043c2d",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "7606bbe8b55986e6024e1c43650bee5d1a98dab865a5970e330ecc34be81d654"
+    },
+    {
+      "oid": "23563",
+      "name": "document_visibility_allows",
+      "signature": "public.document_visibility_allows(uuid, uuid)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "boolean",
+      "body_md5": "78b6f30aee45ce4ce8ae1dfac692195e",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "82763c61d594dff4b04e447b2beb532a00d28cce41403d02899a82a7b40308ff"
+    },
+    {
+      "oid": "23566",
+      "name": "guard_document_visibility_identity",
+      "signature": "public.guard_document_visibility_identity()",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "6dbca6a2dc3bb7729c619b51ef494ead",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "0e45e919d4b7c608e2dcd3c6dcd4e6151a38c99441a420f35679231bfe5b867b"
+    },
+    {
+      "oid": "23569",
+      "name": "may_delete_unregistered_student_document",
+      "signature": "public.may_delete_unregistered_student_document(text)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "boolean",
+      "body_md5": "b9093d4b9b0c4feeb2523dda058c476b",
+      "public_execute": false,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "5e0f2e97284b6fcbac555fd5793e94a98755b915b648b78e299314aa50ba3a0e"
+    },
+    {
+      "oid": "23571",
+      "name": "guard_registered_student_document_delete",
+      "signature": "public.guard_registered_student_document_delete()",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "d18f514f6fe4b8109cff3ed53c496dca",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "1486e89cc694ec880b3ace2b48c6b50ccf06d889a57b91dc4d72a9e040844d1d"
+    },
+    {
+      "oid": "23607",
+      "name": "internal_rights_review_payload",
+      "signature": "public.internal_rights_review_payload(rights_transfer_status)",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "i",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "jsonb",
+      "body_md5": "b71948a2ecbb5b3f1f2880f60fbc5972",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "34d64c7c4d3cf0ae89048bb540dfa927c37420297e7262faec1a43d941890cae"
+    },
+    {
+      "oid": "23608",
+      "name": "guard_rights_review_history",
+      "signature": "public.guard_rights_review_history()",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "ab2330d9cf34000f8fc558d63cc78d09",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "d2a2cff5ec396a0ae0ceb91b4040a01641cf81721e164825ac378c16832c9ab7"
+    },
+    {
+      "oid": "23610",
+      "name": "guard_student_rights_review",
+      "signature": "public.guard_student_rights_review()",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "4e321fb89a17ad40917e4c33ee617ed0",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "a69a2872e1c08c949f1cd228f7a94245bd0d34b4596e3f06dba2479c2b6298ef"
+    },
+    {
+      "oid": "23616",
+      "name": "read_student_rights_review",
+      "signature": "public.read_student_rights_review(uuid, uuid)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "jsonb",
+      "body_md5": "825d938f60c39d74214b394de6f1c8a5",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "faaddffc54c647e20c3b96a8ab9e0bc7132057addacd53eab14ff3ece2f97126"
+    },
+    {
+      "oid": "23617",
+      "name": "save_student_rights_review",
+      "signature": "public.save_student_rights_review(uuid, uuid, uuid, uuid, jsonb)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "jsonb",
+      "body_md5": "f6a10b50877c878f2131cef4a6fa03bd",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "e2e268a45f75fc5a174306f35db28f3ada7d12256a197659c378771f878b4f9e"
+    },
+    {
+      "oid": "23621",
+      "name": "guard_roadmap_progress_write",
+      "signature": "public.guard_roadmap_progress_write()",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "3c6c0f45f9aeb2635716ee4a16178398",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "1747d7b803617369e605cb6c44d58705e3aa98bb0f3f0cd3cf52b3a5ffeae1e7"
+    },
+    {
+      "oid": "23627",
+      "name": "read_student_roadmap_progress",
+      "signature": "public.read_student_roadmap_progress(uuid, text, uuid)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "jsonb",
+      "body_md5": "252a54313c3aec33fcfc889b2e6cce88",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "94a582343a498a0a3d989b75ef5812fd7d655e0a1f87f4ce931cfebf6a03dcc7"
+    },
+    {
+      "oid": "23628",
+      "name": "save_student_roadmap_progress",
+      "signature": "public.save_student_roadmap_progress(uuid, text, uuid, integer, boolean, text, uuid, timestamp with time zone)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "jsonb",
+      "body_md5": "cf6a1c433e11b482f421f7b886f518ea",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "680be8ef576ad2269e20466f964bfb8e0348876f08cd6fa6cf580e10c45c721a"
+    },
+    {
+      "oid": "23633",
+      "name": "guard_goal_progress_identity",
+      "signature": "public.guard_goal_progress_identity()",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "123133493c666f967f4cca527ca62367",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "04eaf46059ca77da43f332859227793ba58a7a9daf2d536950f91b23ebc0b417"
+    },
+    {
+      "oid": "23635",
+      "name": "can_read_report_goal_progress",
+      "signature": "public.can_read_report_goal_progress(uuid, uuid)",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "boolean",
+      "body_md5": "790ed345f63836a74bd393366ae76bc2",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "649b8f4a855766a374151dde627f2af0dbfcd29b6f933a31ced8e3a428ade1ca"
+    },
+    {
+      "oid": "23636",
+      "name": "summarize_own_report_goal_progress",
+      "signature": "public.summarize_own_report_goal_progress(uuid[], uuid)",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "jsonb",
+      "body_md5": "defcd8c63948d70896b211e295f59858",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "e6d54ce80b1ed1153785fe56b0e6f50f0813cf6a63e435bf9eba73db5617ffa1"
+    },
+    {
+      "oid": "23656",
+      "name": "guard_student_voice_answer",
+      "signature": "public.guard_student_voice_answer()",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "trigger",
+      "body_md5": "866049a6947e0a7fdf5a68bd971dee0b",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "9ae4f5e2f586a045a99fc9c4189efc89f8a7559e0b0b2444dd4dfdae294fd532"
+    },
+    {
+      "oid": "23662",
+      "name": "read_student_voice_answers",
+      "signature": "public.read_student_voice_answers(uuid, uuid)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "jsonb",
+      "body_md5": "8e439f312adf4b6ce18085d601469769",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "4274d256573b6c7709649a33c71c24bdeff9bfea2e5065c5fc54962934160902"
+    },
+    {
+      "oid": "23663",
+      "name": "save_student_voice_answer",
+      "signature": "public.save_student_voice_answer(uuid, uuid, text, text, text, uuid, timestamp with time zone)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "v",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "jsonb",
+      "body_md5": "14229feff90039e451e9fdd4c816d3b0",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": false,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "2ae0694cd8d96962687c2b77e5682ff53dcd5adb6b12f844c6ba6a2ad226368b"
+    }
+  ],
+  "changed_existing_routines": [
+    {
+      "oid": "19621",
+      "name": "can_view_document",
+      "signature": "public.can_view_document(uuid, uuid)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "s",
+      "settings": [
+        "search_path=public"
+      ],
+      "argument_defaults": null,
+      "return_type": "boolean",
+      "body_md5": "ec4b841150682d800ca581881c800b9f",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "0be71515176f47f0dad7af7c2c8fdcc31cdc7932cd040ab589d42cfff6129ee6"
+    },
+    {
+      "oid": "20620",
+      "name": "has_recent_admin_doc_access",
+      "signature": "public.has_recent_admin_doc_access(uuid, uuid)",
+      "owner": "postgres",
+      "security_definer": false,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "boolean",
+      "body_md5": "f32dc3ad207caca1c3494d1784d0b919",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "04c1a7e5d4f1ca1893936d37e00a9ca14bf923ba239aa2bd03a9c5ccb3228155"
+    },
+    {
+      "oid": "20621",
+      "name": "storage_can_read_student_doc",
+      "signature": "public.storage_can_read_student_doc(uuid, text)",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "s",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "argument_defaults": null,
+      "return_type": "boolean",
+      "body_md5": "dd10685db5e204f9d88dc188ad2638d4",
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "definition_sha256": "6429d8f447a6bce356083249468d52cee2aeaa9c78d6c6f17dfaff5a35d85670"
+    }
+  ],
+  "removed_routines": [],
+  "unchanged_routine_count": 272,
+  "authenticated_only_rpcs": [
+    "read_reviewed_student_document_summaries",
+    "read_student_rights_review",
+    "save_student_rights_review",
+    "read_student_roadmap_progress",
+    "save_student_roadmap_progress",
+    "can_read_report_goal_progress",
+    "summarize_own_report_goal_progress",
+    "read_student_voice_answers",
+    "save_student_voice_answer"
+  ],
+  "anonymous_actor_scoped_cleanup_predicates": [
+    "may_delete_unregistered_student_document"
+  ],
+  "private_new_helpers": [
+    "public.enforce_document_permission_parent()",
+    "public.lock_internal_document_grant_recipient(uuid, uuid)",
+    "public.guard_document_grant_lifecycle()",
+    "public.retire_internal_document_grants(uuid, uuid, uuid)",
+    "public.retire_document_grants_after_access_change()",
+    "public.document_visibility_allows(uuid, uuid)",
+    "public.guard_document_visibility_identity()",
+    "public.guard_registered_student_document_delete()",
+    "public.internal_rights_review_payload(rights_transfer_status)",
+    "public.guard_rights_review_history()",
+    "public.guard_student_rights_review()",
+    "public.guard_roadmap_progress_write()",
+    "public.guard_goal_progress_identity()",
+    "public.guard_student_voice_answer()"
+  ],
+  "retired_helper_not_a_read_grant": "has_recent_admin_doc_access",
+  "draft_order": [
+    {
+      "order": 1,
+      "path": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
+      "sha256": "2e6302818b3cb4af98b9fec9614f8538659d6ec9ab9c6c15b8df2faa7b4ff079"
+    },
+    {
+      "order": 2,
+      "path": "docs/database-proposals/document-permission-parent/bind-document-permission-parent.review.sql",
+      "sha256": "ea25ac327c157169eb90b5a03d39dd3297f4051b2e71dfbf4712eb65c6e5bb21"
+    },
+    {
+      "order": 3,
+      "path": "docs/database-proposals/document-original-access/restrict-original-file-grants.review.sql",
+      "sha256": "8ecdce7ae2eff1122281de91dc6a5e6be2a123998d4d86af51d8c46506fbe109"
+    },
+    {
+      "order": 4,
+      "path": "docs/database-proposals/document-summary-scope/separate-reviewed-summary-access.review.sql",
+      "sha256": "2cfc905c944941420e2bdcdf540e6cfe7ab9fb21cfac6d545b4928369d589aad"
+    },
+    {
+      "order": 5,
+      "path": "docs/database-proposals/document-grant-lifecycle/retire-document-grants.review.sql",
+      "sha256": "48bde74faf84d99be3a2beb5c4f6e8dcb2c83a4349f1a5f7a20bb238795ce2fe"
+    },
+    {
+      "order": 6,
+      "path": "docs/database-proposals/document-legacy-privacy/restrict-legacy-document-visibility.review.sql",
+      "sha256": "523dfb4db8f475fa2e496ddad23be650591f23b27308f9b7d37fe53d1b7bba9a"
+    },
+    {
+      "order": 7,
+      "path": "docs/database-proposals/rights-status-consistency/atomic-rights-review.review.sql",
+      "sha256": "4937ccb7464a01efdbcdc2144bf46a3119179e676a961de93a6f2e4dd89ebc53"
+    },
+    {
+      "order": 8,
+      "path": "docs/database-proposals/progress-access-consistency/guard-progress-access.review.sql",
+      "sha256": "330ebd618f9280b5d635c1d67d2883d424b1a1885183009e58ce6319e072b1bd"
+    },
+    {
+      "order": 9,
+      "path": "docs/database-proposals/student-voice-consistency/guard-student-voice.review.sql",
+      "sha256": "72bdeec65e2cb14092553b816d6500069880fbd332e39ce5fbcad3bf01ea1d8c"
+    }
+  ],
+  "prior_nine_draft_proof_sha256": "081b18f66dde494393e987eaddaa50f0828a03bcfa47129f67d0281b2c87af5a",
+  "before_catalog_sha256": "208e5caf3e1d461f5153526a4972f417d6ef78b04ccf87a27ebb8033abf68722",
+  "after_catalog_sha256": "5cb933a17c3a8c1d7c71c204c0f7804f7ec5dd75e5424039150a187b8ce1aa1a",
+  "source_manifest": [
+    {
+      "path": "tests/database/planning-review-package-catalog.mjs",
+      "sha256": "69c3151c461edff09990443760d806497946fe250d7cff0089af16be161b8ae9"
+    },
+    {
+      "path": "tests/database/run-planning-review-package-base.mjs",
+      "sha256": "73f35bd3d1feaa0b0fa6893a17857b0e42f7182df0cbe33899663ba56dec225c"
+    },
+    {
+      "path": ".github/workflows/planning-release-package-review.yml",
+      "sha256": "1dd9408d11cc9dc3674772448e5986188cf8413ba53d3582266ffe9ef7e61dc2"
+    }
+  ],
+  "status": "catalog-captured-for-release-review-not-promoted",
+  "routine_approval_granted": false,
+  "canonical_or_ledger_promoted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

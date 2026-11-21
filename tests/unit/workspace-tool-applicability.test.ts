@@ -66,7 +66,7 @@ function dashboardDestinations(source: string): Set<string> {
 describe("role tools connect to the role's existing dashboard", () => {
   it("dedicated previews use selected-student reports and never unrelated candidate panels", () => {
     const source = read("routes/demo_.feature.$role.$slug.tsx");
-    expect(source).toContain("renderRichModule(demoRole, slug, profileId)");
+    expect(source).toContain("renderRichModule(demoRole, slug, profileId, calendarEvents)");
     expect(source).toContain('profile={getDemoProfile(profileId)} audience="student"');
     expect(source).toContain('profile={getDemoProfile(profileId)} audience="family"');
     for (const unrelated of [

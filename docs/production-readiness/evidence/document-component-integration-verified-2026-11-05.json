@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-05",
+  "head_source": "e05e666d154dc2065a414b7c7a6b8b94cb79a39e",
+  "status": "Component implementation plus focused-native/full-schema verified; cumulative acceptance pending",
+  "completed_component_actions": [
+    "1.2",
+    "1.3",
+    "1.4",
+    "1.5"
+  ],
+  "completion_scope": "Implementation and affected focused native/full-schema verification in disposable databases. Hosted Storage/provider acceptance and final cumulative acceptance are not covered.",
+  "runs": [
+    {
+      "run": 41987653301,
+      "event": "pull_request",
+      "checkout_commit": "6884163ca9279cfd08ade9e0e9b10b87c985a620",
+      "replay_job": "success",
+      "focused_native": {
+        "tests": 174,
+        "passed": 174,
+        "failed": 0,
+        "skipped": 0
+      },
+      "complete_local_model": {
+        "tests": 1560,
+        "pass": 1384,
+        "fail": 0,
+        "skipped": 176
+      },
+      "canonical_migrations": 225,
+      "ordered_proposals": 19,
+      "verification_appendix_drafts": 5,
+      "proofs": [
+        {
+          "path": "docs/production-readiness/evidence/document-registration-integrated-proof-41987653301-2026-11-05.json",
+          "sha256": "4d3773de56443de061108a9e1cb9a2d72d8717007572f5ea2e9625361b171bcd"
+        },
+        {
+          "path": "docs/production-readiness/evidence/document-rescan-automatic-release-proof-41987653301-2026-11-05.json",
+          "sha256": "119c7aab8cacd8960b4141882e5ebcaea187283450887eb574039a15a253f317"
+        },
+        {
+          "path": "docs/production-readiness/evidence/document-apply-integrated-proof-41987653301-2026-11-05.json",
+          "sha256": "845fcbcd2825ffa4e5f702b87dbad046f040ecc70ba1a1813aaa6e7a5cf294ac"
+        }
+      ],
+      "replay_log_sha256": "400d23b6c601e8155da21f9209b4f67eba987c3e0f191fa01751dcb60cc0c68a",
+      "separate_complete_native_job": "pending_at_observation"
+    },
+    {
+      "run": 41987644261,
+      "event": "push",
+      "checkout_commit": "e05e666d154dc2065a414b7c7a6b8b94cb79a39e",
+      "replay_job": "success",
+      "focused_native": {
+        "tests": 174,
+        "passed": 174,
+        "failed": 0,
+        "skipped": 0
+      },
+      "complete_local_model": {
+        "tests": 1560,
+        "pass": 1384,
+        "fail": 0,
+        "skipped": 176
+      },
+      "canonical_migrations": 225,
+      "ordered_proposals": 19,
+      "verification_appendix_drafts": 5,
+      "proofs": [
+        {
+          "path": "docs/production-readiness/evidence/document-registration-integrated-proof-41987644261-2026-11-05.json",
+          "sha256": "4d3773de56443de061108a9e1cb9a2d72d8717007572f5ea2e9625361b171bcd"
+        },
+        {
+          "path": "docs/production-readiness/evidence/document-rescan-automatic-release-proof-41987644261-2026-11-05.json",
+          "sha256": "119c7aab8cacd8960b4141882e5ebcaea187283450887eb574039a15a253f317"
+        },
+        {
+          "path": "docs/production-readiness/evidence/document-apply-integrated-proof-41987644261-2026-11-05.json",
+          "sha256": "845fcbcd2825ffa4e5f702b87dbad046f040ecc70ba1a1813aaa6e7a5cf294ac"
+        }
+      ],
+      "replay_log_sha256": "092a0f2782bc48f6298124fe68389f7f0d6f7a40c4ffcceffb77e2fccca17375",
+      "separate_complete_native_job": "pending_at_observation"
+    }
+  ],
+  "manifest_entries_reconciled": 29,
+  "worker_source_changed": false,
+  "retained_handler_evidence": "docs/production-readiness/evidence/document-rescan-handler-local-2026-11-04.json",
+  "remaining_action": "1.6",
+  "remaining": [
+    "Separate complete1560-case native suites must finish successfully; focused174 is not the whole suite",
+    "Final integrated source acceptance and exact release-package verification",
+    "Other seven readiness workstreams, including finite policy/recovery, provider/storage, packaging and authorized staging/production controls"
+  ],
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_workstream_complete": false
+}

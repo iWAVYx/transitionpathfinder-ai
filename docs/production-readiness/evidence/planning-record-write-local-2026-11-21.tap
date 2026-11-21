@@ -1,0 +1,538 @@
+TAP version 13
+# Subtest: create-goal accepts current family editing proof
+ok 1 - create-goal accepts current family editing proof
+  ---
+  duration_ms: 757.065375
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current student editing proof
+ok 2 - create-goal accepts current student editing proof
+  ---
+  duration_ms: 482.92425
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current educator editing proof
+ok 3 - create-goal accepts current educator editing proof
+  ---
+  duration_ms: 533.426
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current school editing proof
+ok 4 - create-goal accepts current school editing proof
+  ---
+  duration_ms: 426.486375
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current district editing proof
+ok 5 - create-goal accepts current district editing proof
+  ---
+  duration_ms: 438.316125
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current owner editing proof
+ok 6 - create-goal accepts current owner editing proof
+  ---
+  duration_ms: 470.176375
+  type: 'test'
+  ...
+# Subtest: create-goal rejects unlinked or partner-only owner
+ok 7 - create-goal rejects unlinked or partner-only owner
+  ---
+  duration_ms: 468.749834
+  type: 'test'
+  ...
+# Subtest: create-goal rejects unlinked or partner-only partner
+ok 8 - create-goal rejects unlinked or partner-only partner
+  ---
+  duration_ms: 516.308416
+  type: 'test'
+  ...
+# Subtest: create-goal rejects unlinked or partner-only outsider
+ok 9 - create-goal rejects unlinked or partner-only outsider
+  ---
+  duration_ms: 480.137083
+  type: 'test'
+  ...
+# Subtest: create-goal rejects read-only assignee authority
+ok 10 - create-goal rejects read-only assignee authority
+  ---
+  duration_ms: 462.249792
+  type: 'test'
+  ...
+# Subtest: create-goal rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 11 - create-goal rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 448.560834
+  type: 'test'
+  ...
+# Subtest: create-goal rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 12 - create-goal rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 503.397542
+  type: 'test'
+  ...
+# Subtest: create-goal refuses suppressed write without false success
+ok 13 - create-goal refuses suppressed write without false success
+  ---
+  duration_ms: 599.679791
+  type: 'test'
+  ...
+# Subtest: create-goal rolls back contradictory returned content
+ok 14 - create-goal rolls back contradictory returned content
+  ---
+  duration_ms: 530.826792
+  type: 'test'
+  ...
+# Subtest: create-goal RPC is unavailable to anon
+ok 15 - create-goal RPC is unavailable to anon
+  ---
+  duration_ms: 495.540417
+  type: 'test'
+  ...
+# Subtest: create-goal RPC is unavailable to service_role
+ok 16 - create-goal RPC is unavailable to service_role
+  ---
+  duration_ms: 680.262541
+  type: 'test'
+  ...
+# Subtest: create-action accepts current family editing proof
+ok 17 - create-action accepts current family editing proof
+  ---
+  duration_ms: 564.027875
+  type: 'test'
+  ...
+# Subtest: create-action accepts current student editing proof
+ok 18 - create-action accepts current student editing proof
+  ---
+  duration_ms: 638.326333
+  type: 'test'
+  ...
+# Subtest: create-action accepts current educator editing proof
+ok 19 - create-action accepts current educator editing proof
+  ---
+  duration_ms: 624.093375
+  type: 'test'
+  ...
+# Subtest: create-action accepts current school editing proof
+ok 20 - create-action accepts current school editing proof
+  ---
+  duration_ms: 524.499291
+  type: 'test'
+  ...
+# Subtest: create-action accepts current district editing proof
+ok 21 - create-action accepts current district editing proof
+  ---
+  duration_ms: 487.164458
+  type: 'test'
+  ...
+# Subtest: create-action accepts current owner editing proof
+ok 22 - create-action accepts current owner editing proof
+  ---
+  duration_ms: 434.247084
+  type: 'test'
+  ...
+# Subtest: create-action rejects unlinked or partner-only owner
+ok 23 - create-action rejects unlinked or partner-only owner
+  ---
+  duration_ms: 426.338083
+  type: 'test'
+  ...
+# Subtest: create-action rejects unlinked or partner-only partner
+ok 24 - create-action rejects unlinked or partner-only partner
+  ---
+  duration_ms: 414.877667
+  type: 'test'
+  ...
+# Subtest: create-action rejects unlinked or partner-only outsider
+ok 25 - create-action rejects unlinked or partner-only outsider
+  ---
+  duration_ms: 431.325333
+  type: 'test'
+  ...
+# Subtest: create-action rejects read-only assignee authority
+ok 26 - create-action rejects read-only assignee authority
+  ---
+  duration_ms: 415.478875
+  type: 'test'
+  ...
+# Subtest: create-action rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 27 - create-action rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 454.662958
+  type: 'test'
+  ...
+# Subtest: create-action rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 28 - create-action rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 414.960917
+  type: 'test'
+  ...
+# Subtest: create-action refuses suppressed write without false success
+ok 29 - create-action refuses suppressed write without false success
+  ---
+  duration_ms: 423.762041
+  type: 'test'
+  ...
+# Subtest: create-action rolls back contradictory returned content
+ok 30 - create-action rolls back contradictory returned content
+  ---
+  duration_ms: 489.756292
+  type: 'test'
+  ...
+# Subtest: create-action RPC is unavailable to anon
+ok 31 - create-action RPC is unavailable to anon
+  ---
+  duration_ms: 429.29125
+  type: 'test'
+  ...
+# Subtest: create-action RPC is unavailable to service_role
+ok 32 - create-action RPC is unavailable to service_role
+  ---
+  duration_ms: 447.488625
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current family editing proof
+ok 33 - goal-status accepts current family editing proof
+  ---
+  duration_ms: 646.011625
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current student editing proof
+ok 34 - goal-status accepts current student editing proof
+  ---
+  duration_ms: 470.499875
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current educator editing proof
+ok 35 - goal-status accepts current educator editing proof
+  ---
+  duration_ms: 425.037334
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current school editing proof
+ok 36 - goal-status accepts current school editing proof
+  ---
+  duration_ms: 421.803209
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current district editing proof
+ok 37 - goal-status accepts current district editing proof
+  ---
+  duration_ms: 420.92575
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current owner editing proof
+ok 38 - goal-status accepts current owner editing proof
+  ---
+  duration_ms: 417.451292
+  type: 'test'
+  ...
+# Subtest: goal-status rejects unlinked or partner-only owner
+ok 39 - goal-status rejects unlinked or partner-only owner
+  ---
+  duration_ms: 483.680333
+  type: 'test'
+  ...
+# Subtest: goal-status rejects unlinked or partner-only partner
+ok 40 - goal-status rejects unlinked or partner-only partner
+  ---
+  duration_ms: 477.795542
+  type: 'test'
+  ...
+# Subtest: goal-status rejects unlinked or partner-only outsider
+ok 41 - goal-status rejects unlinked or partner-only outsider
+  ---
+  duration_ms: 463.941167
+  type: 'test'
+  ...
+# Subtest: goal-status rejects read-only assignee authority
+ok 42 - goal-status rejects read-only assignee authority
+  ---
+  duration_ms: 507.635125
+  type: 'test'
+  ...
+# Subtest: goal-status rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 43 - goal-status rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 462.913166
+  type: 'test'
+  ...
+# Subtest: goal-status rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 44 - goal-status rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 458.014459
+  type: 'test'
+  ...
+# Subtest: goal-status refuses suppressed write without false success
+ok 45 - goal-status refuses suppressed write without false success
+  ---
+  duration_ms: 449.64425
+  type: 'test'
+  ...
+# Subtest: goal-status rolls back contradictory returned content
+ok 46 - goal-status rolls back contradictory returned content
+  ---
+  duration_ms: 440.606125
+  type: 'test'
+  ...
+# Subtest: goal-status RPC is unavailable to anon
+ok 47 - goal-status RPC is unavailable to anon
+  ---
+  duration_ms: 431.827292
+  type: 'test'
+  ...
+# Subtest: goal-status RPC is unavailable to service_role
+ok 48 - goal-status RPC is unavailable to service_role
+  ---
+  duration_ms: 468.733166
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"created_by":"00000000-0000-4000-8000-000000000008"}
+ok 49 - create-goal refuses invalid or spoofed fields {"created_by":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 504.481292
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"created_by_user_id":"00000000-0000-4000-8000-000000000008"}
+ok 50 - create-goal refuses invalid or spoofed fields {"created_by_user_id":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 428.529125
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"assigned_to_user_id":"00000000-0000-4000-8000-000000000008"}
+ok 51 - create-goal refuses invalid or spoofed fields {"assigned_to_user_id":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 461.930375
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"updated_at":"2099-01-01"}
+ok 52 - create-goal refuses invalid or spoofed fields {"updated_at":"2099-01-01"}
+  ---
+  duration_ms: 473.026334
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"student_id":"00000000-0000-4000-8000-000000000021"}
+ok 53 - create-goal refuses invalid or spoofed fields {"student_id":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 549.799375
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"title":""}
+ok 54 - create-goal refuses invalid or spoofed fields {"title":""}
+  ---
+  duration_ms: 497.33375
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"title":null}
+ok 55 - create-goal refuses invalid or spoofed fields {"title":null}
+  ---
+  duration_ms: 435.406708
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"title":7}
+ok 56 - create-goal refuses invalid or spoofed fields {"title":7}
+  ---
+  duration_ms: 427.810834
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ok 57 - create-goal refuses invalid or spoofed fields {"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ---
+  duration_ms: 425.919416
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"description":{}}
+ok 58 - create-goal refuses invalid or spoofed fields {"description":{}}
+  ---
+  duration_ms: 426.125667
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"category":null}
+ok 59 - create-goal refuses invalid or spoofed fields {"category":null}
+  ---
+  duration_ms: 431.415375
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"status":null}
+ok 60 - create-goal refuses invalid or spoofed fields {"status":null}
+  ---
+  duration_ms: 422.749125
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"unexpected":true}
+ok 61 - create-goal refuses invalid or spoofed fields {"unexpected":true}
+  ---
+  duration_ms: 427.535291
+  type: 'test'
+  ...
+# Subtest: create-goal duplicate UUID never creates or reports another row
+ok 62 - create-goal duplicate UUID never creates or reports another row
+  ---
+  duration_ms: 423.925166
+  type: 'test'
+  ...
+# Subtest: create-goal accepts explicit nullable optional fields and dates
+ok 63 - create-goal accepts explicit nullable optional fields and dates
+  ---
+  duration_ms: 474.342583
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"created_by":"00000000-0000-4000-8000-000000000008"}
+ok 64 - create-action refuses invalid or spoofed fields {"created_by":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 429.065958
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"created_by_user_id":"00000000-0000-4000-8000-000000000008"}
+ok 65 - create-action refuses invalid or spoofed fields {"created_by_user_id":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 474.067792
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"assigned_to_user_id":"00000000-0000-4000-8000-000000000008"}
+ok 66 - create-action refuses invalid or spoofed fields {"assigned_to_user_id":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 438.366584
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"updated_at":"2099-01-01"}
+ok 67 - create-action refuses invalid or spoofed fields {"updated_at":"2099-01-01"}
+  ---
+  duration_ms: 469.985708
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"student_id":"00000000-0000-4000-8000-000000000021"}
+ok 68 - create-action refuses invalid or spoofed fields {"student_id":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 425.530791
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"title":""}
+ok 69 - create-action refuses invalid or spoofed fields {"title":""}
+  ---
+  duration_ms: 413.308083
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"title":null}
+ok 70 - create-action refuses invalid or spoofed fields {"title":null}
+  ---
+  duration_ms: 429.835875
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"title":7}
+ok 71 - create-action refuses invalid or spoofed fields {"title":7}
+  ---
+  duration_ms: 482.333875
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ok 72 - create-action refuses invalid or spoofed fields {"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ---
+  duration_ms: 465.101583
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"description":{}}
+ok 73 - create-action refuses invalid or spoofed fields {"description":{}}
+  ---
+  duration_ms: 430.912333
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"category":null}
+ok 74 - create-action refuses invalid or spoofed fields {"category":null}
+  ---
+  duration_ms: 476.16675
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"status":null}
+ok 75 - create-action refuses invalid or spoofed fields {"status":null}
+  ---
+  duration_ms: 691.104292
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"unexpected":true}
+ok 76 - create-action refuses invalid or spoofed fields {"unexpected":true}
+  ---
+  duration_ms: 526.646
+  type: 'test'
+  ...
+# Subtest: create-action duplicate UUID never creates or reports another row
+ok 77 - create-action duplicate UUID never creates or reports another row
+  ---
+  duration_ms: 520.613416
+  type: 'test'
+  ...
+# Subtest: create-action accepts explicit nullable optional fields and dates
+ok 78 - create-action accepts explicit nullable optional fields and dates
+  ---
+  duration_ms: 449.616917
+  type: 'test'
+  ...
+# Subtest: action creation refuses missing and foreign linked reports
+ok 79 - action creation refuses missing and foreign linked reports
+  ---
+  duration_ms: 466.446
+  type: 'test'
+  ...
+# Subtest: action creation cannot bypass completion side effects
+ok 80 - action creation cannot bypass completion side effects
+  ---
+  duration_ms: 462.330875
+  type: 'test'
+  ...
+# Subtest: goal status not-started preserves content and advances only changed revisions
+ok 81 - goal status not-started preserves content and advances only changed revisions
+  ---
+  duration_ms: 449.114708
+  type: 'test'
+  ...
+# Subtest: goal status in-progress preserves content and advances only changed revisions
+ok 82 - goal status in-progress preserves content and advances only changed revisions
+  ---
+  duration_ms: 425.203417
+  type: 'test'
+  ...
+# Subtest: goal status met preserves content and advances only changed revisions
+ok 83 - goal status met preserves content and advances only changed revisions
+  ---
+  duration_ms: 429.924709
+  type: 'test'
+  ...
+# Subtest: goal status paused preserves content and advances only changed revisions
+ok 84 - goal status paused preserves content and advances only changed revisions
+  ---
+  duration_ms: 435.235292
+  type: 'test'
+  ...
+# Subtest: goal status rejects stale/missing record and invalid status
+ok 85 - goal status rejects stale/missing record and invalid status
+  ---
+  duration_ms: 431.40625
+  type: 'test'
+  ...
+# Subtest: two status changes in one transaction advance revision and fence the old version
+ok 86 - two status changes in one transaction advance revision and fence the old version
+  ---
+  duration_ms: 419.2935
+  type: 'test'
+  ...
+# Subtest: install preserves existing routines/policies/data and adds only two RPCs/private revision trigger
+ok 87 - install preserves existing routines/policies/data and adds only two RPCs/private revision trigger
+  ---
+  duration_ms: 424.478
+  type: 'test'
+  ...
+# Subtest: repeated installation stops; rollback removes the entire new boundary
+ok 88 - repeated installation stops; rollback removes the entire new boundary
+  ---
+  duration_ms: 422.813875
+  type: 'test'
+  ...
+1..88
+# tests 88
+# suites 0
+# pass 88
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 41736.439583

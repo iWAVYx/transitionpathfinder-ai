@@ -1,3 +1,4 @@
+import { isCurrentConsentRecord, upcomingRecordedMeeting } from "./recorded-status";
 import type { DashboardRow } from "@/components/dashboard/DashboardRowList";
 import type { DashboardSnapshot } from "@/lib/golden-path.functions";
 import { stagesForAudience, type StageId } from "@/lib/workspace/stages";
@@ -30,20 +31,16 @@ function formatMeetingStatus(value: string | null | undefined) {
   }).format(date);
 }
 
-function isActiveConsent(consent: DashboardSnapshot["consents"][number]) {
-  if (consent.consent_status !== "granted" || consent.revoked_at) return false;
-  if (!consent.expires_at) return true;
-  const expiresAt = new Date(consent.expires_at).getTime();
-  return Number.isFinite(expiresAt) && expiresAt > Date.now();
-}
-
 /**
  * Converts one authorized dashboard snapshot into the small, non-sensitive
  * status values used by the Family Hub. The helper intentionally returns
  * counts and workflow state only; document titles, report text, messages,
  * invite addresses, and other private record contents never enter this model.
  */
-export function buildFamilyHubLiveState(snapshot: DashboardSnapshot): FamilyHubLiveState | null {
+export function buildFamilyHubLiveState(
+  snapshot: DashboardSnapshot,
+  observedAt = Date.now(),
+): FamilyHubLiveState | null {
   const student = snapshot.student;
   if (!student) return null;
 
@@ -62,7 +59,10 @@ export function buildFamilyHubLiveState(snapshot: DashboardSnapshot): FamilyHubL
     familyStages.find((stage) => !completedStages.has(stage.id))?.id ??
     familyStages.at(-1)?.id ??
     "start";
-  const activeConsents = snapshot.consents.filter(isActiveConsent).length;
+  const activeConsents = snapshot.consents.filter((consent) =>
+    isCurrentConsentRecord(consent, observedAt),
+  ).length;
+  const meeting = upcomingRecordedMeeting(snapshot.upcomingMeeting, observedAt);
   const documentCount = snapshot.documents.length;
   const resourceCount = snapshot.recommendedResources.length;
 
@@ -75,8 +75,8 @@ export function buildFamilyHubLiveState(snapshot: DashboardSnapshot): FamilyHubL
         tone: documentCount > 0 ? "success" : "warn",
       },
       meeting: {
-        status: formatMeetingStatus(snapshot.upcomingMeeting?.scheduled_at),
-        tone: snapshot.upcomingMeeting ? "neutral" : "warn",
+        status: formatMeetingStatus(meeting?.scheduled_at),
+        tone: meeting ? "neutral" : "warn",
       },
       priorities: {
         status: hasText(student.family_priorities) ? "Priorities saved" : "Needs input",
@@ -87,7 +87,7 @@ export function buildFamilyHubLiveState(snapshot: DashboardSnapshot): FamilyHubL
         tone: activeConsents > 0 ? "success" : "neutral",
       },
       resources: {
-        status: `${resourceCount} matched`,
+        status: `${resourceCount} shown`,
         tone: "neutral",
       },
     },

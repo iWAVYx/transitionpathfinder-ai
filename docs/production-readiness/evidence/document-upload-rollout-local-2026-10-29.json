@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-29",
+  "status": "Combined fifteen-migration transaction, legacy preflight and cutover packet verified in disposable native CI; hosted rollout remains blocked and unauthorized",
+  "source_base": "d384e434",
+  "canonical_count": 225,
+  "new_canonical_migrations_this_step": 0,
+  "migration_batch_size": 15,
+  "source_hashes": {
+    "tests/database/document-upload-rollout-sql.mjs": "f81b41d600a1b669e591d102ae18a8b1e9b0f830f3758a17c28dd472488ff478",
+    "docs/production-readiness/proposals/document-upload-chain-preflight.sql": "4319cbb34743055fbe0a57bb4d3626518922a563f74e80c18ac3795cf1601aca",
+    "docs/production-readiness/proposals/document-upload-cutover-plan.json": "08b74107d0ed4ff9b235eff3aacc901742a43a49203faed6e902d3600c757241"
+  },
+  "local_sql": {
+    "tests": 669,
+    "pass": 599,
+    "fail": 0,
+    "skip": 70,
+    "skips": "Native PostgreSQL contention only; no local concurrency claim."
+  },
+  "local_security_transport_contracts": {
+    "pass": 92,
+    "fail": 0,
+    "skip": 0
+  },
+  "checked": [
+    "All fifteen reviewed migration bodies and exact source ledger rows commit together, with cooperative advisory and ledger locks and no separate review-mirror installation.",
+    "Duplicate/reused/future migration history and exact prerequisite drift abort without retaining DDL. A final ledger-write failure and duplicate legacy paths roll back even the first atomic function creation.",
+    "Existing legacy document columns remain unchanged; new provenance columns stay NULL rather than inventing historic reservation/object receipts.",
+    "Read-only preflight exposes aggregate legacy/queue/catalog counts only. Missing owner/version metadata is reported, never repaired; hidden RLS and filtered relations are refused.",
+    "Competing-installer commit/rollback cases pass in both native PostgreSQL runs, retaining exact source-ledger and unchanged legacy-row assertions."
+  ],
+  "limits": [
+    "The exact batch checks three recent prerequisite ledger rows, not every one of the prior210 rows. Independent authorized full ledger/schema comparison remains required.",
+    "Database lock/DDL atomicity does not stop older external Storage/AV/AI requests or prove a durable admission pause. That mechanism remains unimplemented/unverified; hosted release stays blocked.",
+    "Cutover plan contains zero provider or fixture requests and no automatic cleanup, hold expiry, capacity release, legacy provenance backfill or fallback to unsafe old handlers.",
+    "Full TF-01\u2013TF-26/six milestones and deferred report polish / Parent Pilot / Pathway Snapshot remain retained."
+  ],
+  "application_changed": false,
+  "application_fingerprint": "2052a88b3659f352848ca036c45a8b358c4edb7066039b260bcb34b39aefe886",
+  "application_file_count": 1200,
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false,
+  "verified_source": "0d35db2d8477c529c7c471e8bf718f9e67dbe00c",
+  "native_sql": {
+    "tests": 669,
+    "pass": 669,
+    "fail": 0,
+    "skip": 0,
+    "canonical_replay": 225,
+    "pr_run": 40920888901,
+    "push_run": 40920879255,
+    "artifacts": [
+      {
+        "event": "pr",
+        "run": 40920888901,
+        "artifacts": {
+          "atomic-extraction-preflight.json": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97"
+        }
+      },
+      {
+        "event": "push",
+        "run": 40920879255,
+        "artifacts": {
+          "atomic-extraction-preflight.json": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97"
+        }
+      }
+    ],
+    "artifact_scope": "Existing post-install metadata/count artifacts are matching disposable outputs. New pre-install review is exercised on fictional baseline fixtures, not hosted data."
+  },
+  "automatic_checks": {
+    "pass": 9,
+    "build_runs": [
+      40920888528,
+      40920879345
+    ],
+    "unit_run": 40920888564,
+    "unit_tests": 5294,
+    "role_run": 40920888551,
+    "accessibility_run": 40920888728,
+    "readiness_run": 40920888505,
+    "static_run": 40920888631,
+    "protected_hosted_checks": "Skipped, unperformed; not live acceptance."
+  }
+}

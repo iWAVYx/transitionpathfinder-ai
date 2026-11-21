@@ -1,0 +1,387 @@
+{
+  "schema": "transitionforward-checked-in-storage-inventory-v1",
+  "date": "2026-11-16",
+  "source_base": "7b21edcbc088230da0874a0cef1215dc1f47ed5b",
+  "scan_roots": [
+    "src",
+    "scripts",
+    "supabase/functions",
+    "supabase/migrations",
+    ".github/workflows"
+  ],
+  "additional_config_scope": [
+    "supabase/config.toml",
+    "root wrangler*.toml/json/jsonc"
+  ],
+  "entries": [
+    {
+      "path": ".github/workflows/deploy-staging.yml",
+      "sha256": "80e06613825e3da7ca019034e6eba2fcb182f745114b6081deac7d65d204f681",
+      "classification": "staging-release-configuration",
+      "finding": "Protected staging build/deployment references file upload policy checks and a cron webhook configuration step.",
+      "remaining_boundary": "This inventory does not execute the workflow or prove current hosted configuration; fresh release authorization remains required."
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "f4fb30fb9ed25ab3e63213edee428dff8d9898bf951da0609736f75651659423",
+      "classification": "disposable-database-verification",
+      "finding": "Disposable full225+41 baseline and worker checks remain; a separately labeled final stage verifies the one review-only admin-grant retirement draft without changing prior baseline/native counts.",
+      "remaining_boundary": "Disposable fixtures and fake secrets do not establish deployed database/function/scheduler/provider state."
+    },
+    {
+      "path": ".github/workflows/release-readiness.yml",
+      "sha256": "5900717285d9f149c5a72c4f0e08f6ca8cccf14a8f5b821c4eba46e5962ad9d1",
+      "classification": "protected-staging-test-schedule",
+      "finding": "Nightly/manual protected staging acceptance workflow uses existing test identities and tests the deployed runtime.",
+      "remaining_boundary": "Not a document processor schedule. Source scan neither runs nor certifies this hosted workflow."
+    },
+    {
+      "path": "scripts/document-storage-writer-inventory.mjs",
+      "sha256": "4386ccb930df5d43244a9a098ae01d970cf8fff30fe0e8645827c40848bda437",
+      "classification": "read-only-review-tool",
+      "finding": "Discovers lexical candidates and compares them with reviewed hashes; makes no network call or source mutation.",
+      "remaining_boundary": "Not call-graph analysis. Dynamically assembled targets and external writers still require separate discovery."
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "b0cf6f624395520cca61159da5a6432b28a5818899b2d0a41399e265240d1099",
+      "classification": "caller-upload",
+      "finding": "One privacy-safe file upload uses the exact reserved path and upsert:false; uncertain upload/registration pauses and read-only reconciliation does not repeat the upload. Sharing source follow-up: account/document-bound grants/removals and truthful team-scope upload wording are prepared; Storage and database grant policies are unchanged. See document-permissions-source-local-2026-11-15.json for remaining direct-write/privacy blockers. Reviewed-summary follow-up aligns read-only and audit wording with original-file versus summary access; no new Storage operation.",
+      "remaining_boundary": "Actual Storage write/unknown-reply, access removal and service overwrite acceptance remain hosted gates."
+    },
+    {
+      "path": "src/lib/channel-history.functions.ts",
+      "sha256": "b9bdf304ea8b8bbeb35f7375fb2c5fdade9b7373f16550a6dbbea8b192501a81",
+      "classification": "separate-channel-storage-reader",
+      "finding": "Mints caller-scoped channel-attachments signed links for retained history.",
+      "remaining_boundary": "Separate channel feature; not a student-documents writer or document protocol certificate."
+    },
+    {
+      "path": "src/lib/channel-messages.functions.ts",
+      "sha256": "89344ae645aa15b98bfd066e3c9863ac1ca0425b551ba95a581a50c8e27a3d09",
+      "classification": "separate-channel-storage-writer",
+      "finding": "Service channel-attachments cleanup/signing and caller download signing; these byte removals belong to the channel workflow.",
+      "remaining_boundary": "Separate retention/attachment access and uncertain-delete acceptance must not be treated as document cleanup proof."
+    },
+    {
+      "path": "src/lib/cms/cms.functions.ts",
+      "sha256": "a13c1d88a35367f8fc9d7a7939fa76921bfc7214bf185e96d2b1f994faa45156",
+      "classification": "separate-cms-storage-writer",
+      "finding": "Privileged site-media upload, signing and remove operations belong to website management.",
+      "remaining_boundary": "Different bucket; keep CMS and student document cleanup/authority proofs separate."
+    },
+    {
+      "path": "src/lib/demo/use-profile-session.ts",
+      "sha256": "a955ed945622e752ede1716e48dfe124cdf26489a1322eea34095d3f9b00050c",
+      "classification": "browser-local-storage-only",
+      "finding": "Storage-named session dependencies refer to local browser demo state, not Supabase file objects.",
+      "remaining_boundary": "Lexical discovery deliberately retains this false positive; no hosted document write is asserted."
+    },
+    {
+      "path": "src/lib/document-av-scan.server.ts",
+      "sha256": "fae77dcd20f715ebbc169fc0b10059ee523dce756254c681cdd2b6cf0ea9578a",
+      "classification": "service-storage-reader-provider",
+      "finding": "Downloads student-documents or channel-attachments for scanning when no provided Blob exists. Scanner transport is an external provider boundary.",
+      "remaining_boundary": "Provider completion/cancellation and deployed credentials/settings require independent hosted proof; a timeout is not cessation."
+    },
+    {
+      "path": "src/lib/document-registration-source.server.ts",
+      "sha256": "82aae6ca86126a7ce0e5319cf1b33bbc6e683a0008f6f11bb8deb2f16d4bbc57",
+      "classification": "caller-storage-reader",
+      "finding": "Reads object info and immutable downloaded Blob under caller authority; matches reserved object/version/hash and checks current editing rights.",
+      "remaining_boundary": "Storage info is an additional consistency check, not conditional byte immutability proof."
+    },
+    {
+      "path": "src/lib/document-rescan-source.server.ts",
+      "sha256": "d49457200e6979c1c063047ce0f891634ac7b7d2dc64e5f2c409e9576f5a4ca9",
+      "classification": "caller-storage-reader",
+      "finding": "Reads and validates the source copy under the counted rescan continuation. No Storage byte update/delete.",
+      "remaining_boundary": "Hosted object/version/revocation and provider interruption acceptance remain open."
+    },
+    {
+      "path": "src/lib/document-signed-link.server.ts",
+      "sha256": "06fec627171452ae2b07674990856dbb8172b4653badb99b3c3ef72b6e5d4231",
+      "classification": "caller-scoped-private-link-mint",
+      "finding": "Loaded viewer/student/revision, canonical explicit access, file readiness, exact URL origin/bucket/path, reduced audit metadata and post-mint current-source checks. No service client or admin grant.",
+      "remaining_boundary": "Bearer links may survive access removal until expiry; no transaction-held or physical-byte immutability proof. Legacy database grant exception is separately open."
+    },
+    {
+      "path": "src/lib/document-sniff.server.ts",
+      "sha256": "ea37d3ea671b51239b6e9f928c43a295ceed4eae0ef8d28bada6fbe953cd0951",
+      "classification": "service-storage-reader",
+      "finding": "Downloads student-documents when no provided Blob exists to inspect the actual file type.",
+      "remaining_boundary": "Privileged read is not a byte write; latest hosted source/access binding still needs acceptance."
+    },
+    {
+      "path": "src/lib/document-upload-duplicate.server.ts",
+      "sha256": "8ddf840b00db2e5587acbe434ebdb9391461bc94153d0dd11b4944e1f74c3509",
+      "classification": "caller-storage-reader",
+      "finding": "Reads existing caller-visible file to verify a duplicate; path lookup does not delete or overwrite bytes.",
+      "remaining_boundary": "No immutable trusted-service Storage write guarantee is established by duplicate detection."
+    },
+    {
+      "path": "src/lib/document-upload-interruption.ts",
+      "sha256": "074dd1d6d7256dd3e4220879af1ed2ff5852264ca75c8942c241c3dd19af629f",
+      "classification": "browser-local-interruption-reminder",
+      "finding": "Stores only account/student-keyed attempt identifiers and validates exact reservation paths for upload recovery.",
+      "remaining_boundary": "Browser reminders are not authoritative completion, release or Storage absence proof."
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "4371a9160917fe79b98a9f22f7bf2800c96a462cfe36d8ddb62229c7b656ea4c",
+      "classification": "document-metadata-and-signed-link",
+      "finding": "Source-bound registration/rescan and confirmed archive metadata; normal links delegate to the exact current-account/source helper. Legacy application override refuses before IO; hard delete remains paused. Classification/review metadata now uses a loaded-viewer and exact-revision caller-scoped helper, with strict receipts; Storage operations are unchanged. Sharing source follow-up: account/document-bound grants/removals and truthful team-scope upload wording are prepared; Storage and database grant policies are unchanged. See document-permissions-source-local-2026-11-15.json for remaining direct-write/privacy blockers.",
+      "remaining_boundary": "Direct authenticated database grant policy/helper and Storage exception remain a release blocker. Enriched private denial probes are replaced with minimal caller audit; hosted monitoring/permission acceptance remains open."
+    },
+    {
+      "path": "src/lib/owner/system-health.functions.ts",
+      "sha256": "af11d2b772d940fe6eee19528bc6022769dba48e765eca5d17d91892cb8d728a",
+      "classification": "service-read-only-health-probe",
+      "finding": "Lists at most one student-documents object to check bucket reachability. This probe does not verify writer safety or provider readiness.",
+      "remaining_boundary": "Reachability cannot certify Storage immutability, policy, scan completion or worker quiescence."
+    },
+    {
+      "path": "src/routes/_authenticated/transition-channel.tsx",
+      "sha256": "4849b6baa885c5d35ee6510a3e4a515e74004bc167139ce67db47308259562a1",
+      "classification": "separate-channel-upload",
+      "finding": "Uses prepared signed upload for channel-attachments, not the student document upload route.",
+      "remaining_boundary": "Channel attachment acceptance is a separate workstream; no student-documents writer coverage implied."
+    },
+    {
+      "path": "supabase/config.toml",
+      "sha256": "3ad149ee7ebf65f9ccdd1e045ad42445598c6546230efb6f18bdb648395105ec",
+      "classification": "backend-cli-configuration",
+      "finding": "Checked-in CLI project binding is inventoried without applying or inferring the active hosted target.",
+      "remaining_boundary": "Require explicit environment/backend identity verification before any linked CLI action; do not assume this is isolated staging."
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8",
+      "classification": "privileged-summary-worker",
+      "finding": "Document summary branch requires admitted claim, reads verified source and downloads bytes, then commits through exact summary RPC. Other job types retain separate handling.",
+      "remaining_boundary": "The header claims a one-minute pg_cron invocation, but no matching schedule declaration was found in checked-in canonical SQL/config. Deployed scheduler/function/version/provider state is unknown."
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+      "sha256": "bf13240b34d042ad3c3ceff22412f07411e2ba4c4986731a651f14be92717a7a",
+      "classification": "worker-source-verification",
+      "finding": "Validates source bucket/object/version/hash and scan outcome around the summary provider and completion adapter.",
+      "remaining_boundary": "Local source checks do not prove immutable service bytes or hosted provider cessation."
+    },
+    {
+      "path": "supabase/migrations/20260527160738_4b10cdd0-0c92-40e1-b652-b016a9a0cafd.sql",
+      "sha256": "36846b6694bbca09a1c521c14c9d154597c64385a189e375551cb5452937585c",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "supabase/migrations/20260603203051_email_infra.sql",
+      "sha256": "89c19e347c2914e34d3cc6b2b2079615c275e6c072295dec67bdfd141d434f9d",
+      "classification": "historical-email-scheduler-comment",
+      "finding": "Email infrastructure migration contains commented scheduling instructions, not a document processor schedule.",
+      "remaining_boundary": "Historical SQL is not proof of current hosted cron state."
+    },
+    {
+      "path": "supabase/migrations/20260603203105_email_infra.sql",
+      "sha256": "89c19e347c2914e34d3cc6b2b2079615c275e6c072295dec67bdfd141d434f9d",
+      "classification": "historical-email-scheduler-comment",
+      "finding": "Email infrastructure migration contains commented scheduling instructions, not a document processor schedule.",
+      "remaining_boundary": "Historical SQL is not proof of current hosted cron state."
+    },
+    {
+      "path": "supabase/migrations/20260603203657_email_infra.sql",
+      "sha256": "89c19e347c2914e34d3cc6b2b2079615c275e6c072295dec67bdfd141d434f9d",
+      "classification": "historical-email-scheduler-comment",
+      "finding": "Email infrastructure migration contains commented scheduling instructions, not a document processor schedule.",
+      "remaining_boundary": "Historical SQL is not proof of current hosted cron state."
+    },
+    {
+      "path": "supabase/migrations/20260603203955_email_infra.sql",
+      "sha256": "89c19e347c2914e34d3cc6b2b2079615c275e6c072295dec67bdfd141d434f9d",
+      "classification": "historical-email-scheduler-comment",
+      "finding": "Email infrastructure migration contains commented scheduling instructions, not a document processor schedule.",
+      "remaining_boundary": "Historical SQL is not proof of current hosted cron state."
+    },
+    {
+      "path": "supabase/migrations/20260624032049_03e91336-dff5-4bda-b5ff-94294f60d6ef.sql",
+      "sha256": "dfc8224b1bfbb9f11f3456538cc30e3ea258d15f08ffa6576247f3badb9b50a2",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "supabase/migrations/20260721022558_d7443a36-87ce-4443-b2ef-4f1c3886c978.sql",
+      "sha256": "2fda05e7631c9b3b05536a5f067b1d8e7d6736096775a86005df8614f1adf47a",
+      "classification": "historical-channel-schedule",
+      "finding": "Declares the historical channel digest HTTP cron endpoint. Later isolation migrations replace fixed endpoint settings.",
+      "remaining_boundary": "Do not infer current job destinations or deployment from historical SQL."
+    },
+    {
+      "path": "supabase/migrations/20260721022828_1ee18617-84a6-41ab-89e2-661d8321477e.sql",
+      "sha256": "5b7bf46e08eb51b61ff964183f8b4525c003d033ebe8d4f5b08861eb607a9fdd",
+      "classification": "historical-channel-retention-schedule",
+      "finding": "Declares channel-retention-purge using its database routine; no document AI worker invocation.",
+      "remaining_boundary": "Channel retention and document/provider quiescence are separate boundaries."
+    },
+    {
+      "path": "supabase/migrations/20260801071050_afc765ec-aef1-4c1e-a4d0-9f82832d91f6.sql",
+      "sha256": "a02b9ea247357a1cd0fd1418bb31db839c22f40120934180dcee392665b5fa32",
+      "classification": "historical-license-schedule",
+      "finding": "Declares release-expired-license-allocations, a license routine rather than document processing.",
+      "remaining_boundary": "Does not establish current hosted schedule or document queue state."
+    },
+    {
+      "path": "supabase/migrations/20260813013345_20260812163612_harden_scheduled_hook_isolation.sql",
+      "sha256": "4b8f94c3e5fd9d0ea2d57cd52e9b91761b6d2c75fb4f39853796be25c318b0cb",
+      "classification": "canonical-http-schedule-isolation",
+      "finding": "Defines isolated channel digest, observability alert and event-purge hooks; no ai-job-processor schedule.",
+      "remaining_boundary": "Hosted cron.job/function deployment/settings still need read-only inventory before cutover."
+    },
+    {
+      "path": "supabase/migrations/20260814203430_dd944c00-cb34-4cb1-b5a7-ee6e76f67235.sql",
+      "sha256": "06981bff2823f52bac41364438e43128db46c66234b54387f062f1e85136b358",
+      "classification": "canonical-http-schedule-isolation",
+      "finding": "Defines isolated channel digest, observability alert and event-purge hooks; no ai-job-processor schedule.",
+      "remaining_boundary": "Hosted cron.job/function deployment/settings still need read-only inventory before cutover."
+    },
+    {
+      "path": "supabase/migrations/20261029020200_document_storage_write_boundary.sql",
+      "sha256": "8aba6cb1d578a4e09a4d1d5b077db968c07274571767329ccf9a2f8ebcda78d2",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "supabase/migrations/20261029020300_document_storage_binding.sql",
+      "sha256": "2c9700a8e60e952d52c2e84774b3a571ff8509965634e5cc96f8e33e4722462c",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "supabase/migrations/20261029020500_verified_document_summary_source.sql",
+      "sha256": "1bc6a08a987ad92bccdce5726c9c74da8883e3a4852907112477eb9263ed2830",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "supabase/migrations/20261029020800_document_quarantine_read_boundary.sql",
+      "sha256": "31076fda2f24a847c096928263f9ed21e9ba37446358ac1ee1a31f3627058e7e",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "supabase/migrations/20261029020900_document_upload_review_hold.sql",
+      "sha256": "f029cd68ebca8e2e3de3f83f29d65be6dfd442a9ce1e5a96c43661d9ab5a8b07",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "supabase/migrations/20261029021100_document_upload_recovery_read.sql",
+      "sha256": "b1a3864cff49c6c349968c8e03b9fc84d68e38c18b056d3f876e727422368835",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "supabase/migrations/20261029021300_document_summary_source_binding.sql",
+      "sha256": "3b9a7077cec49856de04f2d53f1dc4328a12465b25522c790e55c8d44b30be2c",
+      "classification": "canonical-document-storage-policy",
+      "finding": "Historical canonical bucket/policy/source-binding/quarantine/recovery boundary. Client replacement/deletion restrictions do not constrain trusted service writes.",
+      "remaining_boundary": "SQL source remains unchanged and is not newly applied; prior disposable proof does not establish deployed policy or physical-byte immutability."
+    },
+    {
+      "path": "wrangler.staging.toml",
+      "sha256": "3f772c8504a37d36d35039d23d6effa8755e64f8445af9dddff978b897dfbd73",
+      "classification": "staging-worker-configuration",
+      "finding": "Checked-in staging Worker binding/configuration is included in review.",
+      "remaining_boundary": "Source settings are not confirmation of deployed Worker version, backend, secrets or runtime environment."
+    }
+  ],
+  "supersedes_for_current_source": "docs/production-readiness/evidence/document-remaining-writer-source-review-2026-11-05.json",
+  "resolved_historical_findings": [
+    {
+      "symbol": "runExtractionFromText",
+      "status": "Source-bound counted admission and atomic replacement now used; earlier unbound-upsert finding is historical.",
+      "source": "src/lib/extractions.functions.ts",
+      "proof": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json"
+    },
+    {
+      "symbol": "extractFromIep",
+      "status": "Independent no-save behavior preserved; document-attached consumer uses the counted operation adapter. No claim of provider cessation.",
+      "source": "src/lib/iep-extract.functions.ts"
+    }
+  ],
+  "known_followups": [
+    {
+      "item": "Existing review initialization",
+      "source": "src/lib/extractions.functions.ts:getOrCreateExtraction",
+      "action": "Bind expected viewer before review lookup/initialization and verify current authority and document identity. Do not replay an uncertain insert.",
+      "status": "source-local-closed-hosted-verification-open",
+      "completion_evidence": "docs/production-readiness/evidence/document-review-initialization-local-2026-11-15.json"
+    },
+    {
+      "item": "Signed links and admin override",
+      "source": "src/lib/documents.functions.ts:getDocumentSignedUrl/requestAdminDocAccess",
+      "action": "Promote the verified separate draft with exact ledger/preflight under4.1, then obtain isolated staging rollout/acceptance authorization; do not infer any hosted permission change.",
+      "status": "source-native-full-schema-verified-packaging-hosted-open",
+      "completion_evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-verified-2026-11-15.json"
+    },
+    {
+      "item": "Deployed inventory",
+      "action": "Read exact hosted worker source/version, cron jobs, Storage policies and privileged integrations on an authorized isolated target."
+    },
+    {
+      "item": "Provider-backed uncertainty",
+      "action": "Define independently evidenced recovery for uploads/scans/summaries without treating database counts or timeouts as cessation."
+    }
+  ],
+  "limitations": [
+    "Bounded lexical discovery over the listed source/config roots; not exhaustive call-graph or external integration discovery.",
+    "Comments and unrelated channel/CMS/browser-local references remain classified instead of excluded.",
+    "Assembled URLs, computed clients/buckets and untracked external writers can evade lexical discovery.",
+    "No Storage bytes, hosted cron rows, external provider state or deployed function hashes were read.",
+    "This closes checked-in lexical inventory/review only; wider Workstream2.5 and2.6 remain open."
+  ],
+  "hosted_verified": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "sql_changed": false,
+  "production_access": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false,
+  "validation": {
+    "guard_cases": 9,
+    "current_reviewed_candidates": 41,
+    "inventory_navigation_contracts": 94,
+    "release_security_contracts": 72,
+    "previous_application_unit_suite": {
+      "cases": 5924,
+      "source_commit": "7b21edcbc088230da0874a0cef1215dc1f47ed5b",
+      "fresh_rerun_claimed": false
+    },
+    "runtime_application_changed": false,
+    "fresh_native_sql_replay_claimed": false
+  },
+  "followup_reconciliation": {
+    "date": "2026-11-15",
+    "source_base": "7fa8dd0c85bc620732e9e9ae42b72c285feb7b52",
+    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-verified-2026-11-15.json",
+    "candidate_hashes_changed": false,
+    "reviewed_candidate_count": 41,
+    "hosted_verified": false
+  },
+  "prior_inventory": {
+    "path": "docs/production-readiness/evidence/document-storage-scheduled-writer-inventory-2026-11-15.json",
+    "sha256": "cb78ffbd71a6b826bad1003b3bc7c01f6fc0ce9d6792083736aab0f57528d87e",
+    "preserved_unchanged": true
+  },
+  "source_reconciliation": {
+    "review": "The upload component changed a scope comment only; the inventory checker now points to this new current file. Writer classifications and scan scope remain unchanged.",
+    "hosted_verified": false
+  }
+}

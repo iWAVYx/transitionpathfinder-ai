@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.5",
+  "source_stage": 30,
+  "status": "Legacy queue-entry and summary job-type fence implemented and locally verified; native/full-schema acceptance pending",
+  "proposal": "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql",
+  "proposal_sha256": "52c55637dc94c51c3da305e613947830e2f4f83b8ae48825baa88764f6619247",
+  "source_test_file": "tests/database/document-path-exclusivity.test.mjs",
+  "source_test_sha256": "9589cb12be82b1ba388c3ced59487079e95b84c02482680703a69531add29c0f",
+  "binder_body_hashes": {
+    "before": "ee05945cda1adf131fe1e15eb5b415f0",
+    "after": "96abd9342d6d508d1fe8157f6e24827f"
+  },
+  "schema_routine_hashes": {
+    "binder_md5": "96abd9342d6d508d1fe8157f6e24827f",
+    "guard_md5": "c4b98274623c0102d707c806781c85aa"
+  },
+  "tests": {
+    "tf-queue-entry-verified-local.log": {
+      "tests": 20,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 2,
+      "sha256": "1c34d9229cce6340215bcfb3b0c8bb16ca6b9001e5495183111ffa2a69809c28"
+    },
+    "tf-queue-entry-combined.log": {
+      "tests": 66,
+      "passed": 60,
+      "failed": 0,
+      "skipped": 6,
+      "sha256": "5407878d263213f97a2d0556ef1e86c1ef83ff4ea0de360a82d78b2aa82c1834"
+    },
+    "tf-queue-entry-contracts.log": {
+      "tests": 44,
+      "passed": 44,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "d9f70dd64c1658aa842efb0144d8eaf179a2795eeb86319e58f30f1014a21b43"
+    }
+  },
+  "overlapping_runs_not_additive": true,
+  "prior_verified_cases_retained": 1640,
+  "added_cases": 20,
+  "added_native_cached_writer_installer_races": 2,
+  "required_native_cases": 1660,
+  "workflow_shell_blocks_validated": 66,
+  "checks": [
+    "Legacy documents are seeded before modern protocols; new uncounted queue inserts refuse for authenticated and service roles",
+    "Both legacy fallthrough branches now refuse; all other transfer tokens remain unchanged",
+    "Actual registration and same-transaction rescan queue/claim/completion paths still work",
+    "Job-type conversion into/out of summaries refuses; other AI job types remain available",
+    "Existing legacy rows are retained, not adopted, deleted or declared drained",
+    "Exact admitted registration may finish/queue while paused; its worker stays stopped until explicit resume",
+    "Installation requires paused and no active/unresolved held tracked work; refused installation does not cancel work and succeeds after real completion",
+    "Queue rollback restores pointer and both original obligations",
+    "Transfer owner, fixed settings and existing execution grants remain unchanged; new helper is private",
+    "Changed parent settings, private grants, required trigger or pause state refuses without repair",
+    "Two native races warm the old cached binder before a legacy insertion waits on installer COMMIT/ROLLBACK"
+  ],
+  "legacy_rows_modified": false,
+  "provider_calls": false,
+  "worker_activation": false,
+  "hosted_permissions_changed": false,
+  "native_full_schema_verified": false,
+  "whole_action_complete": false,
+  "remaining": [
+    "Native1660-case gate and complete225+30 schema replay",
+    "Remaining Storage/service/scheduled/deployed writer coverage",
+    "Source/access changes under2.6 and recovery races under2.7",
+    "Canonical packaging and separately authorized hosted rollout/provider acceptance"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

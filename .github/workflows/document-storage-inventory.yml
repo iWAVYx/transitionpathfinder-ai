@@ -1,0 +1,20 @@
+name: Document Storage source inventory
+on:
+  pull_request:
+  push:
+    branches: ["codex/ppt-output-quality-print", main]
+permissions:
+  contents: read
+jobs:
+  source-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify reviewed source inventory and negative controls
+        run: node --test tests/document-storage-writer-inventory.test.mjs
+      - name: Print bounded source-only result
+        run: node scripts/document-storage-writer-inventory.mjs

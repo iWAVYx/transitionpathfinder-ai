@@ -1,0 +1,98 @@
+# Report History Write Boundary Review — October 23, 2026
+
+## October 23 — Authorized History Repeat Passed; Exact Cleanup Confirmed
+
+- [x] Human-approved repeat39980508504 on test-only d44620fb passed all seven existing role sessions and both Family/Educator report journeys, with zero retries/AI. Both stable staging identities passed before fixture creation.
+- [x] Exactly two fictional intake/report pairs and six truthful prior-content versions were created. Actual RPC save, direct owner edit/actor attribution, UI restore/reload, denied fabricated/altered/deleted history, other-role read/write/RPC boundaries, Owner/admin nonowner Restore/Regenerate hiding, and two PDF exports passed. Existing admin SELECT was observed, not removed or expanded. No new users, relationships, sharing grants or links.
+- [x] Caller cleanup passed. Independent postgres BEGIN READ ONLY exact-ID counts at16:57:47UTC confirm zero reports, intakes, versions and share links remain; table-owner/no-FORCE-RLS guards prevent a misleading RLS-filtered count.
+- [x] Sanitizer passed before artifact retrieval. Both PDF exports retain the restored summary on page2, no empty pages/out-of-page text, the complete meeting sheet/source note on page8 and complete endings. All64 pages were reviewed as contact-sheet overviews; selected meeting/final pages were inspected at full resolution with top-right logo marks and aligned sections. This is not all-text proofreading or native-print acceptance.
+- [ ] Report density remains32pages per sample. Compactness/native printing, hosted linked-editor acceptance, Owner/admin planning-data policy, stale browser intent, metadata/retention/bearer lifecycle and broader role/provider/security/operations production gates remain open.
+
+[Passing repeat evidence](evidence/report-history-repeat-acceptance-2026-10-23.json) retains the exact source, fixtures, PDF hashes and independent cleanup. The earlier five-second empty-shell failure remains recorded separately; the strict loaded-report wait allowed both journeys to pass, but this does not certify global route-loading performance. Browser dependency downloads delayed the run; GitHub completed it successfully in14m9s. A stale live display/read-only command approval timeout delayed observation, not execution, and no workflow rerun was issued. No app deployment, migration, publication or production change occurred in the repeat. Both approved staging publications retain5ba40cce…ad43b58c/1,184 files. The named staging-history gate is closed; production remains NO-GO. All TF-01–TF-26/full-roadmap work and deferred Parent Pilot/Pathway Snapshot remain retained.
+
+
+## October 23 — Canonical Report-History Candidate (Not Applied)
+
+- [x] Prepared additive `20261023020000_enforce_pathway_report_content_history.sql` from the validated proposal; no applied migration was edited. Permitted content updates snapshot prior content and actual actor; client version fabrication and structural grants are removed while report RLS/editing and service table administration remain.
+- [x] Registered the exact internal trigger as client-execution-forbidden and the sole service-role EXECUTE exception. It has no ordinary RPC caller. All other privileged routines retain their reviewed service grants; PUBLIC/client allowlists are unchanged.
+- [x] Local disposable validation: 37 database cases pass, two multi-session cases await native PostgreSQL; 41 source/permission/readiness contracts pass. Earlier prototype native evidence remains historical, not acceptance of this canonical candidate.
+- [x] Exact candidate `f821aa753bd52281f4ffe897ff99e0f301e281e6` passes all automatic checks, including 4,399 units, build/SSR and accessibility. Native history passes 39 cases with zero skips; combined 205-migration replay verifies all 92 privileged routines, the exact trigger exception, trigger metadata, table/column grants and invoker RPC permissions. Protected hosted skips are unperformed. See `docs/production-readiness/evidence/report-history-canonical-validation-2026-10-23.json` and the concrete `docs/production-readiness/report-history-staging-candidate-2026-10-23.md` packet.
+- [ ] Review exact candidate/checksum and staged application compatibility; settle Owner/admin planning-data access separately. Existing administrative exceptions are preserved, not approved for production by this change.
+- [ ] Obtain new specific authorization before any hosted migration, deployment, publication or bounded fixture acceptance run. Previously approved fixture runs are complete.
+
+Canonical source inventory is now 205 migrations; 11 are pending against the **saved September 17 production observation**. This does not claim a fresh production inspection. Current staging remains approved `a2c5564c` / runtime `c4e3096b…9adb13d`, 1,184 files. The local reader-control fix and this migration are not deployed. Production remains NO-GO. Stale browser intent, retention/large reports, removed-member bearer access and full role/demo/provider/export acceptance remain open. Full TF-01–TF-26 roadmap and deferred Parent Pilot/Pathway Report Snapshot are retained.
+
+Earlier proposal checkpoints below are retained as historical evidence. The canonical candidate above supersedes their not-canonical status; it remains unapplied.
+
+
+Status: **review-only proposal, not canonical or applied**. One read-only isolated staging catalog query followed native validation; no application rows were read. No new fixture, migration, source synchronization, deployment, publication, account/access change or AI call occurred in this work. Both staging applications retain approved `a2c5564c` runtime fingerprint `c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d`, 1,184 files. Production remains unchanged and NO-GO.
+
+## Confirmed Disposable Reproductions
+
+The existing credential-free history fixture executes real canonical table grants, RLS/update/version policies and the atomic RPC, with identity/student-access helpers stubbed for the named cases. It now reproduces:
+
+1. An authenticated report owner directly updates `pathway_reports.content`, changing the report without a history row.
+2. The owner directly inserts a fictional version with arbitrary content/number and another existing user's `created_by` ID. The current INSERT policy validates report ownership, not historical truth or actor identity.
+
+These are canonical-source/disposable-database findings, not claims of exploitation or a fresh hosted report/version privilege inventory. Earlier sharing acceptance and catalog checks do not close them.
+
+## Actual Staging Catalog and Target Reconciliation
+
+[Metadata-only evidence](evidence/staging-report-history-catalog-2026-10-23.json), observed `2026-10-23T13:45:51.211563+00:00`, explicitly records `read_only=on`. Both tables have postgres ownership, RLS enabled and FORCE RLS false. The atomic RPC body MD5 matches `f80313504d2ea967cabc32dbb55d3af3`, fixed search path, invoker scope and authenticated-only execution; its selected ledger hash is captured. No user-defined report/version triggers were returned.
+
+The actual effective grants are broader than the initial narrow fixture: authenticated has report and version SELECT/INSERT/UPDATE/DELETE/**TRIGGER/TRUNCATE**; all version columns allow INSERT/UPDATE. Current canonical June 26 Team policies, also observed on staging, extend version reads/inserts through student access/edit helpers. Admin report SELECT/UPDATE remains in the observed predicates. The initial proposal deliberately aborts on the unexpected structural privileges; it was not applied.
+
+The replacement now explicitly proposes revoking ordinary-client TRIGGER/TRUNCATE on both tables in addition to version mutations, while retaining report CRUD/RLS and service administration. The fixture loads the actual Team policy SQL and recreates the observed broad grants before applying the proposal. An authenticated disposable SQL case proves TRUNCATE can remove rows outside SELECT visibility when those structural grants exist; the proposed state denies TRUNCATE and trigger installation. **No hosted mutation/exploitation was attempted, and this does not imply a PostgREST TRUNCATE endpoint exists.** The read is a narrow catalog observation, not a full canonical-history reconciliation or production inspection.
+
+## Proposed Direction: Preserve Existing Editing Rights
+
+[Unapplied SQL proposal](proposals/report-content-history-boundary.sql), SHA256 `13843881b1ecadbaee05ffd65c8b8e3aa55d66f1ba62f48c2be2e175a1bfca09`:
+
+- An AFTER UPDATE OF content trigger records the exact prior report content and JWT actor under the report row lock. A direct permitted write therefore also produces history. Identical-content saves retain one snapshot per save; metadata-only updates and initial report creation do not create content versions.
+- The existing save RPC stays SECURITY INVOKER, retains explicit report-owner scope, full-content conflict checks and its signature/response. It updates once and confirms the resulting version instead of inserting a second snapshot. Existing application save, restore and regeneration callers remain compatible.
+- Ordinary clients lose direct version INSERT/UPDATE/DELETE at table and column level. Their existing SELECT/RLS policies and report editing permissions remain unchanged. Service maintenance privileges remain intact.
+- The small trigger function is SECURITY DEFINER with a fixed `pg_catalog` search path, fully qualified objects, a checked trigger context and no PUBLIC/anonymous/authenticated/service EXECUTE. It is not a browser-callable privileged save RPC. This new elevated boundary requires review before canonicalization.
+- RPC summaries use a transaction-local setting, restored after the update. Summary text is untrusted annotation, never authorization or evidence that an action was approved. The trigger derives content and actor itself. Maintenance without a user claim records a null actor.
+- Missing prerequisites, changed original function body/grants, unexpected ownership/RLS/privileged clients, inherited structural/version-write privileges remaining after the explicit revokes cause the transaction to abort. No error path restores broad rights automatically.
+
+Revoking report UPDATE outright was rejected as an implementation shortcut: it would break the current invoker RPC and implicitly remove existing linked-editor/admin capabilities. An owner-only elevated RPC is an alternative only after explicit access-policy review, with additional privilege/security design and compatible callers.
+
+## Role and Surface Assessment
+
+| Role or surface | Effect of the proposal |
+| --- | --- |
+| Student, Family/Guardian, Educator | If the caller owns the report and existing student/RLS conditions allow it, save/restore/regenerate remains owner scoped. Their permitted direct content updates would also produce history. A role name alone does not confer ownership. |
+| Accepted editor / permitted relationship | Existing RLS editing remains; a permitted direct update records the actual editor. This does not grant access to somebody else's version history or the owner-only save RPC. |
+| Read-only collaborator | Existing read access does not acquire UPDATE or version-write access. |
+| School administrator, District administrator, Partner | No role-wide write grant is added. Existing owner/student/organization/relationship conditions still decide access; arbitrary other reports remain outside that scope. These fixture cases do not certify all real organization helpers. |
+| Owner/admin | The management-only UI is preserved, but canonical admin SELECT/UPDATE exceptions remain. The fixture explicitly demonstrates that preserving/attributing an admin edit is not backend denial. Administrative planning-data access still needs a distinct purpose/safeguards/scope decision before production. |
+| Signed-out/public bearer viewer | No authenticated write or RPC/trigger execution grant is introduced. Fixed audience projection and the accepted sharing restrictions remain separate. |
+| Demo | Fictional demo readers do not write these tables. No UI redesign or fabricated saved-history feature is introduced. |
+
+## Validation and Limits
+
+Replacement local PGlite: **37 pass, 2 native-concurrency cases skipped**, 39 total. Includes prior atomic/ledger checks plus direct-write/fabrication reproductions; exact prior snapshots; one RPC version; save/restore summaries; identical saves; denied direct version mutations; unrelated/read-only/editor/admin boundaries; metadata-only updates; failures rolling back direct and RPC writes; skipped updates; stale server-content conflict; trigger grants; malformed content; privileged maintenance; disabled-RLS/privileged-client/inherited-grant aborts. Three retained atomic-history source contracts pass. Final replacement log: `/private/tmp/tf-sharing-rollout-a2c5564c/report-history-boundary-target-local.log`.
+
+The existing manual/automatic disposable PostgreSQL workflow now also selects this proposal on changes and runs the same behavioral suite before the separate canonical replay. The initial `01c1a57d59a1408d0c37692341a9bac8eea57a1f` proposal passes all 37 native cases, zero skips, both concurrency journeys and full canonical replay in [run39963369634](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39963369634); all eight automatic checks pass. An earlier documentation-head accessibility run failed while installing Playwright browsers (ten-minute timeout), not in an accessibility assertion; that failure is retained. Replacement `95678424ff8e53aa91cffff8adcade748c6a6aec` now passes all **39 native cases, zero skips**, both concurrency journeys and complete canonical replay in [run39964618618](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39964618618). All eight automatic checks pass, including build/SSR, full units, accessibility, readiness, role guard and static seed checks. Protected hosted skips remain unperformed, not accepted. [Validation manifest](evidence/report-history-boundary-validation-2026-10-23.json) pins the exact proposal and metadata-query hashes. No arbitrary database URL is accepted; tests use a unique throwaway database on literal loopback and drop it afterward.
+
+This is **not immutable audit storage**: report deletion still cascades history; privileged operators/service maintenance retain their existing powers. It does not verify content quality, stop stale browser intent that predates the server read, constrain every report identity/provenance metadata mutation, or settle Owner data access and removed-member bearer-link lifecycle. Direct UPDATEs remain subject to their existing authorization model; they do not gain an expected browser revision. Snapshot storage/retention and large-report request/native export limits still need review.
+
+## Additional Applicable-Role UI Finding
+
+The source review found the saved report rendering Restore/regeneration without a server-returned ownership hint even though both mutations require ownership. The local follow-up now returns `is_report_owner`, hides all relevant content controls for non-owners or missing/malformed hints and preserves readable history/print/share workflows. Missing restore permission defaults to false; permission loss during a pending version fetch stops the write. Both handler entry points continue to deny non-owners independently, including forged hint input. This applies by actual report ownership across all seven role labels, not by a privileged role shortcut. Full unit suite: 4,399; TypeScript and 103 focused cases pass. All eight automatic checks pass on exact `ee3cbf5c77117b84196719a6cb9da19af9b76372`; [eligibility evidence](evidence/report-action-eligibility-2026-10-23.json) pins source, checks and the unchanged SQL proposal. It is not deployed; hosted role checks remain required. The hint is not full entitlement/authorization proof, and it does not remove existing Owner/admin backend read/update exceptions. Stale browser intent still requires a separate observed-revision design.
+
+## Historical Canonical Integration Review Item (Resolved in Local Candidate Above)
+
+The prototype denies EXECUTE on its SECURITY DEFINER trigger function to service_role as well as clients, because trigger execution does not require the ordinary caller to execute it as an RPC. The existing `security-definer-execute-allowlist.json` instead documents service execution for all routines in scope, and the September least-privilege migration verifies that contract for routines present at its execution. Before canonicalizing this proposal, reconcile the new routine's service policy explicitly: a narrowly reviewed trigger-only no-execution exception, or a justified service grant with matching tests. Do not silently broaden a grant or relax the checks for every routine. Register the function as client-execution-forbidden and preserve PUBLIC/anon/authenticated denial.
+
+The 39-case proposal fixture and the complete canonical replay currently run in **separate disposable databases**. Their passing results do not prove the proposal is already integrated into the canonical security inventory/ledger. An additive canonical candidate must pass the combined replay and exact allowlist/metadata invariants, update the 204-file source inventory and saved-baseline pending count without inventing a new production observation, and retain the tested rollback behavior. None of those database changes is applied or implicitly authorized by the reader-control follow-up.
+
+## Required Next Gates
+
+1. Retain the passed exact-proposal native/concurrency checks, then verify a combined canonical replay after explicitly reviewing this new SECURITY DEFINER trigger and its service/client privilege policy.
+2. Read only the exact isolated staging catalog: complete effective table/column/inherited grants, role attributes, report/version RLS policies, existing triggers, function body/configuration/grants and canonical ledger. Do not read real report content to prove a metadata assumption.
+3. Resolve Owner administrative data-access policy separately; retain management-only navigation and do not infer data denial from it. Agree on remaining stale-browser-intent requirements.
+4. Only after review, prepare a new additive canonical migration with its exact checksum, canonical inventory/ledger representation and recovery/abort plan. Do not edit the applied atomic-history migration or apply this proposal ad hoc.
+5. Obtain specific authorization before any new hosted migration, fixture run or release. A future bounded test must verify save/restore/direct editor changes, all applicable role denials, history contents, shared/export compatibility and trusted exact cleanup.
+
+All TF-01–TF-26/full-roadmap work remains tracked. Parent Pilot and Pathway Report Snapshot remain deferred.

@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-05",
+  "checked_against_source": "c08b92e0",
+  "declared_entries_checked": 30,
+  "corrected_paths": [
+    "src/lib/extractions.functions.ts",
+    "src/routes/_authenticated/documents.$documentId.review.tsx"
+  ],
+  "added_path": "src/lib/document-text-extraction.server.ts",
+  "all_declared_entries_hash_checked": true,
+  "scope": "Declared cutover manifest only; complete release packaging and source/access activation remain open",
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

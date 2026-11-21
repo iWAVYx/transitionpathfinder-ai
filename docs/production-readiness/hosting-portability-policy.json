@@ -53,21 +53,59 @@
         "sha256": "40f2de5928515e23002fe1833f0f01cf26652579e7b1938c462286cac250bf7f"
       },
       "serverFunctionFiles": {
-        "count": 119,
-        "sha256": "96c8b16ebba3b850e379c1bf7929981830cefa3576e5814194079e4c2ad30237"
+        "count": 124,
+        "sha256": "83c904b166b8fe989b684a431fac8358875c7a98a03100fb68acf400f139556b"
       },
       "privilegedRuntimeFiles": {
-        "count": 62,
-        "sha256": "f28055fd8c726d6cf31069a80f12875904f26e65cdd7d0c40f12a76959c572bf"
+        "count": 65,
+        "sha256": "e543dabf524594c9e92151dc9c7337c0c85b7a63cd7f31229564ac0180a99e44"
       },
       "explicitEndpointFiles": {
         "count": 12,
         "sha256": "396ec76eb0f5b9fe208d98c87c2ae5bd3a691823c90807f7128acd24b6bd853d"
       }
-    }
+    },
+    "draftReview": {
+      "observedAt": "2026-11-13",
+      "baseDraftSha": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
+      "change": "Reviewed one additional caller-authenticated read-only server-function module for Owner pasted-text task metadata. It uses verified claims/expected viewer and two exact caller RPCs, strict private-field rejection, no service client, provider, content read, mutation, retry or release. Review-only SQL reuses transaction-held platform_owner authorization, preserves private ledger grants, and returns completed-save accounting without asserting provider cessation. Existing production/hosting no-go controls remain unchanged."
+    },
+    "draftReviewHistory": [
+      {
+        "observedAt": "2026-10-06",
+        "baseDraftSha": "6ec011e6",
+        "change": "src/lib/share.functions.ts now lazily uses the existing server-only Supabase client for token-authorized RPCs before document projection. No new host, credential type, database binding or production authorization. Deployment acceptance and the prepared grant migration remain separately gated."
+      },
+      {
+        "observedAt": "2026-10-15",
+        "baseDraftSha": "9281abdfe198a20ae68ed9d926bda487bd37392b",
+        "change": "Reviewed three added authenticated caller-RLS read function files: organization-widget-actions, student-hub-context and organization-history. No privileged runtime, public/authenticated route or explicit endpoint inventory change. No host, credential, database binding or production authorization change. See hosting-boundary-release-review-2026-10-15.md; live permission acceptance remains open."
+      },
+      {
+        "observedAt": "2026-10-29",
+        "baseDraftSha": "e08e13659f75b3d3df89b631f4cc8ecdae93397f",
+        "change": "Reviewed one added privileged source file: document-extraction-apply.server.ts lazily loads the existing server-only client after caller-RLS authority/source checks, using it only for admission begin/finish metadata. Student/evidence/completion writes remain on the caller client through the retained invoker atomic save, with a separately proposed control-row pause fence. No host, credentials, public/authenticated route, server-function file or explicit endpoint inventory change. No production authorization. See document-apply-admission-review.json; SQL gate and hosted acceptance remain unapplied."
+      },
+      {
+        "observedAt": "2026-11-08",
+        "baseDraftSha": "0d057bcd",
+        "change": "Reviewed the added server-only document-text-admission.server.ts consumer (introduced in de236ca7). It lazily loads the existing privileged client only after caller-RLS source/access preflight and uses it only for begin/hold metadata with an SHA-256 text digest. Generated-content saves stay on the authenticated caller client. No raw text is sent to metadata, no secret/host/route/endpoint is added, and missing/unconfirmed public RPCs fail closed before provider dispatch. The corresponding shared-pool bound-save/completion draft is locally prepared but public begin/hold, native/full-schema and hosted acceptance remain open. No production authorization."
+      },
+      {
+        "observedAt": "2026-11-13",
+        "baseDraftSha": "ecc65daa9685c37744ef10fd6525a34fa1812f76",
+        "change": "Reviewed one added caller-authenticated server-function module for Owner management metadata queue/inspection and retained-work audit. New functions use requireSupabaseAuth, exact viewer/verified-claim checks and caller RPCs only; no privileged client, provider call, public route, explicit endpoint file, secret, new host or database binding. The review-only SQL requires current platform_owner membership and transaction-held role proof; audit writes require verified aal2. It adds no student content access, release/retry action or private resolver grant. Lost responses require exact review-status verification. Existing production/hosting no-go decisions and separate rollout authorizations remain unchanged."
+      }
+    ]
   },
   "requestBoundary": {
-    "protectedPrefixes": ["/_serverFn/", "/_server/", "/api/", "/lovable/", "/email/"],
+    "protectedPrefixes": [
+      "/_serverFn/",
+      "/_server/",
+      "/api/",
+      "/lovable/",
+      "/email/"
+    ],
     "reviewedPublicBuildVariables": [
       "VITE_APP_ENV",
       "VITE_APP_BUILD_SHA",

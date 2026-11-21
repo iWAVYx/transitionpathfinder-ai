@@ -1,0 +1,1152 @@
+{
+  "schema": "student-delete-fk-inventory-v1",
+  "source_commit": "f7b12e3a665858c10c15e19a9100b163e4bab8ff",
+  "edges": [
+    {
+      "oid": "19217",
+      "conname": "calendar_events_related_action_item_id_fkey",
+      "child": "calendar_events",
+      "parent": "action_items",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (related_action_item_id) REFERENCES action_items(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "22838",
+      "conname": "document_capacity_reservations_summary_job_id_fkey",
+      "child": "document_capacity_reservations",
+      "parent": "ai_jobs",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (summary_job_id) REFERENCES ai_jobs(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22955",
+      "conname": "document_registration_completion_receipts_summary_job_id_fkey",
+      "child": "document_registration_completion_receipts",
+      "parent": "ai_jobs",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (summary_job_id) REFERENCES ai_jobs(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23091",
+      "conname": "document_rescan_outcome_receipts_summary_job_id_fkey",
+      "child": "document_rescan_outcome_receipts",
+      "parent": "ai_jobs",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (summary_job_id) REFERENCES ai_jobs(id) ON DELETE RESTRICT DEFERRABLE INITIALLY DEFERRED"
+    },
+    {
+      "oid": "22785",
+      "conname": "document_summary_operation_bindings_job_id_fkey",
+      "child": "document_summary_operation_bindings",
+      "parent": "ai_jobs",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (job_id) REFERENCES ai_jobs(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22672",
+      "conname": "document_summary_source_bindings_job_id_fkey",
+      "child": "document_summary_source_bindings",
+      "parent": "ai_jobs",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (job_id) REFERENCES ai_jobs(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22487",
+      "conname": "channel_history_attachments_attachment_id_fkey",
+      "child": "channel_history_attachments",
+      "parent": "channel_attachments",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (attachment_id) REFERENCES channel_attachments(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "22475",
+      "conname": "channel_history_messages_channel_id_user_id_fkey",
+      "child": "channel_history_messages",
+      "parent": "channel_history_grants",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id, user_id) REFERENCES channel_history_grants(channel_id, user_id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "22492",
+      "conname": "channel_history_attachments_channel_id_user_id_message_id_fkey",
+      "child": "channel_history_attachments",
+      "parent": "channel_history_messages",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id, user_id, message_id) REFERENCES channel_history_messages(channel_id, user_id, message_id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21509",
+      "conname": "channel_actions_message_id_fkey",
+      "child": "channel_actions",
+      "parent": "channel_messages",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (message_id) REFERENCES channel_messages(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21738",
+      "conname": "channel_actions_source_message_id_fkey",
+      "child": "channel_actions",
+      "parent": "channel_messages",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (source_message_id) REFERENCES channel_messages(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "21439",
+      "conname": "channel_attachments_message_id_fkey",
+      "child": "channel_attachments",
+      "parent": "channel_messages",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (message_id) REFERENCES channel_messages(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21669",
+      "conname": "channel_bookmarks_message_id_fkey",
+      "child": "channel_bookmarks",
+      "parent": "channel_messages",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (message_id) REFERENCES channel_messages(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "22470",
+      "conname": "channel_history_messages_message_id_fkey",
+      "child": "channel_history_messages",
+      "parent": "channel_messages",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (message_id) REFERENCES channel_messages(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21711",
+      "conname": "channel_mentions_message_id_fkey",
+      "child": "channel_mentions",
+      "parent": "channel_messages",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (message_id) REFERENCES channel_messages(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21630",
+      "conname": "channel_message_edits_message_id_fkey",
+      "child": "channel_message_edits",
+      "parent": "channel_messages",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (message_id) REFERENCES channel_messages(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21424",
+      "conname": "channel_message_reads_last_read_message_id_fkey",
+      "child": "channel_message_reads",
+      "parent": "channel_messages",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (last_read_message_id) REFERENCES channel_messages(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "21401",
+      "conname": "channel_messages_parent_id_fkey",
+      "child": "channel_messages",
+      "parent": "channel_messages",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (parent_id) REFERENCES channel_messages(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21609",
+      "conname": "channel_messages_parent_message_id_fkey",
+      "child": "channel_messages",
+      "parent": "channel_messages",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (parent_message_id) REFERENCES channel_messages(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "21535",
+      "conname": "channel_reports_message_id_fkey",
+      "child": "channel_reports",
+      "parent": "channel_messages",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (message_id) REFERENCES channel_messages(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "21504",
+      "conname": "channel_actions_channel_id_fkey",
+      "child": "channel_actions",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21444",
+      "conname": "channel_attachments_channel_id_fkey",
+      "child": "channel_attachments",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21560",
+      "conname": "channel_audit_events_channel_id_fkey",
+      "child": "channel_audit_events",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21664",
+      "conname": "channel_bookmarks_channel_id_fkey",
+      "child": "channel_bookmarks",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21487",
+      "conname": "channel_connection_requests_resulting_channel_id_fkey",
+      "child": "channel_connection_requests",
+      "parent": "channels",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (resulting_channel_id) REFERENCES channels(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "22453",
+      "conname": "channel_history_grants_channel_id_fkey",
+      "child": "channel_history_grants",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21695",
+      "conname": "channel_member_prefs_channel_id_fkey",
+      "child": "channel_member_prefs",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21359",
+      "conname": "channel_members_channel_id_fkey",
+      "child": "channel_members",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21716",
+      "conname": "channel_mentions_channel_id_fkey",
+      "child": "channel_mentions",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21635",
+      "conname": "channel_message_edits_channel_id_fkey",
+      "child": "channel_message_edits",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21414",
+      "conname": "channel_message_reads_channel_id_fkey",
+      "child": "channel_message_reads",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21391",
+      "conname": "channel_messages_channel_id_fkey",
+      "child": "channel_messages",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21530",
+      "conname": "channel_reports_channel_id_fkey",
+      "child": "channel_reports",
+      "parent": "channels",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "23231",
+      "conname": "document_apply_capacity_settlements_operation_id_fkey",
+      "child": "document_apply_capacity_settlements",
+      "parent": "document_apply_completion_receipts",
+      "delete_action": "a",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_apply_completion_receipts(operation_id)"
+    },
+    {
+      "oid": "23209",
+      "conname": "document_apply_completion_receipts_operation_id_fkey",
+      "child": "document_apply_completion_receipts",
+      "parent": "document_apply_source_bindings",
+      "delete_action": "a",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_apply_source_bindings(operation_id)"
+    },
+    {
+      "oid": "23282",
+      "conname": "document_apply_no_save_reconciliations_operation_id_fkey",
+      "child": "document_apply_no_save_reconciliations",
+      "parent": "document_apply_source_bindings",
+      "delete_action": "a",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_apply_source_bindings(operation_id)"
+    },
+    {
+      "oid": "22888",
+      "conname": "document_capacity_summary_settlements_operation_id_fkey",
+      "child": "document_capacity_summary_settlements",
+      "parent": "document_capacity_reservations",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_capacity_reservations(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22940",
+      "conname": "document_registration_completion_receipts_operation_id_fkey",
+      "child": "document_registration_completion_receipts",
+      "parent": "document_capacity_reservations",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_capacity_reservations(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23001",
+      "conname": "document_rescan_source_bindings_operation_id_fkey",
+      "child": "document_rescan_source_bindings",
+      "parent": "document_capacity_reservations",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_capacity_reservations(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23191",
+      "conname": "document_apply_source_bindings_extraction_id_fkey",
+      "child": "document_apply_source_bindings",
+      "parent": "document_extractions",
+      "delete_action": "a",
+      "definition": "FOREIGN KEY (extraction_id) REFERENCES document_extractions(id)"
+    },
+    {
+      "oid": "23342",
+      "conname": "document_text_extraction_capacity_extraction_id_fkey",
+      "child": "document_text_extraction_capacity",
+      "parent": "document_extractions",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (extraction_id) REFERENCES document_extractions(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "20862",
+      "conname": "evidence_items_extraction_id_fkey",
+      "child": "evidence_items",
+      "parent": "document_extractions",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (extraction_id) REFERENCES document_extractions(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "22972",
+      "conname": "document_capacity_registration_settlements_operation_id_fkey",
+      "child": "document_capacity_registration_settlements",
+      "parent": "document_registration_completion_receipts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_registration_completion_receipts(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23129",
+      "conname": "document_capacity_rescan_settlements_operation_id_fkey",
+      "child": "document_capacity_rescan_settlements",
+      "parent": "document_rescan_completion_receipts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_rescan_completion_receipts(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23117",
+      "conname": "document_rescan_completion_receipts_operation_id_fkey",
+      "child": "document_rescan_completion_receipts",
+      "parent": "document_rescan_outcome_receipts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_rescan_outcome_receipts(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23081",
+      "conname": "document_rescan_outcome_receipts_operation_id_fkey",
+      "child": "document_rescan_outcome_receipts",
+      "parent": "document_rescan_pending_receipts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_rescan_pending_receipts(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23046",
+      "conname": "document_rescan_pending_receipts_operation_id_fkey",
+      "child": "document_rescan_pending_receipts",
+      "parent": "document_rescan_source_bindings",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_rescan_source_bindings(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "20611",
+      "conname": "admin_doc_access_grants_document_id_fkey",
+      "child": "admin_doc_access_grants",
+      "parent": "documents",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "20575",
+      "conname": "document_access_log_document_id_fkey",
+      "child": "document_access_log",
+      "parent": "documents",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "23186",
+      "conname": "document_apply_source_bindings_document_id_fkey",
+      "child": "document_apply_source_bindings",
+      "parent": "documents",
+      "delete_action": "a",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id)"
+    },
+    {
+      "oid": "19652",
+      "conname": "document_extractions_document_id_fkey",
+      "child": "document_extractions",
+      "parent": "documents",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19597",
+      "conname": "document_permissions_document_id_fkey",
+      "child": "document_permissions",
+      "parent": "documents",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "20929",
+      "conname": "document_pipeline_runs_document_id_fkey",
+      "child": "document_pipeline_runs",
+      "parent": "documents",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "22950",
+      "conname": "document_registration_completion_receipts_document_id_fkey",
+      "child": "document_registration_completion_receipts",
+      "parent": "documents",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23086",
+      "conname": "document_rescan_outcome_receipts_document_id_fkey",
+      "child": "document_rescan_outcome_receipts",
+      "parent": "documents",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23051",
+      "conname": "document_rescan_pending_receipts_document_id_fkey",
+      "child": "document_rescan_pending_receipts",
+      "parent": "documents",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23011",
+      "conname": "document_rescan_source_bindings_document_id_fkey",
+      "child": "document_rescan_source_bindings",
+      "parent": "documents",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "17771",
+      "conname": "document_summaries_document_id_fkey",
+      "child": "document_summaries",
+      "parent": "documents",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "22682",
+      "conname": "document_summary_source_bindings_document_id_fkey",
+      "child": "document_summary_source_bindings",
+      "parent": "documents",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23337",
+      "conname": "document_text_extraction_capacity_document_id_fkey",
+      "child": "document_text_extraction_capacity",
+      "parent": "documents",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22620",
+      "conname": "document_upload_attempts_registered_document_id_fkey",
+      "child": "document_upload_attempts",
+      "parent": "documents",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (registered_document_id) REFERENCES documents(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22893",
+      "conname": "document_capacity_summary_settlements_summary_job_id_fkey",
+      "child": "document_capacity_summary_settlements",
+      "parent": "document_summary_completion_receipts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (summary_job_id) REFERENCES document_summary_completion_receipts(job_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22898",
+      "conname": "document_capacity_summary_settlements_summary_operation_id_fkey",
+      "child": "document_capacity_summary_settlements",
+      "parent": "document_summary_operation_bindings",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (summary_operation_id) REFERENCES document_summary_operation_bindings(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22873",
+      "conname": "document_summary_completion_receipts_operation_id_fkey",
+      "child": "document_summary_completion_receipts",
+      "parent": "document_summary_operation_bindings",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_summary_operation_bindings(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22868",
+      "conname": "document_summary_completion_receipts_job_id_fkey",
+      "child": "document_summary_completion_receipts",
+      "parent": "document_summary_source_bindings",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (job_id) REFERENCES document_summary_source_bindings(job_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22795",
+      "conname": "document_summary_operation_bindings_job_id_fkey1",
+      "child": "document_summary_operation_bindings",
+      "parent": "document_summary_source_bindings",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (job_id) REFERENCES document_summary_source_bindings(job_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23371",
+      "conname": "document_text_save_completions_operation_id_fkey",
+      "child": "document_text_save_completions",
+      "parent": "document_text_extraction_capacity",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_text_extraction_capacity(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22945",
+      "conname": "document_registration_completion_receipts_attempt_id_fkey",
+      "child": "document_registration_completion_receipts",
+      "parent": "document_upload_attempts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (attempt_id) REFERENCES document_upload_attempts(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23016",
+      "conname": "document_rescan_source_bindings_attempt_id_fkey",
+      "child": "document_rescan_source_bindings",
+      "parent": "document_upload_attempts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (attempt_id) REFERENCES document_upload_attempts(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22612",
+      "conname": "documents_upload_attempt_id_fkey",
+      "child": "documents",
+      "parent": "document_upload_attempts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (upload_attempt_id) REFERENCES document_upload_attempts(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22749",
+      "conname": "document_upload_operation_bindings_attempt_id_fkey",
+      "child": "document_upload_operation_bindings",
+      "parent": "document_upload_attempts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (attempt_id) REFERENCES document_upload_attempts(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22649",
+      "conname": "document_upload_resolution_claims_attempt_id_fkey",
+      "child": "document_upload_resolution_claims",
+      "parent": "document_upload_attempts",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (attempt_id) REFERENCES document_upload_attempts(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22960",
+      "conname": "document_registration_completion_receipts_operation_id_fkey1",
+      "child": "document_registration_completion_receipts",
+      "parent": "document_upload_operation_bindings",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (operation_id) REFERENCES document_upload_operation_bindings(operation_id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "20469",
+      "conname": "meeting_agenda_items_linked_goal_id_fkey",
+      "child": "meeting_agenda_items",
+      "parent": "goals",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (linked_goal_id) REFERENCES goals(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "19912",
+      "conname": "high_school_fit_reviews_preferred_option_id_fkey",
+      "child": "high_school_fit_reviews",
+      "parent": "high_school_options",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (preferred_option_id) REFERENCES high_school_options(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "22142",
+      "conname": "license_allocations_invitation_id_fkey",
+      "child": "license_allocations",
+      "parent": "invitations",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (invitation_id) REFERENCES invitations(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "20530",
+      "conname": "waitlist_converted_invitation_id_fkey",
+      "child": "waitlist",
+      "parent": "invitations",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (converted_invitation_id) REFERENCES invitations(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "22152",
+      "conname": "license_allocations_transferred_to_fkey",
+      "child": "license_allocations",
+      "parent": "license_allocations",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (transferred_to) REFERENCES license_allocations(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "20755",
+      "conname": "activity_history_related_action_id_fkey",
+      "child": "activity_history",
+      "parent": "next_actions",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (related_action_id) REFERENCES next_actions(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "17961",
+      "conname": "action_items_pathway_report_id_fkey",
+      "child": "action_items",
+      "parent": "pathway_reports",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (pathway_report_id) REFERENCES pathway_reports(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "19212",
+      "conname": "calendar_events_related_pathway_report_id_fkey",
+      "child": "calendar_events",
+      "parent": "pathway_reports",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (related_pathway_report_id) REFERENCES pathway_reports(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "18203",
+      "conname": "goal_statuses_report_id_fkey",
+      "child": "goal_statuses",
+      "parent": "pathway_reports",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (report_id) REFERENCES pathway_reports(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17837",
+      "conname": "pathway_recommendations_pathway_report_id_fkey",
+      "child": "pathway_recommendations",
+      "parent": "pathway_reports",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (pathway_report_id) REFERENCES pathway_reports(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19679",
+      "conname": "pathway_report_versions_report_id_fkey",
+      "child": "pathway_report_versions",
+      "parent": "pathway_reports",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (report_id) REFERENCES pathway_reports(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19306",
+      "conname": "ppt_meeting_preps_report_id_fkey",
+      "child": "ppt_meeting_preps",
+      "parent": "pathway_reports",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (report_id) REFERENCES pathway_reports(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "17300",
+      "conname": "share_tokens_report_id_fkey",
+      "child": "share_tokens",
+      "parent": "pathway_reports",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (report_id) REFERENCES pathway_reports(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "18089",
+      "conname": "student_opportunity_matches_pathway_report_id_fkey",
+      "child": "student_opportunity_matches",
+      "parent": "pathway_reports",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (pathway_report_id) REFERENCES pathway_reports(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "17914",
+      "conname": "student_resource_recommendations_pathway_report_id_fkey",
+      "child": "student_resource_recommendations",
+      "parent": "pathway_reports",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (pathway_report_id) REFERENCES pathway_reports(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "17170",
+      "conname": "pathway_reports_intake_id_fkey",
+      "child": "pathway_reports",
+      "parent": "student_intakes",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (intake_id) REFERENCES student_intakes(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17956",
+      "conname": "action_items_student_id_fkey",
+      "child": "action_items",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "20745",
+      "conname": "activity_history_student_id_fkey",
+      "child": "activity_history",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17801",
+      "conname": "ai_jobs_student_id_fkey",
+      "child": "ai_jobs",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17320",
+      "conname": "audit_log_student_id_fkey",
+      "child": "audit_log",
+      "parent": "students",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "19859",
+      "conname": "bridgeforward_profiles_student_id_fkey",
+      "child": "bridgeforward_profiles",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19939",
+      "conname": "bridgeforward_readiness_snapshots_student_id_fkey",
+      "child": "bridgeforward_readiness_snapshots",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "20192",
+      "conname": "bridgeforward_school_matches_student_id_fkey",
+      "child": "bridgeforward_school_matches",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19184",
+      "conname": "calendar_events_student_id_fkey",
+      "child": "calendar_events",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "21328",
+      "conname": "channels_student_id_fkey",
+      "child": "channels",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17984",
+      "conname": "collaboration_notes_student_id_fkey",
+      "child": "collaboration_notes",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "18004",
+      "conname": "comments_student_id_fkey",
+      "child": "comments",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "18110",
+      "conname": "consent_records_student_id_fkey",
+      "child": "consent_records",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "20580",
+      "conname": "document_access_log_student_id_fkey",
+      "child": "document_access_log",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "23181",
+      "conname": "document_apply_source_bindings_student_id_fkey",
+      "child": "document_apply_source_bindings",
+      "parent": "students",
+      "delete_action": "a",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id)"
+    },
+    {
+      "oid": "22833",
+      "conname": "document_capacity_reservations_student_id_fkey",
+      "child": "document_capacity_reservations",
+      "parent": "students",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "19657",
+      "conname": "document_extractions_student_id_fkey",
+      "child": "document_extractions",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19602",
+      "conname": "document_permissions_student_id_fkey",
+      "child": "document_permissions",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "20934",
+      "conname": "document_pipeline_runs_student_id_fkey",
+      "child": "document_pipeline_runs",
+      "parent": "students",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "23006",
+      "conname": "document_rescan_source_bindings_student_id_fkey",
+      "child": "document_rescan_source_bindings",
+      "parent": "students",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "17277",
+      "conname": "documents_student_id_fkey",
+      "child": "documents",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17776",
+      "conname": "document_summaries_student_id_fkey",
+      "child": "document_summaries",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "22677",
+      "conname": "document_summary_source_bindings_student_id_fkey",
+      "child": "document_summary_source_bindings",
+      "parent": "students",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "23332",
+      "conname": "document_text_extraction_capacity_student_id_fkey",
+      "child": "document_text_extraction_capacity",
+      "parent": "students",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "22602",
+      "conname": "document_upload_attempts_student_id_fkey",
+      "child": "document_upload_attempts",
+      "parent": "students",
+      "delete_action": "r",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE RESTRICT"
+    },
+    {
+      "oid": "20852",
+      "conname": "evidence_items_student_id_fkey",
+      "child": "evidence_items",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17235",
+      "conname": "goals_student_id_fkey",
+      "child": "goals",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19907",
+      "conname": "high_school_fit_reviews_student_id_fkey",
+      "child": "high_school_fit_reviews",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19882",
+      "conname": "high_school_options_student_id_fkey",
+      "child": "high_school_options",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19245",
+      "conname": "iep_access_alerts_student_id_fkey",
+      "child": "iep_access_alerts",
+      "parent": "students",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "19753",
+      "conname": "invitations_student_profile_id_fkey",
+      "child": "invitations",
+      "parent": "students",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (student_profile_id) REFERENCES students(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "22137",
+      "conname": "license_allocations_student_id_fkey",
+      "child": "license_allocations",
+      "parent": "students",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "18032",
+      "conname": "meeting_prep_items_student_id_fkey",
+      "child": "meeting_prep_items",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "20706",
+      "conname": "next_actions_student_id_fkey",
+      "child": "next_actions",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "18158",
+      "conname": "notifications_related_student_id_fkey",
+      "child": "notifications",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (related_student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17257",
+      "conname": "pathway_progress_student_id_fkey",
+      "child": "pathway_progress",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17842",
+      "conname": "pathway_recommendations_student_id_fkey",
+      "child": "pathway_recommendations",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17340",
+      "conname": "pathway_reports_student_id_fkey",
+      "child": "pathway_reports",
+      "parent": "students",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "17739",
+      "conname": "readiness_scores_student_id_fkey",
+      "child": "readiness_scores",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "20777",
+      "conname": "report_evidence_links_student_id_fkey",
+      "child": "report_evidence_links",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "23601",
+      "conname": "rights_review_operations_student_id_fkey",
+      "child": "rights_review_operations",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19706",
+      "conname": "rights_transfer_status_student_id_fkey",
+      "child": "rights_transfer_status",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "18132",
+      "conname": "sharing_permissions_student_id_fkey",
+      "child": "sharing_permissions",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "22431",
+      "conname": "student_channel_removals_student_id_fkey",
+      "child": "student_channel_removals",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17207",
+      "conname": "student_collaborators_student_id_fkey",
+      "child": "student_collaborators",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17624",
+      "conname": "student_guardians_student_id_fkey",
+      "child": "student_guardians",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17345",
+      "conname": "student_intakes_student_id_fkey",
+      "child": "student_intakes",
+      "parent": "students",
+      "delete_action": "n",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL"
+    },
+    {
+      "oid": "18079",
+      "conname": "student_opportunity_matches_student_id_fkey",
+      "child": "student_opportunity_matches",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17673",
+      "conname": "student_partner_connections_student_id_fkey",
+      "child": "student_partner_connections",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "19784",
+      "conname": "student_relationships_student_id_fkey",
+      "child": "student_relationships",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17904",
+      "conname": "student_resource_recommendations_student_id_fkey",
+      "child": "student_resource_recommendations",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17719",
+      "conname": "student_strengths_needs_student_id_fkey",
+      "child": "student_strengths_needs",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17646",
+      "conname": "student_team_members_student_id_fkey",
+      "child": "student_team_members",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "17699",
+      "conname": "transition_profiles_student_id_fkey",
+      "child": "transition_profiles",
+      "parent": "students",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE"
+    },
+    {
+      "oid": "18556",
+      "conname": "waitlist_admin_notes_waitlist_entry_id_fkey",
+      "child": "waitlist_admin_notes",
+      "parent": "waitlist",
+      "delete_action": "c",
+      "definition": "FOREIGN KEY (waitlist_entry_id) REFERENCES waitlist(id) ON DELETE CASCADE"
+    }
+  ],
+  "scope": "Foreign keys reachable from public.students in the complete schema. Includes referenced tables regardless of cascade behavior; not a prediction that all are deleted. External storage, provider objects, soft references and triggers require separate review.",
+  "hosted_read": false
+}

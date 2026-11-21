@@ -110,7 +110,7 @@ const FIX_HINTS: Record<string, string[]> = {
     "Confirm `partner_opportunities` exists and the partner-apply form writes successfully.",
   ],
   partner_directory: [
-    "Confirm `organizations` is reachable and at least one approved org exists.",
+    "Confirm the partner directory table `partner_organizations` is readable. A successful empty result means the connection works; verify partner listings separately.",
   ],
   mobile_responsiveness: [
     "If the published site is unreachable, check Lovable deploy status and re-publish.",
@@ -159,11 +159,12 @@ function getClient(c: { supabase: unknown }): Client {
 async function tableProbe(
   client: Client,
   table: string,
+  columns = "*",
 ): Promise<{ ok: boolean; count: number | null; message: string }> {
   const { count, error } = await client
     .from(table as never)
-    .select("*", { count: "exact", head: true });
-  if (error) return { ok: false, count: null, message: error.message };
+    .select(columns, { count: "exact", head: true });
+  if (error) return { ok: false, count: null, message: error.message?.trim() || `Could not read ${table}. Check the database response and access policies.` };
   return { ok: true, count: count ?? 0, message: `${count ?? 0} rows reachable` };
 }
 
@@ -253,64 +254,9 @@ async function customProbes(
     persist = { ok: false, message: e instanceof Error ? e.message : "persistence probe threw." };
   }
 
-  // mobile_responsiveness: fetch the published site and confirm the
-  // responsive viewport meta tag is present in the HTML shell. If the
-  // tag is missing or the site is unreachable, mobile rendering will
-  // break — surface that here rather than waiting on manual QA.
-  let mobile: { ok: boolean; message: string };
-  try {
-    const r = await fetch("https://transitionpathfinder-ai.lovable.app/", {
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!r.ok) {
-      mobile = { ok: false, message: `Published site returned HTTP ${r.status}.` };
-    } else {
-      const html = await r.text();
-      const hasViewport = /<meta[^>]+name=["']viewport["'][^>]*>/i.test(html);
-      mobile = hasViewport
-        ? { ok: true, message: "Responsive viewport meta present on published site." }
-        : { ok: false, message: "Viewport meta tag missing on published site." };
-    }
-  } catch (e) {
-    mobile = { ok: false, message: e instanceof Error ? e.message : "Could not fetch published site." };
-  }
-
-  // privilege_escalation_guard: attempt to UPDATE public.user_roles as the
-  // authenticated admin. Even an admin should be blocked because the table
-  // intentionally has no UPDATE grant — that's the guard that prevents any
-  // signed-in user from elevating themselves. A successful UPDATE here is a
-  // CRITICAL finding.
-  let privGuard: { ok: boolean; message: string };
-  try {
-    const anyClient = client as unknown as {
-      from: (t: string) => {
-        update: (v: Record<string, unknown>) => {
-          eq: (c: string, v: string) => Promise<{ error: { message: string; code?: string } | null }>;
-        };
-      };
-    };
-    const { error } = await anyClient
-      .from("user_roles")
-      .update({ role: "admin" })
-      .eq("user_id", userId);
-    if (error) {
-      privGuard = {
-        ok: true,
-        message: `UPDATE on user_roles correctly blocked (${error.code ?? "denied"}).`,
-      };
-    } else {
-      privGuard = {
-        ok: false,
-        message: "CRITICAL: UPDATE on user_roles succeeded — privilege escalation possible.",
-      };
-    }
-  } catch (e) {
-    // Thrown errors also count as "blocked" — the operation did not succeed.
-    privGuard = {
-      ok: true,
-      message: `UPDATE on user_roles blocked (${e instanceof Error ? e.message : "threw"}).`,
-    };
-  }
+  // Layout and write-permission checks require controlled, separate review.
+  // Merely opening this read-only page must never contact another deployment
+  // or attempt to change a user's role.
 
   // can_access_student_helper: exercise the security-definer function that
   // every student-scoped policy depends on. The admin caller should resolve
@@ -371,8 +317,6 @@ async function customProbes(
     rls_policies: rls,
     role_dashboards: roleDash,
     data_persistence: persist,
-    mobile_responsiveness: mobile,
-    privilege_escalation_guard: privGuard,
     can_access_student_helper: casHelper,
     ai_gateway: aiGateway,
     storage_documents: storage,
@@ -409,6 +353,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
       key: string;
       label: string;
       table?: string;
+      columns?: string;
       category: HealthCheck["category"];
       manualNote?: string;
       comingSoonNote?: string;
@@ -441,13 +386,13 @@ export const runSystemHealth = createServerFn({ method: "GET" })
       { key: "waitlist", label: "Waitlist Entries", table: "waitlist", category: "ops" },
       { key: "contact_forms", label: "Contact Form Submissions", table: "contact_submissions", category: "ops" },
       { key: "partner_submissions", label: "Partner Submissions", table: "partner_submissions", category: "ops" },
-      { key: "partner_directory", label: "Partner Directory", table: "organizations", category: "ops" },
+      { key: "partner_directory", label: "Partner Directory", table: "partner_organizations", columns: "id", category: "ops" },
 
       // Experience
-      { key: "mobile_responsiveness", label: "Mobile Responsiveness", category: "ui", manualNote: "Verified at 375px, 768px, 1024px across signup, onboarding, dashboards, Pathway Report, Admin Hub. Recheck after layout changes." },
+      { key: "mobile_responsiveness", label: "Mobile Responsiveness", category: "ui", manualNote: "Check the current environment at mobile, tablet and desktop sizes. Automated data checks do not verify page layout." },
 
-      // Security guards (active probes that exercise real boundaries)
-      { key: "privilege_escalation_guard", label: "Privilege Escalation Guard", category: "infra" },
+      // Read-only security checks; write-denial testing is deliberately manual.
+      { key: "privilege_escalation_guard", label: "Privilege Escalation Guard", category: "infra", manualNote: "Not run automatically. Review grants and policies, and use a separately authorized disposable fixture for write-denial testing. No role updates are attempted by this page." },
       { key: "can_access_student_helper", label: "Student Access Helper", category: "infra" },
       { key: "storage_documents", label: "Document Storage", category: "data" },
       { key: "share_links", label: "Share Links", category: "data" },
@@ -496,7 +441,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
         continue;
       }
       try {
-        const r = await tableProbe(client, p.table);
+        const r = await tableProbe(client, p.table, p.columns);
         results.push({
           key: p.key,
           label: p.label,

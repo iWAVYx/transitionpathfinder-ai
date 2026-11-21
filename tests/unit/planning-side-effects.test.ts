@@ -1,0 +1,14 @@
+import{beforeEach,expect,it,vi}from'vitest';
+const api=vi.hoisted(()=>({atomic:vi.fn()}));
+vi.mock('@/lib/atomic-action-update.server',()=>({updateActionAtomically:api.atomic}));
+vi.mock('@tanstack/react-start',()=>({createServerFn:()=>{let parse=(v:any)=>v;const b:any={middleware:()=>b,validator:(fn:any)=>{parse=fn;return b;},handler:(fn:any)=>async({data,context}:any)=>fn({data:parse(data),context})};return b;}}));
+vi.mock('@/integrations/supabase/auth-middleware',()=>({requireSupabaseAuth:{}}));
+import{updateStudentActionItem}from'../../src/lib/action-items.functions';
+const id=(n:number)=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`,viewer=id(1),student=id(2),item=id(3),version='2026-11-19T12:00:00.000001Z';
+const intent={id:item,student_id:student,expected_updated_at:version,expected_viewer_id:viewer,status:'completed'};
+const run=(data:any=intent,context:any={userId:viewer,supabase:{from:vi.fn(),rpc:vi.fn()}})=>(updateStudentActionItem as any)({data,context});
+beforeEach(()=>{vi.clearAllMocks();api.atomic.mockResolvedValue({id:item,student_id:student,status:'completed'});});
+it('delegates one complete mutation to the atomic RPC adapter without separate feed/report requests',async()=>{const context={userId:viewer,supabase:{from:vi.fn(),rpc:vi.fn()}};await expect(run(intent,context)).resolves.toMatchObject({ok:true,item:{id:item}});expect(api.atomic).toHaveBeenCalledWith(context.supabase,viewer,intent,{status:'completed'});expect(context.supabase.from).not.toHaveBeenCalled();});
+it('does not claim success after the atomic adapter rejects',async()=>{api.atomic.mockRejectedValue(Error('Unconfirmed'));await expect(run()).rejects.toThrow('Unconfirmed');expect(api.atomic).toHaveBeenCalledOnce();});
+it.each(['student_id','expected_updated_at'])('rejects old unversioned mutation input missing %s before IO',async key=>{const data:any={...intent};delete data[key];await expect(run(data)).rejects.toThrow();expect(api.atomic).not.toHaveBeenCalled();});
+it('passes only the allowed defined patch fields',async()=>{await run({...intent,priority:'high',description:null,title:'  Current title  ',student_id:student});expect(api.atomic.mock.calls[0][3]).toEqual({status:'completed',priority:'high',description:null,title:'Current title'});});

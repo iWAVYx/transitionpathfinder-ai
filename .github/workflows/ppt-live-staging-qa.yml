@@ -66,6 +66,7 @@ jobs:
             exit 1
           fi
           echo "EXPECTED_RUNTIME_SOURCE_FINGERPRINT=$fingerprint" >> "$GITHUB_ENV"
+          echo "EXPECTED_RUNTIME_SOURCE_FILE_COUNT=$(node --input-type=module -e 'import { createRuntimeSourceFingerprint } from "./scripts/runtime-source-fingerprint.mjs"; console.log(createRuntimeSourceFingerprint().fileCount)')" >> "$GITHUB_ENV"
 
       - run: bun install --frozen-lockfile
 
@@ -166,11 +167,11 @@ jobs:
       - name: Require protected staging credentials
         env:
           STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
-          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           if [ -z "$E2E_PARENT_PASSWORD" ] \
             || [ -z "$STAGING_SUPABASE_URL" ] \
-            || [ -z "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ]; then
+            || [ -z "$STAGING_SUPABASE_PUBLISHABLE_KEY" ]; then
             echo "Required protected staging credentials are missing." >&2
             exit 1
           fi
@@ -195,8 +196,9 @@ jobs:
         env:
           RUN_PPT_LIVE_STAGING_QA: "true"
           PPT_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PPT_FIXTURE_CONFIRMATION: disposable-ppt-live
           STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
-          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
         run: >-
           bunx playwright test
           tests/e2e/release-readiness/ppt-live-staging.signedin.spec.ts

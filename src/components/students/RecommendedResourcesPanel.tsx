@@ -1,3 +1,4 @@
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -54,6 +55,7 @@ function ReviewBadge({ status }: { status: string }) {
 }
 
 export function RecommendedResourcesPanel({ studentId }: { studentId: string }) {
+  const lifetime=usePlanningLifetime(studentId);
   const fetchRecs = useServerFn(recommendResourcesForStudent);
   const save = useServerFn(saveResource);
   const addAction = useServerFn(addRecommendationToActionItems);
@@ -70,15 +72,20 @@ export function RecommendedResourcesPanel({ studentId }: { studentId: string }) 
   }, [studentId, fetchRecs]);
 
   async function run<T>(key: string, label: string, fn: () => Promise<T>) {
+    if(!lifetime.begin())return;
     setBusy(key);
     try {
       const res: any = await fn();
+      if(!lifetime.current())return;
       if (res && res.ok === false && res.message) toast.message(res.message);
       else toast.success(label);
     } catch (err) {
+      if(!lifetime.current())return;
+      lifetime.markUncertain();
       toast.error(err instanceof Error ? err.message : `Could not ${label.toLowerCase()}.`);
     } finally {
-      setBusy(null);
+      lifetime.finish();
+      if(lifetime.current())setBusy(null);
     }
   }
 
@@ -108,6 +115,8 @@ export function RecommendedResourcesPanel({ studentId }: { studentId: string }) 
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
           {items.map((r) => {
             const baseInput = {
+              expected_viewer_id:lifetime.viewerId,
+              request_id:crypto.randomUUID(),
               student_id: studentId,
               source_kind: "resource" as const,
               source_id: r.id,
@@ -191,7 +200,7 @@ export function RecommendedResourcesPanel({ studentId }: { studentId: string }) 
                       size="sm"
                       variant="ghost"
                       title="Save to your library"
-                      disabled={busy === `save-${r.id}`}
+                      disabled={busy !== null || lifetime.uncertain || !lifetime.available}
                       onClick={() =>
                         run(`save-${r.id}`, "Saved to your library", () =>
                           save({ data: { resource_id: r.id, collection_name: "For this student" } }),
@@ -208,7 +217,7 @@ export function RecommendedResourcesPanel({ studentId }: { studentId: string }) 
                       size="sm"
                       variant="ghost"
                       title="Add to action items"
-                      disabled={busy === `act-${r.id}`}
+                      disabled={busy !== null || lifetime.uncertain || !lifetime.available}
                       onClick={() =>
                         run(`act-${r.id}`, "Added to action items", () =>
                           addAction({ data: baseInput }),
@@ -225,7 +234,7 @@ export function RecommendedResourcesPanel({ studentId }: { studentId: string }) 
                       size="sm"
                       variant="ghost"
                       title="Add follow-up to calendar"
-                      disabled={busy === `cal-${r.id}`}
+                      disabled={busy !== null || lifetime.uncertain || !lifetime.available}
                       onClick={() =>
                         run(`cal-${r.id}`, "Added to calendar", () =>
                           addCal({ data: baseInput }),
@@ -243,7 +252,7 @@ export function RecommendedResourcesPanel({ studentId }: { studentId: string }) 
                         size="sm"
                         variant="ghost"
                         title="Discuss at next meeting"
-                        disabled={busy === `prep-${r.id}`}
+                        disabled={busy !== null || lifetime.uncertain || !lifetime.available}
                         onClick={() =>
                           run(`prep-${r.id}`, "Queued for next meeting", () =>
                             addPrep({ data: baseInput }),

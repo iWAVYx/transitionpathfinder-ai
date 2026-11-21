@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-25",
+  "status": "local and automatic validation passed for b612f924; not deployed",
+  "trigger": "Bounded Pathway acceptance 40238295505 showed stale legacy summary/confidence retained beside an updated v2 student snapshot and unscored readiness placeholders.",
+  "changes": [
+    "Regeneration explicitly updates legacy summary from the new plain-language summary and maps the clamped current confidence to the legacy enum. Existing report-card/document consumers no longer receive the stale grade-bearing summary after a future regeneration.",
+    "The existing single atomic report write receives the exact untouched old content as the expected/history payload; original goals and unrefreshed planning sections remain intact. No migration or history rewrite.",
+    "Readiness manifest counts and indicators use only nonblank categories with finite numeric scores from 0 through 100. Null, string, out-of-range and nonfinite values are not assessments; AI-provided readiness fallback is discarded.",
+    "Generated identity uses actual profile name/grade and the model headline only. Missing grade stays absent; AI-invented school/district/case-manager values are not used.",
+    "Visible section history marks recorded updates older than the current generation as kept from an earlier version. An unobtrusive linked notice appears in applicable saved/shared readers and print; sample mode does not claim saved history. Unknown dates stay unknown.",
+    "Future bounded creator assertions cover summary/current confidence consistency and absent readiness indicators without real scored inputs. No new hosted run dispatched."
+  ],
+  "scope": [
+    "Student/Family/Educator saved readers and permitted Family/Educator shared projections",
+    "Same reused view/history in screen and print",
+    "Demo sample semantics preserved, no new account/role permissions",
+    "Prior local Pathway Builder voice correction included in candidate"
+  ],
+  "validation": {
+    "focused_unit_checks": 130,
+    "full_unit_tests": 4636,
+    "unit_files": 321,
+    "typescript": "passed",
+    "isolated_staging_build": "passed under bundled Node with staging/staging and LOVABLE_SANDBOX=1",
+    "offline_document_cases": 46,
+    "additional_retained_section_browser_case": 1,
+    "browser_case_scope": "Actual shared components and local synthetic fixtures only; all external requests intercepted/aborted, no app server, auth, RLS, records or AI",
+    "browser": "Playwright-managed headless shell in a temporary directory; no personal Chrome or signed-in sessions. The initial personal-Chrome executable command was rejected by automatic review and was not executed. The explicitly allowed managed-browser alternative completed successfully.",
+    "visual_review": "Mobile retained-section screenshot inspected: notice and history link readable with no local overflow. Existing document/paper/font cases pass. Not an all-output pagination certification.",
+    "automatic_checks": {
+      "source_commit": "b612f924",
+      "passed": 8,
+      "checks": [
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40243748398/job/121320871855",
+          "name": "CT Seed v2 Static Audit",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40243748304/job/121320871784",
+          "name": "Clean Production Build",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40243748330/job/121320871790",
+          "name": "Credential-free Production Readiness Audit",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40243748281/job/121320871352",
+          "name": "unit",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40243748308/job/121320871587",
+          "name": "replay",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40243748224/job/121320871290",
+          "name": "report-a11y",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40243748240/job/121320871177",
+          "name": "role-guard-matrix",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40243745872/job/121320864751",
+          "name": "Clean Production Build",
+          "state": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "fingerprint": "c0edef26140e3c629cf6f8c8ba14a1f578b5e1ef2409b1143886358b6fae0e6a",
+    "file_count": 1186
+  },
+  "deployed_staging_unchanged": {
+    "application": "89aa95afd3b2224ee077ca89e5d0cdeb0f78098f",
+    "fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+    "file_count": 1185
+  },
+  "limits": [
+    "Retained legacy planning content is identified, not silently deleted or fully regenerated. Unknown historical dates are not invented.",
+    "Existing stored reports/history are not retroactively changed; current summary/confidence updates require a future authorized regeneration.",
+    "Reported versus verified wording, proposed dates, effectiveness claims and precise recommendation source labels remain separate factual-grounding follow-ups.",
+    "No production-readiness or all-role generation completion claim.",
+    "Initial prompt still requests inferred readiness categories when no assessment was supplied; address this in the remaining factual-grounding pass, rather than treating the regeneration fix as initial-output acceptance."
+  ],
+  "authorization": "No hosted query/fixture, AI/provider request, migration, deployment/publication, production/main merge, new access/account/relationship/share, payment or secret change. Future rollout and bounded AI acceptance need separate approval.",
+  "roadmap": "TF-01\u2013TF-26 and six milestones retained. Report-length/pagination polish and Parent Pilot/Pathway Snapshot remain deferred; prior PPT wording caveat remains open."
+}

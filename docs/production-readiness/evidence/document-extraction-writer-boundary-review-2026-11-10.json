@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-10",
+  "source_commit": "2f475de4e1e8e74bd47930c3141d790b6c86f437",
+  "workstream_actions": [
+    "2.5",
+    "2.6"
+  ],
+  "scope": "Checked-in source/catalog review only; no deployed writer inventory or provider-cessation claim. The newly verified attached-text consumer does not by itself retire older/raw mutation entry points.",
+  "source_manifest": [
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "8aa68746cc4ad18dc62624c71a6f5a3b8fda502aa98f4cc239ca7400aca68dc5"
+    },
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "e1630ac709c0bb2da2150311d6b4f1358b2bc1867176899d7cac96f8bdc1bde8"
+    },
+    {
+      "path": "src/lib/document-text-admission.server.ts",
+      "sha256": "d5cf8dff70d898ba82a94e0375c750f6782ed8b7881a2e48f4c16ff58fe6216d"
+    },
+    {
+      "path": "src/lib/iep-extract.functions.ts",
+      "sha256": "8cb15b4cbb8fb0b959eed03c6ca4fb4a4c27e95ff28e80f56f37704085352403"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-save.sql",
+      "sha256": "1e5721be2ed060549acb1dcdea983a76c20d35929645f9f2e7b6e32f300a5837"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+      "sha256": "f0a019d92cc8c2058bac12f1cbc4cebe12842dbc75dead528c8e95875cf6b3c5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-source-admission.sql",
+      "sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba"
+    },
+    {
+      "path": "supabase/migrations/20260611233234_bbe3f0e0-9292-49dd-a61c-906ed9322a26.sql",
+      "sha256": "faa755cc47add974b343ef2329b31ec0950c7a5e910a2f6a6ae44373115b813c"
+    },
+    {
+      "path": "supabase/migrations/20260613140311_e7baaf4c-78ac-4915-b8f7-8900775dc4ec.sql",
+      "sha256": "d403aa8f1bc70a669668f676060ef3f23b9633316679555e8edde3f94caedf37"
+    }
+  ],
+  "closed_previous_finding": {
+    "path": "src/lib/extractions.functions.ts",
+    "symbol": "runExtractionFromText",
+    "status": "source_disposable_verified",
+    "evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
+    "finding": "Uses replaceDocumentTextExtraction and the exact source-bound begin/save/hold protocol. No document_extractions upsert or unbound-save fallback remains in this current handler."
+  },
+  "existing_paths_to_preserve": [
+    {
+      "symbol": "getOrCreateExtraction",
+      "behavior": "Initialize a pending review with empty sections; requires a distinct safe initializer policy and must not become a way to insert generated raw content."
+    },
+    {
+      "symbol": "updateExtractionSection",
+      "behavior": "Manual section state/value/notes with status in_review; handler preserves original_value."
+    },
+    {
+      "symbol": "updateExtractionMeta",
+      "behavior": "Manual missing-information/questions/review notes; no raw_extract replacement."
+    },
+    {
+      "symbol": "extractFromIep",
+      "behavior": "Independent authorized no-save extraction remains separate; do not impose document IDs or a document-write protocol on unrelated callers."
+    }
+  ],
+  "next_bounded_source_action": {
+    "target": "Fence retired/unbound and raw document-extraction writers without preventing legitimate review edits",
+    "known_open_entrypoints": [
+      {
+        "signature": "public.save_document_text_review(uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)",
+        "finding": "Still authenticated-executable as the invoker primitive called by save_bound_document_text_review; current body does not itself require a matching prepared bound-save claim. Simply revoking its EXECUTE would also break the valid invoker wrapper."
+      },
+      {
+        "relation": "public.document_extractions",
+        "finding": "Canonical table grants include authenticated INSERT/UPDATE/DELETE with editing-access RLS; source-field replacement is not fully separated from manual review edits. New source fences currently protect a completed save only inside its own transaction."
+      }
+    ],
+    "review_requirements": [
+      "Inventory all INSERT/UPDATE/DELETE callers and old adapters before modifying shared raw/source guards",
+      "Require the exact transaction-bound preparation for generated raw replacement and retire the unbound RPC path while keeping the valid invoker wrapper",
+      "Preserve safe empty pending initialization, section/meta editing and existing Apply/summary/registration/rescan behavior",
+      "Assess immutable document/student/creator identity and original source values separately from editable notes and section choices",
+      "Test old/cached clients, direct/raw writes, source moves, access loss, same-source concurrency and both save/rollback orders using actual reviewed functions",
+      "Update the runtime exact-body/protocol checks together with any changed save/guard; refusal on drift is intentional",
+      "Verify complete canonical/proposal installation and all retained native suites; no hosted action without fresh authorization"
+    ]
+  },
+  "standalone_provider_policy_changed": false,
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

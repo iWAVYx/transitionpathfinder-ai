@@ -1,0 +1,206 @@
+{
+  "schema": "transitionforward-action-completion-atomicity-verified-v1",
+  "date": "2026-11-20",
+  "source_commit": "30024c2d464c9cd54cd557f4f66e38e6d661325a",
+  "run_id": 44750682150,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/44750682150",
+  "run_event": "push",
+  "run_attempt": 1,
+  "status": "Normal action-update API and transaction-held atomic action/activity/report-marker component verified in source/disposable scope; whole P1 remains open",
+  "workstreams": [
+    "4.1",
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/action-completion-atomicity/atomic-action-update.review.sql",
+      "sha256": "84f3a0aa467731a37ef194ab3eb47e3dda19226a672001e7cbd5d0c4097822bc"
+    },
+    {
+      "path": "tests/database/action-completion-atomicity.test.mjs",
+      "sha256": "1d6a2ada5b3e52621265f5e99bcd7d30548158f10dba6d1999e709114e2e6834"
+    },
+    {
+      "path": "tests/database/run-action-completion-atomicity-schema.mjs",
+      "sha256": "70a5dbe486a576a5eda9b61b6b5e4fdf13c12fe6164afc6abe2d5c92dd0089c9"
+    },
+    {
+      "path": ".github/workflows/action-completion-atomicity-review.yml",
+      "sha256": "8617bba41f9bd6de76cebff262d701b68e84b397a385bd7458ffc23cb0562412"
+    }
+  ],
+  "application_source_manifest": [
+    {
+      "path": "src/lib/action-items.functions.ts",
+      "sha256": "da979ed806ffdfe77b2fb9b0a5639d998ef448d70fa45d944e450b5a4b2cea18"
+    },
+    {
+      "path": "src/lib/atomic-action-update.server.ts",
+      "sha256": "8db237e8c1971e34a80d79ba3b88ae0ef07a1a5cbc5f7921d69a752cfbc95137"
+    },
+    {
+      "path": "tests/unit/atomic-action-receipts.test.ts",
+      "sha256": "83dfa3830ef209df20b6943076abaff30692a1253b23b84b5b1628cada51b221"
+    },
+    {
+      "path": "tests/unit/planning-side-effects.test.ts",
+      "sha256": "3858273436b08826dcc2f39b8859aa826f0f0bae07c3c1c2f47693dbd6a5e975"
+    }
+  ],
+  "local_sql": {
+    "tests": 39,
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0,
+    "raw_tap_sha256": "f7fdf80f77dcda82f22f9b338853a65ea675476a2560aef7237e995e28a541e7"
+  },
+  "native_sql": {
+    "tests": 74,
+    "passed": 74,
+    "failed": 0,
+    "skipped": 0,
+    "case_names": [
+      "current family atomically completes action/activity/report marker",
+      "current student atomically completes action/activity/report marker",
+      "current educator atomically completes action/activity/report marker",
+      "current school atomically completes action/activity/report marker",
+      "current district atomically completes action/activity/report marker",
+      "current owner atomically completes action/activity/report marker",
+      "ineligible owner cannot update despite broad role or partner relationship",
+      "ineligible partner cannot update despite broad role or partner relationship",
+      "ineligible outsider cannot update despite broad role or partner relationship",
+      "an assignee needs explicit current reading proof and only marks derived report metadata",
+      "assignee identity without student reading proof cannot update",
+      "a read-only non-assignee cannot change actions",
+      "reject wrong loaded intent {\"parent\":\"00000000-0000-4000-8000-000000000021\"}",
+      "reject wrong loaded intent {\"viewer\":\"00000000-0000-4000-8000-000000000003\"}",
+      "reject wrong loaded intent {\"id\":\"00000000-0000-4000-8000-000000000090\"}",
+      "reject wrong loaded intent {\"version\":\"2026-11-19T12:00:00.000002Z\"}",
+      "reject invalid or identity-changing patch student_id{\"student_id\":\"00000000-0000-4000-8000-0",
+      "reject invalid or identity-changing patch created_by_user_id{\"created_by_user_id\":\"00000000-0000-400",
+      "reject invalid or identity-changing patch assigned_to_user_id{\"assigned_to_user_id\":\"00000000-0000-40",
+      "reject invalid or identity-changing patch pathway_report_id{\"pathway_report_id\":\"00000000-0000-4000",
+      "reject invalid or identity-changing patch status{\"status\":null}",
+      "reject invalid or identity-changing patch status{\"status\":\"done\"}",
+      "reject invalid or identity-changing patch priority{\"priority\":\"urgent\"}",
+      "reject invalid or identity-changing patch title{\"title\":\"\"}",
+      "reject invalid or identity-changing patch title{\"title\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "reject invalid or identity-changing patch description{\"description\":3}",
+      "reject invalid or identity-changing patch description{\"description\":\"xxxxxxxxxxxxxxxxxxxxxxxx",
+      "reject invalid or identity-changing patch due_date{\"due_date\":\"next-week\"}",
+      "both completion forms produce one event; no-op and alias changes never duplicate it complete",
+      "both completion forms produce one event; no-op and alias changes never duplicate it completed",
+      "ordinary content edits are exact and do not manufacture completion effects",
+      "suppressed action row rolls back all completion effects",
+      "suppressed event row rolls back all completion effects",
+      "suppressed report row rolls back all completion effects",
+      "a wrong linked student prevents every write",
+      "stale retry after a committed completion cannot duplicate its activity",
+      "installation preserves existing rows and ordinary raw grants; broad writer review stays open",
+      "RPC is authenticated-only and revision helper stays private",
+      "repeat installation stops before partial replacement",
+      "native action family save-first through COMMIT",
+      "native action family removal-first through COMMIT",
+      "native action family save-first through ROLLBACK",
+      "native action family removal-first through ROLLBACK",
+      "native action student save-first through COMMIT",
+      "native action student removal-first through COMMIT",
+      "native action student save-first through ROLLBACK",
+      "native action student removal-first through ROLLBACK",
+      "native action educator save-first through COMMIT",
+      "native action educator removal-first through COMMIT",
+      "native action educator save-first through ROLLBACK",
+      "native action educator removal-first through ROLLBACK",
+      "native action school save-first through COMMIT",
+      "native action school removal-first through COMMIT",
+      "native action school save-first through ROLLBACK",
+      "native action school removal-first through ROLLBACK",
+      "native action district save-first through COMMIT",
+      "native action district removal-first through COMMIT",
+      "native action district save-first through ROLLBACK",
+      "native action district removal-first through ROLLBACK",
+      "native action owner save-first through COMMIT",
+      "native action owner removal-first through COMMIT",
+      "native action owner save-first through ROLLBACK",
+      "native action owner removal-first through ROLLBACK",
+      "native action partner-transition save-first through COMMIT",
+      "native action partner-transition removal-first through COMMIT",
+      "native action partner-transition save-first through ROLLBACK",
+      "native action partner-transition removal-first through ROLLBACK",
+      "native action assignee save-first through COMMIT",
+      "native action assignee removal-first through COMMIT",
+      "native action assignee save-first through ROLLBACK",
+      "native action assignee removal-first through ROLLBACK",
+      "native competing action updates through COMMIT",
+      "native competing action updates through ROLLBACK",
+      "native cached RPC rechecks removed access"
+    ],
+    "observed_access_removal_commit_rollback_races": 32,
+    "observed_competing_update_cases": 2,
+    "cached_current_access_recheck_cases": 1,
+    "raw_tap_sha256": "407ce9ff6eac1c8d9a936a39f292876311c4ed0d380fa4f0d9ee693894265d08"
+  },
+  "schema_installation": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 11,
+    "inherited_install_catalog_stages": 56,
+    "all_inherited_scripts_logs_independently_checked": true,
+    "original_sql_files_independently_checked": 297,
+    "all_existing_routines_policies_triggers_columns_indexes_constraints_grants_and_data_preserved": true,
+    "new_routines": 2,
+    "new_authenticated_only_rpc": 1,
+    "new_private_revision_helper": 1,
+    "new_revision_trigger": 1,
+    "real_schema_smoke": {
+      "real_auth_student_intake_report_action_feed_tables": true,
+      "authenticated_completion_and_linked_report_marker": true,
+      "no_duplicate_event_on_noop": true,
+      "fictional_transaction_rolled_back": true
+    },
+    "proof": "docs/production-readiness/evidence/action-completion-atomicity-action-completion-atomicity-schema-2026-11-20.json",
+    "proof_sha256": "58e0f50b6a485cf5e6d787155987839401527cbbc1b4f5851b1263ba5bec09ea",
+    "prior_regression_cases_rerun_claimed": false
+  },
+  "application": {
+    "unit_tests": 6594,
+    "unit_files": 395,
+    "focused_tests": 67,
+    "typescript": "passed",
+    "readiness_navigation_inventory_contracts": 112,
+    "release_security_contracts": 72,
+    "isolated_environment_file_free_staging_build": "passed",
+    "service_worker": "passed",
+    "isolated_copy_fingerprint_matches": true,
+    "runtime_source": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "055fd293ab061d2c3255e5cb87d8faae6a2a7429ae81f8784ba9a729e55b4f98",
+      "fileCount": 1246
+    }
+  },
+  "completed": [
+    "Normal action updates require loaded student/revision intent and use one authenticated-only database RPC; no raw or legacy fallback. Exact actor/student/row/microsecond/effect receipts are validated.",
+    "Current student reading proof and role locks remain held through commit/rollback; editors also hold editing proof. An assignee without current student reading proof is refused.",
+    "Action row, completion activity and linked report stale marker commit together or all roll back. Suppressed/mismatched effect receipts cannot leave a successful action behind.",
+    "No-op, completion-label aliases and stale retries cannot duplicate activity. Competing old versions cannot overwrite a committed newer update.",
+    "Current read-only assignees preserve their existing action-edit capability. The RPC can mark only the linked report-derived stale metadata; it does not alter content or grant report access.",
+    "All old records, routine bodies, policies and table grants remain unchanged; one private revision trigger adds increasing microsecond versions for subsequent updates."
+  ],
+  "remaining": [
+    "Raw/cached/trusted writers outside the new RPC remain available under existing rules and do not gain RPC atomicity or loaded-version enforcement. Their authority/identity/completion paths remain open.",
+    "Other action CRUD and goals/student/profile/BridgeForward/privacy/caseload work remains in P1; the eight endpoint inventory entries remain review-required.",
+    "Final routine catalogue/canonical/ledger packaging, target impact review, combined release regression and separately authorized hosted rollout/role/mobile/demo/provider acceptance remain open."
+  ],
+  "normal_action_update_component_complete": true,
+  "all_action_writers_complete": false,
+  "whole_p1_complete": false,
+  "whole_workstream_complete": false,
+  "canonical_or_ledger_promoted": false,
+  "hosted_actions": false,
+  "provider_or_ai_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

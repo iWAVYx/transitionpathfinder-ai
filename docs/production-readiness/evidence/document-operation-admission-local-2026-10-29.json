@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-29",
+  "status": "Noncanonical durable admission foundation verified in both native/full-schema runs; no handler integration or hosted activation",
+  "source_base": "12860f08",
+  "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
+  "proposal_sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb",
+  "canonical_count": 225,
+  "new_canonical_migrations": 0,
+  "prepared_admission_proposals": 1,
+  "application_changed": false,
+  "application_fingerprint": "2052a88b3659f352848ca036c45a8b358c4edb7066039b260bcb34b39aefe886",
+  "application_file_count": 1200,
+  "local_sql": {
+    "tests": 694,
+    "pass": 620,
+    "fail": 0,
+    "skip": 74,
+    "skips": "Native PostgreSQL contention only."
+  },
+  "local_safety_transport_contracts": {
+    "pass": 92,
+    "fail": 0,
+    "skip": 0
+  },
+  "verified_locally": [
+    "Default paused, service-only admission/pause/finish/aggregate inspection; no raw table access for anon/authenticated/service roles. Forged role claims do not grant execution.",
+    "Shared control-row locking and READ COMMITTED only; stale revisions, duplicate operation IDs, foreign receipts/actors, unknown kinds and wrong outcomes are refused.",
+    "Active work remains counted across pause; completion can drain it. needs_review stays permanently held through these RPCs, with no expiry, automatic replay, release or delete.",
+    "Audit insertion and control revision update are atomic; missing singleton cannot admit work or return a ready status.",
+    "Inspection returns only per-kind active/needs_review counts plus version/paused state; legacy_handlers_covered, provider_quiescence_verified, ready_for_cutover and cleanup_authorized remain false."
+  ],
+  "remaining": [
+    "Four waiting-admission/pause commit/rollback cases and complete225-schema compatibility now pass natively; application/worker integration remains pending.",
+    "Application/browser upload intervals, register/rescan/Apply and background worker are not integrated. Old handlers and external provider work remain untracked; the foundation cannot certify cutover readiness.",
+    "Proposal not canonical or applied hosted; service-supplied operator attribution is not human approval. Permission to control admission is not permission to access student data.",
+    "Complete ledger/data/provider/reference/retention gates and fresh authorization remain required; no effect on current staging or production.",
+    "Full TF-01\u2013TF-26/six milestones retained; report polish and Parent Pilot/Pathway Snapshot deferred."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false,
+  "initial_native_failure": {
+    "source": "88c27e1f8e4e731165d05888970452fc3fcc6c3c",
+    "pr_run": 40925279496,
+    "push_run": 40925270325,
+    "tests": 694,
+    "pass": 690,
+    "fail": 4,
+    "skip": 0,
+    "failure": "Four new lock-observation cases timed out: the pg_stat_activity observer retained the restricted service role. No application SQL assertion failed before those four observer timeouts.",
+    "correction": "Reset only the separate disposable observer to its test-owner session and assert it explicitly. Both competing callers remain service_role with explicit role assertions. SQL/grants/assertions unchanged; both corrected native runs now pass694/694, zero skips."
+  },
+  "verified_source": "f0c963961dc437373e3d979e0763af78530f96ae",
+  "native_sql": {
+    "tests": 694,
+    "pass": 694,
+    "fail": 0,
+    "skip": 0,
+    "canonical_replay": 225,
+    "additional_proposal": "document-operation-admission.sql",
+    "full_schema_service_grants_and_rollback_smoke": "passed on both runs; aggregate returns initial paused state after smoke rollback",
+    "artifacts": [
+      {
+        "event": "pr",
+        "run": 40926545339,
+        "sha256": {
+          "document-operation-admission.json": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92",
+          "atomic-extraction-preflight.json": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45"
+        }
+      },
+      {
+        "event": "push",
+        "run": 40926536704,
+        "sha256": {
+          "document-operation-admission.json": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92",
+          "atomic-extraction-preflight.json": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45"
+        }
+      }
+    ],
+    "retained_admission_artifact": "docs/production-readiness/evidence/document-operation-admission-disposable-2026-10-29.json",
+    "retained_catalog_artifact": "docs/production-readiness/evidence/document-reference-catalog-admission-2026-10-29.json",
+    "limits": "Disposable schema/data only. tracked_operations_clear describes this new register, not legacy or provider quiescence."
+  },
+  "automatic_checks": {
+    "pass": 9,
+    "build_runs": [
+      40926545364,
+      40926536683
+    ],
+    "unit_run": 40926545368,
+    "unit_tests": 5294,
+    "role_run": 40926545316,
+    "accessibility_run": 40926545147,
+    "readiness_run": 40926545253,
+    "static_run": 40926545286,
+    "protected_hosted_checks": "Skipped/unperformed; no live acceptance inferred."
+  }
+}

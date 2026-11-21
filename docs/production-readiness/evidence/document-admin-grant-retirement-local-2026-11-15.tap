@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: baseline: platform admin can self-grant unrelated active document metadata and Storage access
+ok 1 - baseline: platform admin can self-grant unrelated active document metadata and Storage access
+  ---
+  duration_ms: 762.227042
+  type: 'test'
+  ...
+# Subtest: baseline: an unexpired Owner grant works without any student relationship
+ok 2 - baseline: an unexpired Owner grant works without any student relationship
+  ---
+  duration_ms: 1.662292
+  type: 'test'
+  ...
+# Subtest: retirement: pre-existing unexpired active grant no longer reads metadata or Storage
+ok 3 - retirement: pre-existing unexpired active grant no longer reads metadata or Storage
+  ---
+  duration_ms: 4.904292
+  type: 'test'
+  ...
+# Subtest: retirement: pre-existing unexpired archived grant no longer reads metadata or Storage
+ok 4 - retirement: pre-existing unexpired archived grant no longer reads metadata or Storage
+  ---
+  duration_ms: 2.253958
+  type: 'test'
+  ...
+# Subtest: retirement: pre-existing unexpired deleted grant no longer reads metadata or Storage
+ok 5 - retirement: pre-existing unexpired deleted grant no longer reads metadata or Storage
+  ---
+  duration_ms: 1.874458
+  type: 'test'
+  ...
+# Subtest: retirement: cached authenticated owner grant INSERT is refused
+ok 6 - retirement: cached authenticated owner grant INSERT is refused
+  ---
+  duration_ms: 2.391583
+  type: 'test'
+  ...
+# Subtest: retirement: cached authenticated platform_admin grant INSERT is refused
+ok 7 - retirement: cached authenticated platform_admin grant INSERT is refused
+  ---
+  duration_ms: 1.785042
+  type: 'test'
+  ...
+# Subtest: retirement: accidental future permissive INSERT policy/privilege cannot reopen grants
+ok 8 - retirement: accidental future permissive INSERT policy/privilege cannot reopen grants
+  ---
+  duration_ms: 1.655125
+  type: 'test'
+  ...
+# Subtest: retirement preserves explicit active document/Storage access for family
+ok 9 - retirement preserves explicit active document/Storage access for family
+  ---
+  duration_ms: 2.029542
+  type: 'test'
+  ...
+# Subtest: retirement preserves explicit active document/Storage access for guardian
+ok 10 - retirement preserves explicit active document/Storage access for guardian
+  ---
+  duration_ms: 1.750708
+  type: 'test'
+  ...
+# Subtest: retirement preserves explicit active document/Storage access for student
+ok 11 - retirement preserves explicit active document/Storage access for student
+  ---
+  duration_ms: 1.901916
+  type: 'test'
+  ...
+# Subtest: retirement preserves explicit active document/Storage access for educator
+ok 12 - retirement preserves explicit active document/Storage access for educator
+  ---
+  duration_ms: 1.705333
+  type: 'test'
+  ...
+# Subtest: retirement preserves explicit active document/Storage access for school
+ok 13 - retirement preserves explicit active document/Storage access for school
+  ---
+  duration_ms: 2.840041
+  type: 'test'
+  ...
+# Subtest: retirement preserves explicit active document/Storage access for district
+ok 14 - retirement preserves explicit active document/Storage access for district
+  ---
+  duration_ms: 1.770709
+  type: 'test'
+  ...
+# Subtest: retirement preserves genuine student collaboration for owner
+ok 15 - retirement preserves genuine student collaboration for owner
+  ---
+  duration_ms: 1.607416
+  type: 'test'
+  ...
+# Subtest: retirement preserves genuine student collaboration for platform_admin
+ok 16 - retirement preserves genuine student collaboration for platform_admin
+  ---
+  duration_ms: 1.530833
+  type: 'test'
+  ...
+# Subtest: retirement preserves a directly assigned document permission without an admin-role shortcut
+ok 17 - retirement preserves a directly assigned document permission without an admin-role shortcut
+  ---
+  duration_ms: 1.605666
+  type: 'test'
+  ...
+# Subtest: partner-only membership cannot use a student collaboration to read documents
+ok 18 - partner-only membership cannot use a student collaboration to read documents
+  ---
+  duration_ms: 1.429625
+  type: 'test'
+  ...
+# Subtest: unrelated and removed collaborators stay denied after retirement
+ok 19 - unrelated and removed collaborators stay denied after retirement
+  ---
+  duration_ms: 2.483625
+  type: 'test'
+  ...
+# Subtest: legitimate pre-registration Storage reads for the editing uploader are preserved
+ok 20 - legitimate pre-registration Storage reads for the editing uploader are preserved
+  ---
+  duration_ms: 1.696291
+  type: 'test'
+  ...
+# Subtest: existing quarantine and no-client-overwrite/delete fences remain installed
+ok 21 - existing quarantine and no-client-overwrite/delete fences remain installed
+  ---
+  duration_ms: 2.029208
+  type: 'test'
+  ...
+# Subtest: retirement preserves every historical grant row and existing Storage helper body
+ok 22 - retirement preserves every historical grant row and existing Storage helper body
+  ---
+  duration_ms: 2.259167
+  type: 'test'
+  ...
+# Subtest: retired helper preserves its OID/ACL, uses invoker mode and never treats service-written grants as access
+ok 23 - retired helper preserves its OID/ACL, uses invoker mode and never treats service-written grants as access
+  ---
+  duration_ms: 4.599167
+  type: 'test'
+  ...
+# Subtest: changed legacy function body refuses installation without partial retirement
+ok 24 - changed legacy function body refuses installation without partial retirement
+  ---
+  duration_ms: 1.222666
+  type: 'test'
+  ...
+# Subtest: repeat installation refuses the unreviewed state instead of blindly rerunning
+ok 25 - repeat installation refuses the unreviewed state instead of blindly rerunning
+  ---
+  duration_ms: 1.201084
+  type: 'test'
+  ...
+# Subtest: retirement preserves archived editor access and denies an archived viewer
+ok 26 - retirement preserves archived editor access and denies an archived viewer
+  ---
+  duration_ms: 2.685208
+  type: 'test'
+  ...
+# Subtest: retirement rollback restores the original policy/privilege/helper atomically
+ok 27 - retirement rollback restores the original policy/privilege/helper atomically
+  ---
+  duration_ms: 2.188208
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 897.657417

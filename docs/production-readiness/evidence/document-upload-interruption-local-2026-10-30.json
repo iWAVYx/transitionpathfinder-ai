@@ -1,0 +1,88 @@
+{
+  "schema": "document-upload-interruption-local-v1",
+  "date": "2026-10-30",
+  "source_base": "a98d0b39cfe28c106f83625286aeaf63a522fe06",
+  "status": "Locally verified prepared tab-local interruption reminder and completed-only recovery; not activated hosted",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-upload-interruption.ts",
+      "sha256": "074dd1d6d7256dd3e4220879af1ed2ff5852264ca75c8942c241c3dd19af629f"
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "c0bf5717356ef915a92408135b760b8dd5d5583315e0fa020edb384cb2f41f45"
+    },
+    {
+      "path": "src/lib/document-upload-reservation.server.ts",
+      "sha256": "ca6c746834e2deca8524ea47a37f39a2a16f2d2ffe46f6ae65746d58a3e9bf80"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "2449e83eaa6ef7705c9b50f3f092de00df794ec0fe80477250bc4e0ccf632c16"
+    },
+    {
+      "path": "tests/unit/document-upload-interruption.test.ts",
+      "sha256": "3cbb1312bcf853342a5a9fd8096045cae832ae360cccb8545512ebe4f571d345"
+    },
+    {
+      "path": "tests/unit/document-interrupted-recovery.test.ts",
+      "sha256": "f5122a8e6b7b4053e5f6211dcd54b91d88f0e13488a34e5cfb980a7a92cf4e92"
+    },
+    {
+      "path": "tests/unit/family-document-upload-outcomes.test.tsx",
+      "sha256": "e42d6b5aeb7400a9093cb49b28b8fa72cfacf15aee50b88a62a1c1628707dbcf"
+    },
+    {
+      "path": "tests/unit/document-registration-boundary.test.ts",
+      "sha256": "8f9aca5f4cc81b6fdd2465db545d6ccc91147f8fa6d052d0e922be34f1f9e224"
+    }
+  ],
+  "validation": {
+    "unit_tests": 5661,
+    "unit_files": 359,
+    "focused_tests": 164,
+    "focused_files": 4,
+    "typescript": "passed",
+    "safety_contracts": 92,
+    "isolated_staging_build": "passed",
+    "exact_source_automatic_checks": "pending",
+    "prior_handler_candidate": "Seven applicable checks passed; disposable native replay still in progress at this checkpoint."
+  },
+  "application_runtime": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "files": 1205
+  },
+  "browser_storage": {
+    "kind": "sessionStorage",
+    "scope": "one tab, viewer and student",
+    "key": "versioned prefix plus encoded viewer/student identifiers",
+    "value": "attempt UUID only",
+    "stores_document_content": false,
+    "stores_names_or_file_details": false,
+    "stores_review_metadata_or_capabilities": false,
+    "expires_or_clears_on_absence": false,
+    "authoritative": false
+  },
+  "behavior": [
+    "Remember the attempt before the first reservation request; failed/unconfirmed storage blocks before reservation.",
+    "Unmount/account/access changes stop departed work; same-tab remount/reload reads the old reminder without resuming upload or scanning.",
+    "At most one in-flight status check, including StrictMode; initial read and explicit manual status checks are read-only.",
+    "Current-viewer/gated status endpoint uses caller-RLS metadata, binds actor/student/attempt/path/registered pointer and stored review hash, then invokes the existing completed-only registration RPC.",
+    "Missing/held/reserved/foreign/pending/error/uncertain status never clears the reminder. No absence-based reset, reattachment, expiry, file read, scan, generation or admission.",
+    "Only an exact terminal status result may clear that exact reminder; late departed-account responses cannot clear it.",
+    "Pending immediate upload/recovery receipts now retain the reminder instead of treating security review as completed."
+  ],
+  "limitations": [
+    "The reminder is tab-local advisory state, not global quota, durable backend accounting or provider completion proof.",
+    "Session storage can be removed or lost when a tab/browser closes; cross-tab/device and retained active-registered/held-work bounds remain server-side requirements.",
+    "Manual reconciliation and authoritative release/retirement of held work remain unimplemented; no automatic reset is offered.",
+    "The status endpoint depends on the reviewed completion-gated database proposal being installed coherently with the handler; no legacy fallback is allowed.",
+    "Physical Storage/provider behavior, worker claim metadata handoff, canonical/ledger packaging and freshly authorized hosted acceptance remain open."
+  ],
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

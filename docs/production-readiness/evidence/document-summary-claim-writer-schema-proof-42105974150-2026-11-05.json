@@ -1,0 +1,22 @@
+{
+  "paused": true,
+  "schema": "document-summary-claim-write-fence-proof-v1",
+  "helpers": [
+    {
+      "name": "check_document_summary_claim_committed",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "d10258785f01c5cc825b43621e57f7dc"
+    },
+    {
+      "name": "guard_document_summary_claim_writer",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "f55a7b4a3e798b9ada2d90dee1dd630c"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false,
+  "processing_summaries": 0,
+  "source_claim_body_md5": "c447fea2a55afefc6ad1451986ac1eea"
+}

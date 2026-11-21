@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { listPublicPartners, listPartnersForBrowse } from "@/lib/partner-network.functions";
+import { isFeaturedPartner } from "@/lib/partner-network/featured";
 import { TrustNote } from "@/components/site/TrustNote";
 
 type Partner = {
@@ -150,7 +151,7 @@ export function PartnerDirectoryPage({ signedIn = false }: { signedIn?: boolean 
   }, [rows, q, county, pathway, serviceType, audience, collection]);
 
   const verified = filtered.filter((p) => p.verification_status === "verified");
-  const featured = filtered.filter((p) => p.is_featured || p.verification_status === "featured");
+  const featured = filtered.filter(isFeaturedPartner);
   const leads = filtered.filter((p) =>
     ["potential", "needs_review", "featured"].includes(p.verification_status),
   );

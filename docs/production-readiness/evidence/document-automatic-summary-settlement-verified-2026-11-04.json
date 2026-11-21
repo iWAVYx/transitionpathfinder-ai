@@ -1,0 +1,98 @@
+{
+  "schema": "document-automatic-summary-settlement-verified-v1",
+  "date": "2026-11-04",
+  "verified_source": "e1940751f413fb621811239e6e4bba480f844204",
+  "runtime_sql_source": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2",
+  "runs": [
+    {
+      "run": 41683201113,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41683201113",
+      "event": "push",
+      "head_source": "e1940751f413fb621811239e6e4bba480f844204",
+      "checkout_commit": "e1940751f413fb621811239e6e4bba480f844204",
+      "native_tests": 1386,
+      "passed": 1386,
+      "skipped": 0,
+      "early_cases": 340,
+      "early_passed": 340,
+      "local_model": {
+        "tests": 1386,
+        "pass": 1218,
+        "fail": 0,
+        "skipped": 168
+      },
+      "local_partitions": [
+        45,
+        44,
+        847,
+        208,
+        104,
+        86,
+        52
+      ],
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 15,
+      "artifact": "docs/production-readiness/evidence/document-automatic-summary-settlement-proof-41683201113-2026-11-04.json",
+      "artifact_sha256": "538f2d937b2ad794514aaa573f73d90a57cee6cd583ffb6610572ce4ccf609f5",
+      "log_sha256": "1e6c51f6d6799ed55688c8bb47a1550b3a13ea3ff533122c3c0880a05888eef1"
+    },
+    {
+      "run": 41683212048,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41683212048",
+      "event": "pull_request",
+      "head_source": "e1940751f413fb621811239e6e4bba480f844204",
+      "checkout_commit": "77d37c2659a3295a7d0f04c4e593cec3f9dd65c5",
+      "native_tests": 1386,
+      "passed": 1386,
+      "skipped": 0,
+      "early_cases": 340,
+      "early_passed": 340,
+      "local_model": {
+        "tests": 1386,
+        "pass": 1218,
+        "fail": 0,
+        "skipped": 168
+      },
+      "local_partitions": [
+        45,
+        44,
+        847,
+        208,
+        104,
+        86,
+        52
+      ],
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 15,
+      "artifact": "docs/production-readiness/evidence/document-automatic-summary-settlement-proof-41683212048-2026-11-04.json",
+      "artifact_sha256": "538f2d937b2ad794514aaa573f73d90a57cee6cd583ffb6610572ce4ccf609f5",
+      "log_sha256": "a8582f12313d822f32275a2c3df2c95b85f0e0a95620b2cc8eed745d796f7421"
+    }
+  ],
+  "scope": "Both complete1386-case zero-skip native suites,340-case early suites,1386-case local models (1218pass/168native-only skips) and225+15 canonical/proposal replays. Thirteen routine bodies/owners/fixed paths match current review. Admission and32 inherited routine/14 private table metadata checks passed. PR merge checkout differs from exact push source.",
+  "workstreams": [
+    1,
+    4,
+    5
+  ],
+  "completed_substeps": [
+    "Workstream1: automatic exact worker settlement native/full-schema gate verified",
+    "Workstream4: retain matching proof identities and ordered15-proposal replay evidence",
+    "Workstream5: metadata preflight hardening verified in native/full-schema runs"
+  ],
+  "whole_workstreams_closed": [],
+  "automatic_worker_settlement_verified_in_disposable_database": true,
+  "producer_source_endpoints_wired": false,
+  "automatic_producer_settlement_hooks_installed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "next": "Prepare the source-bound rescan service boundary and producer integration while preserving private helper permissions; general Apply accounting, reconciliation, actual Storage/provider proof and coordinated release remain open.",
+  "retained_record_checks": {
+    "readiness_and_hosting_contracts": 41,
+    "passed": 41,
+    "failed": 0,
+    "diff_check": "passed"
+  }
+}

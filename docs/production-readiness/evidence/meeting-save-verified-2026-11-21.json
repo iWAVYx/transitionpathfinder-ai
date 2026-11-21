@@ -1,0 +1,113 @@
+{
+  "schema": "meeting-save-verified-v1",
+  "date": "2026-11-21",
+  "sql_source_commit": "e13ab315ef55adfabd19055a5ed0c13b24ede41d",
+  "native_run": {
+    "id": 44941614755,
+    "event": "push",
+    "attempt": 1,
+    "conclusion": "success"
+  },
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "740dcbde515250232767519903da1d57aaed45c7537aade30ed01a45f29fa246",
+    "fileCount": 1253
+  },
+  "validation": {
+    "unit_tests": 6914,
+    "unit_files": 409,
+    "focused_tests": 101,
+    "readiness_inventory_role_contracts": 51,
+    "release_security_contracts": 72,
+    "local_database_cases": 28,
+    "native_database_cases": 59,
+    "observed_cross_role_removal_races": 28,
+    "competing_completion_cases": 2,
+    "cached_client_rechecks": 1,
+    "canonical_migrations": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 15,
+    "inherited_schema_stages": 56,
+    "independently_matched_original_sql_sources": 297,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "source_copy_fingerprint": "exact match"
+  },
+  "closed_components": [
+    "Atomic meeting completion, promotion, linkage and activity",
+    "Current explicit access held through completion commit",
+    "Loaded student/actor/revision checks and saved receipts for field edits",
+    "Prevent status-only completion bypass",
+    "Current-context UI replies, uncertainty/duplicate fencing and explicit reload",
+    "Reject failed meeting child reads instead of false empty lists",
+    "Plain-language restrictive student-deletion failure"
+  ],
+  "open": [
+    "Durable student creation outcome recovery and deletion tombstones",
+    "Coordinated student record/storage/provider deletion",
+    "Meeting creation/default agenda and later child/template/raw writers",
+    "Channel mirrors and bulk/trusted goal saves",
+    "Held parent proof for recommendation prep; BridgeForward and P2/P3/P4",
+    "Canonical promotion, authorized staging rollout and hosted acceptance"
+  ],
+  "hosted_changes": false,
+  "production_changes": false,
+  "provider_calls": 0,
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/meeting-completion-atomicity/complete-meeting.review.sql",
+      "sha256": "4136b892329ae2afd79ace4b59937ea3f6d0b0b0217420bbfd4e0f9f3825f71a"
+    },
+    {
+      "path": "tests/database/meeting-completion-atomicity.test.mjs",
+      "sha256": "768b32daac6614e96a189dd86c0cf097859275f8271f11b3a04218e4904f8a31"
+    },
+    {
+      "path": "tests/database/run-meeting-completion-atomicity-schema.mjs",
+      "sha256": "189fdf571e0138ca92b31ce345354fa7ab824bc5f4417b348b58d66df32b7627"
+    },
+    {
+      "path": ".github/workflows/meeting-completion-atomicity-review.yml",
+      "sha256": "6a440d959f9b94dc8a0b1d82e0365aa366d296e32d661e1f1a457a0a30985c03"
+    },
+    {
+      "path": "docs/production-readiness/evidence/meeting-completion-full-chain-2026-11-21.json",
+      "sha256": "77319a4a56257c45e4d07ba8d14575949e74fc4f29277bc16afe2f0303849a29"
+    },
+    {
+      "path": "docs/production-readiness/evidence/meeting-completion-local-2026-11-21.tap",
+      "sha256": "f41b976c3a44a371f26594a6b4d35b30acce83d5d9728fd8f5069133f190a501"
+    },
+    {
+      "path": "docs/production-readiness/evidence/meeting-completion-native-2026-11-21.tap",
+      "sha256": "68d0a2de5f3819cc6591224149f5189ee44da553b0c86fc020234f6e93769aac"
+    }
+  ],
+  "local_logs": [
+    {
+      "path": "/private/tmp/tf-meeting-all.log",
+      "sha256": "f82daa234d634ceb6aae8c53e0e8a5d5dfa93a8e1a42ed03d5080f29c790fd82"
+    },
+    {
+      "path": "/private/tmp/tf-meeting-focused-final.log",
+      "sha256": "a2458310e4f9b8b95f95563f46793c64031a08659a994d8b55b489fd1c2cabad"
+    },
+    {
+      "path": "/private/tmp/tf-meeting-tsc-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/tf-meeting-contracts.log",
+      "sha256": "229aa5499cadc9a483a30537608e8fa4e744627cb1107f8cfd255c9a292f2616"
+    },
+    {
+      "path": "/private/tmp/tf-meeting-release.log",
+      "sha256": "1a5784bd8de6033cb216eadbb3d422aaeedfb153d20e1f133f790493b79a1841"
+    },
+    {
+      "path": "/private/tmp/tf-meeting-isolated-build.log",
+      "sha256": "4dc80a038827139d6affa05746edf296bdbd740d77777b9ea8ca92f6aadd20c2"
+    }
+  ]
+}

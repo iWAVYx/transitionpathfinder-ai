@@ -1,3 +1,6 @@
+import { useContext } from "react";
+import { DashboardReturnContext } from "@/components/dashboard/dashboard-return-context";
+import { useNavigationOrigin, followOrigin } from "@/components/navigation/NavigationOriginProvider";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import {
@@ -51,6 +54,8 @@ export function WorkspaceShell({
   className,
   children,
 }: WorkspaceShellProps) {
+  const origin = useNavigationOrigin();
+  const headerOwnsReturn = useContext(DashboardReturnContext);
   const [isExiting, setIsExiting] = useState(false);
   const stage = getStage(activeStageId);
 
@@ -64,16 +69,16 @@ export function WorkspaceShell({
       data-testid="workspace-shell"
       data-active-stage={activeStageId}
     >
-      {backTo ? (
+      {backTo && !(origin && headerOwnsReturn) ? (
         <Link
-          to={backTo.to}
-          onClick={() => setIsExiting(true)}
+          to={origin?.to ?? backTo.to}
+          onClick={event => { if (origin) followOrigin(event, origin); setIsExiting(true); }}
           className={cn(
             "inline-flex items-center gap-1.5 self-start rounded-full px-2 py-0 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
           )}
         >
           <ArrowLeft className="h-4 w-4" />
-          {backTo.label ?? "Back"}
+          {origin?.label ?? backTo.label ?? "Back"}
         </Link>
       ) : null}
       {(eyebrow || eyebrowAside) ? (

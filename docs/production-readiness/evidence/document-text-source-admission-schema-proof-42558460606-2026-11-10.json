@@ -1,0 +1,11 @@
+{
+  "schema": "document-text-source-admission-schema-proof-v1",
+  "paused": true,
+  "remaining_capacity_units": 0,
+  "service_only_source_admission": true,
+  "authenticated_caller_rls_save": true,
+  "generic_admission_private": true,
+  "actual_provider_behavior_verified": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

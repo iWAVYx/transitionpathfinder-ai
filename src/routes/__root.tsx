@@ -1,3 +1,4 @@
+import { NavigationOriginProvider } from "@/components/navigation/NavigationOriginProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -55,7 +56,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   const location = useLocation();
@@ -276,7 +277,7 @@ function RootComponent() {
         <SmoothScroll />
         <ScrollToTop />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <NavigationOriginProvider><Outlet /></NavigationOriginProvider>
         <Toaster />
         <AccessibilityControls />
       </LanguageProvider>

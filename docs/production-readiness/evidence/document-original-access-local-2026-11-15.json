@@ -1,0 +1,79 @@
+{
+  "schema": "transitionforward-document-original-access-local-v1",
+  "date": "2026-11-15",
+  "source_base": "bde73ced025f576097f97495507fe63142236b4b",
+  "status": "44 local cases pass; native53 and full-schema proof pending",
+  "workstreams": [
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-original-access/restrict-original-file-grants.review.sql",
+      "sha256": "8ecdce7ae2eff1122281de91dc6a5e6be2a123998d4d86af51d8c46506fbe109"
+    },
+    {
+      "path": "tests/database/document-original-access.test.mjs",
+      "sha256": "f1ab4c0323d7602e2cec51132353c65b2ff05b88504265a7cff3f609d677aae3"
+    },
+    {
+      "path": "tests/database/run-document-original-access-schema.mjs",
+      "sha256": "c78a6173903b669cbde440c9b089487851dc98c40d9c43e4c4c12a9fed30b3ab"
+    },
+    {
+      "path": ".github/workflows/document-original-access-review.yml",
+      "sha256": "780237c96ac4c8af988d45aac064329e6c4992920c6896fb7ab8a9b192106c83"
+    },
+    {
+      "path": "src/components/students/DocumentPermissionsDialog.tsx",
+      "sha256": "9ca53355ba1c6f9a01c921cac05dfcaca5b5ddeca4775adce628d56f1307678d"
+    },
+    {
+      "path": "tests/unit/document-permissions-lifetime.test.tsx",
+      "sha256": "414750ec35d8a3648017db61c604ff73b258c38d6084c3b45b33da61d2f5d05f"
+    }
+  ],
+  "reproductions": [
+    "A correctly bound view_summary or student-friendly-summary grant alone exposes original document metadata and a Storage row.",
+    "An audience grant exposes an original to unrelated accounts with that role."
+  ],
+  "correction": [
+    "Only individual full-file permission levels can supply grant-origin original-file access; limited and role-wide grants remain stored but cannot do so.",
+    "A platform management role additionally requires explicit student access. Partner-only accounts are denied. Existing independent student-team access remains unchanged.",
+    "Four restrictive policies fence document/Storage reads, supported individual INSERT and no client replacement. Authenticated/PUBLIC/anon UPDATE privilege is retired; other table privileges and policies remain.",
+    "New authenticated grants match the supported source writer: full document, individual recipient with current student access, non-partner-only recipient/current editor and active matching document.",
+    "Shared dialog labels align with the prepared policy and distinguish grant-origin rights from independent team access."
+  ],
+  "verification": {
+    "local_database_cases": 44,
+    "local_failed": 0,
+    "local_skipped": 0,
+    "local_log": "docs/production-readiness/evidence/document-original-access-local-2026-11-15.tap",
+    "local_log_sha256": "2ec0b8b89b914806ec732830171fdf9c79b810663f91735ff5379b4f1f01b83d",
+    "focused_app_tests": 89,
+    "unit_tests": 6156,
+    "unit_files": 377,
+    "typescript": "passed",
+    "isolated_environment_file_free_build": "passed",
+    "runtime_source_fingerprint": "1e757b213af968405cdffff4fddc9021b358142b54800a40ca9dc8ae364e21a1",
+    "runtime_source_file_count": 1227
+  },
+  "explicit_remaining_gates": [
+    "Approved student relationships labelled view_summary still satisfy the broad can_access_student baseline. The independent-baseline test deliberately preserves this current behavior; relationship-level summary privacy needs its own correction and safe summary reader review.",
+    "Grant retirement after recipient/grantor access removal and re-addition remains open.",
+    "Separate rights-transfer upsert still requires review; no replacement/grant update behavior is enabled by this correction.",
+    "Historical private/family visibility metadata, real summary-reader boundaries and grant lifecycle remain in the existing5.2 privacy gate.",
+    "No provider/Storage API acceptance, no bearer-URL revocation; canonical promotion/ledger/order/target preflight/hosted authorization remain separate."
+  ],
+  "canonical_count": 225,
+  "prior_control_drafts": 41,
+  "separate_review_drafts_prepared": 3,
+  "canonical_or_ledger_promoted": false,
+  "native_verified": false,
+  "full_schema_verified": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

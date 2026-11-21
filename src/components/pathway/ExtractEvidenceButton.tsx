@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
@@ -51,16 +52,33 @@ type Props =
  * roadmap.
  */
 export function ExtractEvidenceButton(props: Props) {
+  const { user, loading } = useAuth();
+  if (loading || !user) return null;
+  const sourceKey = props.mode === "document"
+    ? `document:${props.documentId}`
+    : `${props.studentId}:${props.sourceKind}:${props.sourceId ?? ""}:${props.sourceLabel}`;
+  return <EvidenceExtractionSession key={`${user.id}:${sourceKey}`} {...props} viewerId={user.id} />;
+}
+
+function EvidenceExtractionSession(props: Props & { viewerId: string }) {
+  const active = useRef(false);
+  const pending = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const [busy, setBusy] = useState(false);
   const runDoc = useServerFn(extractEvidenceFromDocument);
   const runText = useServerFn(extractEvidenceFromText);
 
   async function handleClick() {
+    if (!active.current || pending.current) return;
+    pending.current = true;
     setBusy(true);
     try {
       let res: { extracted: number; inserted: number };
       if (props.mode === "document") {
-        res = await runDoc({ data: { document_id: props.documentId } });
+        res = await runDoc({ data: { document_id: props.documentId, expected_viewer_id: props.viewerId } });
       } else {
         const text = (props.getText() || "").trim();
         if (text.length < 40) {
@@ -70,6 +88,7 @@ export function ExtractEvidenceButton(props: Props) {
         }
         res = await runText({
           data: {
+            expected_viewer_id: props.viewerId,
             student_id: props.studentId,
             source_kind: props.sourceKind,
             source_id: props.sourceId ?? null,
@@ -79,6 +98,7 @@ export function ExtractEvidenceButton(props: Props) {
           },
         });
       }
+      if (!active.current) return;
       if (res.inserted > 0) {
         toast.success(
           `Linked ${res.inserted} new evidence item${res.inserted === 1 ? "" : "s"} to the Pathway Report.`,
@@ -90,9 +110,10 @@ export function ExtractEvidenceButton(props: Props) {
       }
       props.onDone?.(res);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't extract evidence.");
+      if (active.current) toast.error("We couldn't extract evidence. Please refresh and try again.");
     } finally {
-      setBusy(false);
+      pending.current = false;
+      if (active.current) setBusy(false);
     }
   }
 

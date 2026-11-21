@@ -1,3 +1,4 @@
+import {isActionItemComplete} from "@/lib/action-item-values";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -160,7 +161,7 @@ export const getAnalyticsSummary = createServerFn({ method: "POST" })
         reports: reports.length,
         documents: docs.length,
         meetings: meetingsCount?.count ?? 0,
-        action_items_open: actions.filter((a) => a.status !== "completed").length,
+        action_items_open: actions.filter((a) => !isActionItemComplete(a.status)).length,
         messages: messagesCount?.count ?? 0,
       },
       reports_by_status: countBy(reports, "report_status"),

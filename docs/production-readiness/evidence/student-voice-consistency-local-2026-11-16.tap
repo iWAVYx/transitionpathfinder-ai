@@ -1,0 +1,216 @@
+TAP version 13
+# Subtest: eligible family can read/save current student voice
+ok 1 - eligible family can read/save current student voice
+  ---
+  duration_ms: 625.016375
+  type: 'test'
+  ...
+# Subtest: eligible student can read/save current student voice
+ok 2 - eligible student can read/save current student voice
+  ---
+  duration_ms: 439.915583
+  type: 'test'
+  ...
+# Subtest: eligible educator can read/save current student voice
+ok 3 - eligible educator can read/save current student voice
+  ---
+  duration_ms: 450.576041
+  type: 'test'
+  ...
+# Subtest: eligible school can read/save current student voice
+ok 4 - eligible school can read/save current student voice
+  ---
+  duration_ms: 422.639084
+  type: 'test'
+  ...
+# Subtest: eligible district can read/save current student voice
+ok 5 - eligible district can read/save current student voice
+  ---
+  duration_ms: 437.194209
+  type: 'test'
+  ...
+# Subtest: eligible owner can read/save current student voice
+ok 6 - eligible owner can read/save current student voice
+  ---
+  duration_ms: 423.615334
+  type: 'test'
+  ...
+# Subtest: ineligible family cannot save student voice
+ok 7 - ineligible family cannot save student voice
+  ---
+  duration_ms: 418.920917
+  type: 'test'
+  ...
+# Subtest: ineligible student cannot save student voice
+ok 8 - ineligible student cannot save student voice
+  ---
+  duration_ms: 431.19375
+  type: 'test'
+  ...
+# Subtest: ineligible educator cannot save student voice
+ok 9 - ineligible educator cannot save student voice
+  ---
+  duration_ms: 418.927833
+  type: 'test'
+  ...
+# Subtest: ineligible school cannot save student voice
+ok 10 - ineligible school cannot save student voice
+  ---
+  duration_ms: 416.067208
+  type: 'test'
+  ...
+# Subtest: ineligible district cannot save student voice
+ok 11 - ineligible district cannot save student voice
+  ---
+  duration_ms: 414.712416
+  type: 'test'
+  ...
+# Subtest: ineligible owner cannot save student voice
+ok 12 - ineligible owner cannot save student voice
+  ---
+  duration_ms: 412.274666
+  type: 'test'
+  ...
+# Subtest: ineligible partner cannot save student voice
+ok 13 - ineligible partner cannot save student voice
+  ---
+  duration_ms: 427.944166
+  type: 'test'
+  ...
+# Subtest: read-only relationships can read without saving or deleting shared answers
+ok 14 - read-only relationships can read without saving or deleting shared answers
+  ---
+  duration_ms: 424.46775
+  type: 'test'
+  ...
+# Subtest: an expected-absence save never overwrites another writer
+ok 15 - an expected-absence save never overwrites another writer
+  ---
+  duration_ms: 433.447875
+  type: 'test'
+  ...
+# Subtest: stale updates do not overwrite a newer answer and preserve the original author
+ok 16 - stale updates do not overwrite a newer answer and preserve the original author
+  ---
+  duration_ms: 417.040291
+  type: 'test'
+  ...
+# Subtest: intentional clearing keeps the same answer identity
+ok 17 - intentional clearing keeps the same answer identity
+  ---
+  duration_ms: 425.647584
+  type: 'test'
+  ...
+# Subtest: a wrong loaded row cannot redirect an answer update
+ok 18 - a wrong loaded row cannot redirect an answer update
+  ---
+  duration_ms: 429.30275
+  type: 'test'
+  ...
+# Subtest: all legacy/unknown prompt rows remain readable without coded UI labels
+ok 19 - all legacy/unknown prompt rows remain readable without coded UI labels
+  ---
+  duration_ms: 536.419958
+  type: 'test'
+  ...
+# Subtest: Partner-only raw reads and deletion are refused despite a relationship
+ok 20 - Partner-only raw reads and deletion are refused despite a relationship
+  ---
+  duration_ms: 453.103542
+  type: 'test'
+  ...
+# Subtest: removal hides retained answers and current-editor deletion remains available
+ok 21 - removal hides retained answers and current-editor deletion remains available
+  ---
+  duration_ms: 445.166916
+  type: 'test'
+  ...
+# Subtest: raw insert/update remain fenced despite future grants and permissive policies
+ok 22 - raw insert/update remain fenced despite future grants and permissive policies
+  ---
+  duration_ms: 442.233125
+  type: 'test'
+  ...
+# Subtest: trusted writes cannot reassign student/prompt/original author
+ok 23 - trusted writes cannot reassign student/prompt/original author
+  ---
+  duration_ms: 422.47075
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"key":"future-work","band":"middle"}
+ok 24 - invalid/inapplicable direct RPC intent {"key":"future-work","band":"middle"}
+  ---
+  duration_ms: 419.835875
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"key":"ms-strengths","band":"early-high"}
+ok 25 - invalid/inapplicable direct RPC intent {"key":"ms-strengths","band":"early-high"}
+  ---
+  duration_ms: 415.621125
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"key":"unknown-prompt"}
+ok 26 - invalid/inapplicable direct RPC intent {"key":"unknown-prompt"}
+  ---
+  duration_ms: 439.418667
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"text":"oversized"}
+ok 27 - invalid/inapplicable direct RPC intent {"text":"oversized"}
+  ---
+  duration_ms: 426.204042
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"band":"middle_school"}
+ok 28 - invalid/inapplicable direct RPC intent {"band":"middle_school"}
+  ---
+  duration_ms: 415.873958
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 29 - invalid/inapplicable direct RPC intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 415.702375
+  type: 'test'
+  ...
+# Subtest: student voice TRUNCATE is not a client capability
+ok 30 - student voice TRUNCATE is not a client capability
+  ---
+  duration_ms: 414.63175
+  type: 'test'
+  ...
+# Subtest: repeated installation stops before partial catalog changes
+ok 31 - repeated installation stops before partial catalog changes
+  ---
+  duration_ms: 431.13075
+  type: 'test'
+  ...
+# Subtest: installation rollback preserves old rows and permissions
+ok 32 - installation rollback preserves old rows and permissions
+  ---
+  duration_ms: 426.722083
+  type: 'test'
+  ...
+# (node:72178) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: every actual current prompt/reading-level pair saves through the database API
+ok 33 - every actual current prompt/reading-level pair saves through the database API
+  ---
+  duration_ms: 474.3355
+  type: 'test'
+  ...
+# Subtest: complete legacy reads exceed the ordinary REST row limit without inventing empty results
+ok 34 - complete legacy reads exceed the ordinary REST row limit without inventing empty results
+  ---
+  duration_ms: 427.994084
+  type: 'test'
+  ...
+1..34
+# tests 34
+# suites 0
+# pass 34
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14937.913583

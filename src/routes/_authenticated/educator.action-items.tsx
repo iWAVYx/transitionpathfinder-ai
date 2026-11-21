@@ -1,3 +1,5 @@
+import { usePlanningLifetime } from "@/hooks/use-planning-lifetime";
+import { useAuth } from "@/hooks/use-auth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useMemo, useState } from "react";
@@ -10,10 +12,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  listCaseloadActionItems,
-  type CaseloadActionRow,
-} from "@/lib/educator.functions";
+import { listCaseloadActionItems, type CaseloadActionRow } from "@/lib/educator.functions";
 import { updateStudentActionItem } from "@/lib/action-items.functions";
 
 export const Route = createFileRoute("/_authenticated/educator/action-items")({
@@ -35,6 +34,14 @@ export const Route = createFileRoute("/_authenticated/educator/action-items")({
 });
 
 function EducatorActionItemsPage() {
+  const { user, loading } = useAuth();
+  if (loading) return <p>Loading action items…</p>;
+  if (!user) return <p>Sign in to view action items.</p>;
+  return <EducatorActionItemsPageSession key={user.id} />;
+}
+function EducatorActionItemsPageSession() {
+  const scope = usePlanningLifetime();
+  const [loadError, setLoadError] = useState(false);
   const load = useServerFn(listCaseloadActionItems);
   const update = useServerFn(updateStudentActionItem);
   const [items, setItems] = useState<CaseloadActionRow[]>([]);
@@ -42,10 +49,25 @@ function EducatorActionItemsPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
 
+  async function reload() {
+    const sequence = scope.nextRead();
+    setLoading(true);
+    setLoadError(false);
+    setItems([]);
+    try {
+      const { items } = await load({ data: { expected_viewer_id: scope.viewerId } });
+      if (scope.currentRead(sequence)) {
+        setItems(items);
+        scope.confirmRead();
+      }
+    } catch {
+      if (scope.currentRead(sequence)) setLoadError(true);
+    } finally {
+      if (scope.currentRead(sequence)) setLoading(false);
+    }
+  }
   useEffect(() => {
-    load()
-      .then(({ items }) => setItems(items))
-      .finally(() => setLoading(false));
+    void reload();
   }, [load]);
 
   const { open, done } = useMemo(() => {
@@ -59,47 +81,55 @@ function EducatorActionItemsPage() {
   }, [items]);
 
   async function toggle(item: CaseloadActionRow) {
-    const nextStatus =
-      item.status === "completed" ? "not_started" : "completed";
+    const nextStatus = item.status === "completed" ? "not_started" : "completed";
+    if (!item.can_update || !scope.begin()) return;
     setSavingId(item.id);
     try {
-      await update({ data: { id: item.id, status: nextStatus } });
-      setItems((prev) =>
-        prev.map((it) =>
-          it.id === item.id ? { ...it, status: nextStatus } : it,
-        ),
-      );
-      toast.success(
-        nextStatus === "completed" ? "Marked complete" : "Reopened",
-      );
+      const receipt = await update({
+        data: {
+          id: item.id,
+          student_id: item.student_id,
+          expected_updated_at: item.updated_at,
+          expected_viewer_id: scope.viewerId,
+          status: nextStatus,
+        },
+      });
+      if (!scope.current()) return;
+      setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, ...receipt.item } : it)));
+      toast.success(nextStatus === "completed" ? "Marked complete" : "Reopened");
     } catch (e) {
+      if (!scope.current()) return;
+      scope.markUncertain();
       toast.error(e instanceof Error ? e.message : "Update failed");
     } finally {
-      setSavingId(null);
+      scope.finish();
+      if (scope.current()) setSavingId(null);
     }
   }
 
   return (
     <SiteShell>
-      <main
-        data-testid="educator-action-items-page"
-        className="mx-auto max-w-5xl px-4 py-8"
-      >
+      <section data-testid="educator-action-items-page" className="mx-auto max-w-5xl px-4 py-8">
         <Breadcrumbs trail={[{ label: "Caseload Action Items" }]} />
         <header className="mt-4 mb-6">
           <div className="flex items-center gap-3">
             <CheckSquare className="h-7 w-7 text-primary" />
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Caseload Action Items
-            </h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Caseload Action Items</h1>
           </div>
           <p className="mt-2 text-muted-foreground">
-            Every open next step across your caseload — assigned to family,
-            student, or team.
+            Every open next step across your caseload — assigned to family, student, or team.
           </p>
         </header>
 
-        {loading ? (
+        {loadError || scope.uncertain ? (
+          <div role="alert" className="rounded-xl border p-4 text-sm">
+            Saved action items are unavailable or changed. Refresh saved records before another
+            change.{" "}
+            <Button variant="outline" onClick={() => void reload()}>
+              Refresh Action Items
+            </Button>
+          </div>
+        ) : loading ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
@@ -126,13 +156,7 @@ function EducatorActionItemsPage() {
                   {showCompleted ? "Hide" : "Show"} completed ({done.length})
                 </button>
                 {showCompleted && (
-                  <Section
-                    title=""
-                    items={done}
-                    onToggle={toggle}
-                    savingId={savingId}
-                    muted
-                  />
+                  <Section title="" items={done} onToggle={toggle} savingId={savingId} muted />
                 )}
               </div>
             )}
@@ -141,7 +165,7 @@ function EducatorActionItemsPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }
@@ -168,16 +192,11 @@ function Section({
       )}
       <ul className="divide-y rounded-lg border bg-card">
         {items.map((it) => (
-          <li
-            key={it.id}
-            className={`flex items-start gap-3 p-4 ${muted ? "opacity-70" : ""}`}
-          >
+          <li key={it.id} className={`flex items-start gap-3 p-4 ${muted ? "opacity-70" : ""}`}>
             <button
               onClick={() => onToggle(it)}
-              disabled={savingId === it.id}
-              aria-label={
-                it.status === "completed" ? "Mark incomplete" : "Mark complete"
-              }
+              disabled={!it.can_update || savingId !== null}
+              aria-label={it.status === "completed" ? "Mark incomplete" : "Mark complete"}
               className="mt-0.5 shrink-0 rounded-full border p-1 hover:bg-accent"
             >
               {savingId === it.id ? (
@@ -198,15 +217,11 @@ function Section({
                   {it.student_name}
                 </Link>
                 <Badge variant="outline">{it.category}</Badge>
-                <Badge
-                  variant={it.priority === "high" ? "destructive" : "secondary"}
-                >
+                <Badge variant={it.priority === "high" ? "destructive" : "secondary"}>
                   {it.priority}
                 </Badge>
                 {it.due_date && (
-                  <span className="text-xs text-muted-foreground">
-                    Due {it.due_date}
-                  </span>
+                  <span className="text-xs text-muted-foreground">Due {it.due_date}</span>
                 )}
               </div>
               <div
@@ -215,9 +230,7 @@ function Section({
                 {it.title}
               </div>
               {it.description && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {it.description}
-                </p>
+                <p className="mt-1 text-sm text-muted-foreground">{it.description}</p>
               )}
             </div>
           </li>

@@ -1,0 +1,364 @@
+TAP version 13
+# Subtest: completes with current family proof
+ok 1 - completes with current family proof
+  ---
+  duration_ms: 121.259498
+  type: 'test'
+  ...
+# Subtest: completes with current student proof
+ok 2 - completes with current student proof
+  ---
+  duration_ms: 76.951567
+  type: 'test'
+  ...
+# Subtest: completes with current educator proof
+ok 3 - completes with current educator proof
+  ---
+  duration_ms: 73.759929
+  type: 'test'
+  ...
+# Subtest: completes with current school proof
+ok 4 - completes with current school proof
+  ---
+  duration_ms: 79.67259
+  type: 'test'
+  ...
+# Subtest: completes with current district proof
+ok 5 - completes with current district proof
+  ---
+  duration_ms: 76.128166
+  type: 'test'
+  ...
+# Subtest: completes with current owner proof
+ok 6 - completes with current owner proof
+  ---
+  duration_ms: 80.718196
+  type: 'test'
+  ...
+# Subtest: rejects unsupported owner
+ok 7 - rejects unsupported owner
+  ---
+  duration_ms: 74.298962
+  type: 'test'
+  ...
+# Subtest: rejects unsupported partner
+ok 8 - rejects unsupported partner
+  ---
+  duration_ms: 77.787547
+  type: 'test'
+  ...
+# Subtest: rejects unsupported outsider
+ok 9 - rejects unsupported outsider
+  ---
+  duration_ms: 77.115153
+  type: 'test'
+  ...
+# Subtest: rejects foreign/stale intent {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 10 - rejects foreign/stale intent {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 76.284517
+  type: 'test'
+  ...
+# Subtest: rejects foreign/stale intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 11 - rejects foreign/stale intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 78.7283
+  type: 'test'
+  ...
+# Subtest: rejects foreign/stale intent {"version":"2020-01-01T00:00:00Z"}
+ok 12 - rejects foreign/stale intent {"version":"2020-01-01T00:00:00Z"}
+  ---
+  duration_ms: 73.36159
+  type: 'test'
+  ...
+# Subtest: rejects foreign/stale intent {"id":"00000000-0000-4000-8000-000000000099"}
+ok 13 - rejects foreign/stale intent {"id":"00000000-0000-4000-8000-000000000099"}
+  ---
+  duration_ms: 72.941176
+  type: 'test'
+  ...
+# Subtest: suppressed meetings write rolls back every side effect
+ok 14 - suppressed meetings write rolls back every side effect
+  ---
+  duration_ms: 71.728206
+  type: 'test'
+  ...
+# Subtest: suppressed action_items write rolls back every side effect
+ok 15 - suppressed action_items write rolls back every side effect
+  ---
+  duration_ms: 75.39411
+  type: 'test'
+  ...
+# Subtest: suppressed meeting_action_items write rolls back every side effect
+ok 16 - suppressed meeting_action_items write rolls back every side effect
+  ---
+  duration_ms: 74.126566
+  type: 'test'
+  ...
+# Subtest: suppressed feed_events write rolls back every side effect
+ok 17 - suppressed feed_events write rolls back every side effect
+  ---
+  duration_ms: 78.490974
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"created_by":"00000000-0000-4000-8000-000000000008"}
+ok 18 - rejects invalid patch {"created_by":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 67.913895
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"student_id":"00000000-0000-4000-8000-000000000021"}
+ok 19 - rejects invalid patch {"student_id":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 68.995543
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"status":"cancelled"}
+ok 20 - rejects invalid patch {"status":"cancelled"}
+  ---
+  duration_ms: 72.900035
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"summary":42}
+ok 21 - rejects invalid patch {"summary":42}
+  ---
+  duration_ms: 71.588811
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"summary":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ok 22 - rejects invalid patch {"summary":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ---
+  duration_ms: 70.686079
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"next_meeting_date":"bad"}
+ok 23 - rejects invalid patch {"next_meeting_date":"bad"}
+  ---
+  duration_ms: 69.113148
+  type: 'test'
+  ...
+# Subtest: preserves recorded fields and accepts explicit clearing
+ok 24 - preserves recorded fields and accepts explicit clearing
+  ---
+  duration_ms: 68.886647
+  type: 'test'
+  ...
+# Subtest: repeat cannot duplicate promoted actions or activity
+ok 25 - repeat cannot duplicate promoted actions or activity
+  ---
+  duration_ms: 73.437975
+  type: 'test'
+  ...
+# Subtest: cancelled meeting cannot be completed
+ok 26 - cancelled meeting cannot be completed
+  ---
+  duration_ms: 70.952247
+  type: 'test'
+  ...
+# Subtest: RPC denies anon
+ok 27 - RPC denies anon
+  ---
+  duration_ms: 65.708807
+  type: 'test'
+  ...
+# Subtest: RPC denies service_role
+ok 28 - RPC denies service_role
+  ---
+  duration_ms: 69.754389
+  type: 'test'
+  ...
+# Subtest: native complete family write-first COMMIT
+ok 29 - native complete family write-first COMMIT
+  ---
+  duration_ms: 109.024996
+  type: 'test'
+  ...
+# Subtest: native complete family removal-first COMMIT
+ok 30 - native complete family removal-first COMMIT
+  ---
+  duration_ms: 101.293546
+  type: 'test'
+  ...
+# Subtest: native complete family write-first ROLLBACK
+ok 31 - native complete family write-first ROLLBACK
+  ---
+  duration_ms: 103.841843
+  type: 'test'
+  ...
+# Subtest: native complete family removal-first ROLLBACK
+ok 32 - native complete family removal-first ROLLBACK
+  ---
+  duration_ms: 105.094884
+  type: 'test'
+  ...
+# Subtest: native complete student write-first COMMIT
+ok 33 - native complete student write-first COMMIT
+  ---
+  duration_ms: 105.03364
+  type: 'test'
+  ...
+# Subtest: native complete student removal-first COMMIT
+ok 34 - native complete student removal-first COMMIT
+  ---
+  duration_ms: 100.256518
+  type: 'test'
+  ...
+# Subtest: native complete student write-first ROLLBACK
+ok 35 - native complete student write-first ROLLBACK
+  ---
+  duration_ms: 112.664534
+  type: 'test'
+  ...
+# Subtest: native complete student removal-first ROLLBACK
+ok 36 - native complete student removal-first ROLLBACK
+  ---
+  duration_ms: 110.109129
+  type: 'test'
+  ...
+# Subtest: native complete educator write-first COMMIT
+ok 37 - native complete educator write-first COMMIT
+  ---
+  duration_ms: 107.559364
+  type: 'test'
+  ...
+# Subtest: native complete educator removal-first COMMIT
+ok 38 - native complete educator removal-first COMMIT
+  ---
+  duration_ms: 103.560378
+  type: 'test'
+  ...
+# Subtest: native complete educator write-first ROLLBACK
+ok 39 - native complete educator write-first ROLLBACK
+  ---
+  duration_ms: 110.52963
+  type: 'test'
+  ...
+# Subtest: native complete educator removal-first ROLLBACK
+ok 40 - native complete educator removal-first ROLLBACK
+  ---
+  duration_ms: 105.139086
+  type: 'test'
+  ...
+# Subtest: native complete school write-first COMMIT
+ok 41 - native complete school write-first COMMIT
+  ---
+  duration_ms: 112.869589
+  type: 'test'
+  ...
+# Subtest: native complete school removal-first COMMIT
+ok 42 - native complete school removal-first COMMIT
+  ---
+  duration_ms: 102.434813
+  type: 'test'
+  ...
+# Subtest: native complete school write-first ROLLBACK
+ok 43 - native complete school write-first ROLLBACK
+  ---
+  duration_ms: 107.545159
+  type: 'test'
+  ...
+# Subtest: native complete school removal-first ROLLBACK
+ok 44 - native complete school removal-first ROLLBACK
+  ---
+  duration_ms: 105.096217
+  type: 'test'
+  ...
+# Subtest: native complete district write-first COMMIT
+ok 45 - native complete district write-first COMMIT
+  ---
+  duration_ms: 108.300709
+  type: 'test'
+  ...
+# Subtest: native complete district removal-first COMMIT
+ok 46 - native complete district removal-first COMMIT
+  ---
+  duration_ms: 105.008783
+  type: 'test'
+  ...
+# Subtest: native complete district write-first ROLLBACK
+ok 47 - native complete district write-first ROLLBACK
+  ---
+  duration_ms: 108.973819
+  type: 'test'
+  ...
+# Subtest: native complete district removal-first ROLLBACK
+ok 48 - native complete district removal-first ROLLBACK
+  ---
+  duration_ms: 105.923598
+  type: 'test'
+  ...
+# Subtest: native complete owner write-first COMMIT
+ok 49 - native complete owner write-first COMMIT
+  ---
+  duration_ms: 105.613382
+  type: 'test'
+  ...
+# Subtest: native complete owner removal-first COMMIT
+ok 50 - native complete owner removal-first COMMIT
+  ---
+  duration_ms: 107.198787
+  type: 'test'
+  ...
+# Subtest: native complete owner write-first ROLLBACK
+ok 51 - native complete owner write-first ROLLBACK
+  ---
+  duration_ms: 108.116327
+  type: 'test'
+  ...
+# Subtest: native complete owner removal-first ROLLBACK
+ok 52 - native complete owner removal-first ROLLBACK
+  ---
+  duration_ms: 102.747201
+  type: 'test'
+  ...
+# Subtest: native complete partner-transition write-first COMMIT
+ok 53 - native complete partner-transition write-first COMMIT
+  ---
+  duration_ms: 115.69404
+  type: 'test'
+  ...
+# Subtest: native complete partner-transition removal-first COMMIT
+ok 54 - native complete partner-transition removal-first COMMIT
+  ---
+  duration_ms: 100.204653
+  type: 'test'
+  ...
+# Subtest: native complete partner-transition write-first ROLLBACK
+ok 55 - native complete partner-transition write-first ROLLBACK
+  ---
+  duration_ms: 110.382791
+  type: 'test'
+  ...
+# Subtest: native complete partner-transition removal-first ROLLBACK
+ok 56 - native complete partner-transition removal-first ROLLBACK
+  ---
+  duration_ms: 104.992011
+  type: 'test'
+  ...
+# Subtest: native complete competing same intent COMMIT
+ok 57 - native complete competing same intent COMMIT
+  ---
+  duration_ms: 109.39091
+  type: 'test'
+  ...
+# Subtest: native complete competing same intent ROLLBACK
+ok 58 - native complete competing same intent ROLLBACK
+  ---
+  duration_ms: 112.355692
+  type: 'test'
+  ...
+# Subtest: native cached complete rechecks removed editing proof
+ok 59 - native cached complete rechecks removed editing proof
+  ---
+  duration_ms: 80.467629
+  type: 'test'
+  ...
+1..59
+# tests 59
+# suites 0
+# pass 59
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5532.963697

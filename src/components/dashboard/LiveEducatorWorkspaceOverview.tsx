@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import { RELATED_TOOLS } from "@/lib/dashboard/related-tools";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -56,10 +57,16 @@ function isWithinPastDays(value: string | null, days: number) {
  * Demo-shaped Educator workspace driven by the role-authorized caseload.
  * Previews stay aggregate-first so student PII is not exposed at a glance.
  */
-export function LiveEducatorWorkspaceOverview({
+export function LiveEducatorWorkspaceOverview(props: Props) {
+  const { user, loading } = useAuth();
+  if (loading || !user) return <p>Loading your workspace…</p>;
+  return <LiveEducatorWorkspaceOverviewSession key={user.id} {...props} />;
+}
+function LiveEducatorWorkspaceOverviewSession({
   students: provided,
   loading: providedLoading,
 }: Props) {
+  const { user } = useAuth();
   const fetchCaseload = useServerFn(getCaseload);
   const [loaded, setLoaded] = useState<CaseloadStudent[]>([]);
   const [internalLoading, setInternalLoading] = useState(provided === undefined);
@@ -70,7 +77,9 @@ export function LiveEducatorWorkspaceOverview({
     if (provided !== undefined) return;
     let active = true;
     setInternalLoading(true);
-    fetchCaseload()
+    setError(null);
+    setLoaded([]);
+    fetchCaseload({ data: { expected_viewer_id: user?.id } })
       .then(({ students }) => {
         if (active) setLoaded(Array.from(new Map(students.map((row) => [row.id, row])).values()));
       })

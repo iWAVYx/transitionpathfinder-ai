@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-26 America/New_York",
+  "status": "authorized staging rollout verified; one authorized bounded report-assistance test dispatched and waiting for required human GitHub review",
+  "approved_candidate": "7c6890792139c5570873785f12940e7d3857753e",
+  "application_commit": "a933eb6992952bd087079eef474363a688081e44",
+  "cloudflare_release": {
+    "run": 40336456573,
+    "conclusion": "success",
+    "health": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "transitionforward-staging.caysi101.workers.dev",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": false,
+      "ai_runtime": "unconfigured",
+      "runtime_source_fingerprint": "8f3b5851fa8482c86bb5e201414488cdf34734216a2f03bcf9ab6a615aa9d6aa",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1190,
+      "git_commit_sha": "7c6890792139c5570873785f12940e7d3857753e",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    }
+  },
+  "isolated_lovable": {
+    "project": "95c97302-11c6-4e89-bac3-2c68b970dd3d",
+    "repository": "iWAVYx/gentle-forward-reach",
+    "git_commit": "8f696764469b55d939f71f57ef890e8231e68893",
+    "files_synced": [
+      "src/components/pathway/AiAssistPanel.tsx",
+      "src/lib/ai-assist.functions.ts",
+      "src/lib/report-translation-contract.ts",
+      "src/lib/report-next-steps-contract.ts"
+    ],
+    "health": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "8f3b5851fa8482c86bb5e201414488cdf34734216a2f03bcf9ab6a615aa9d6aa",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1190,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "identity_note": "Published Lovable health reports dev, not an exact Git SHA. Source parity is verified using the reviewed fingerprint/1190 file count under the existing isolated-staging policy, together with exact four-file Git sync and unchanged protected-file hashes. No commit value was fabricated or gate changed. Cloudflare reports the exact approved release SHA.",
+    "protected_files_unchanged": [
+      ".env.production",
+      ".env",
+      ".env.development",
+      "package.json",
+      "bun.lock",
+      "src/integrations/supabase/types.ts",
+      "src/components/demo/DemoDashboardWidgets.tsx",
+      "src/components/dashboard/DashboardWidgetBoardView.tsx"
+    ],
+    "build_note": "Frozen install succeeded. Initial local Bun-interpreted invocation could not resolve Vite module runner; explicit bundled Node resolved that tool issue. Node build:dev then exhausted the unchanged 1216 MB heap, including one identical-settings retry; no further local retries or memory/dependency changes. Reviewed candidate automatic builds passed. Hosted preview subsequently served the exact new fingerprint; UI showed Previewing and publication completed with Your website was updated. Hosted logs were not independently inspected."
+  },
+  "test": {
+    "run": 40338483904,
+    "scope": "report-assist-live-bounded",
+    "fixture_confirmation": "disposable-report-assist",
+    "state_at_checkpoint": "waiting for human staging review",
+    "records_created": 0,
+    "provider_calls": 0,
+    "limits_reference": "report-assist-live-bounded-preparation-2026-10-26.json",
+    "repeat_authorized": false
+  },
+  "preserved": "No production/original-main merge, migrations, new accounts/relationships/shares, payment or manual secret changes. Full TF-01\u2013TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot deferred.",
+  "next": [
+    "User completes required protected test review; do not approve for them",
+    "Observe one bounded run; uncertain completion stops for reconciliation. Exact cleanup and independent privileged read-only absence checks required",
+    "Manually review translation meaning/facts and next-step suitability; structural/functional passes alone do not establish semantic quality",
+    "Continue remaining IEP/document/evidence coverage and wider production gates. Read-only preflight observed text accepted up to120000 chars but clipped to100000 in IEP/goal extraction and60000 in evidence extraction; no fixes to these workflows were part of this release."
+  ]
+}

@@ -1,0 +1,218 @@
+{
+  "date": "2026-10-25",
+  "status": "stopped before generation; independently reconciled at zero records; corrected test pending review",
+  "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40236340320",
+  "tested_revision": "21483a33c6d8f96f6b8d3be04ac77312ef36ec9e",
+  "authorization": "One bounded staging Pathway run explicitly authorized; GitHub human staging approval recorded. This completed run consumes that authorization; a repeat requires fresh approval.",
+  "results": {
+    "existing_role_sign_ins_passed": 7,
+    "family_setup": "failed before confirmed student insert",
+    "educator": "did not run (serial stop)",
+    "initial_generation_actions": 0,
+    "regeneration_actions": 0,
+    "pdf_exports": 0,
+    "test_retries": 0,
+    "sanitizer": "0 unsafe files removed; upload safe; inspected before downloading"
+  },
+  "diagnosis": {
+    "observed": "Test sends interests, strengths and needs to public.students. Actual deployed schema and generated types expose interests_summary, strengths_summary and support_needs_summary instead.",
+    "limit": "Original database response code was not retained because teardown AggregateError masked the primary failure. Schema mismatch is confirmed; no claim to have recovered the lost response code.",
+    "correction": "Use a dedicated typed student fixture with the actual text columns; compile it against generated Insert types and reproduce/reject the old interests field. Preserve original failure, phase and safe database code even when teardown also fails.",
+    "application_changed": false,
+    "permissions_changed": false,
+    "deployment_required": false
+  },
+  "independent_reconciliation": {
+    "operator": "postgres",
+    "read_only": "on",
+    "edge_count": 0,
+    "run_marker": "QA Pathway Creator 40236340320-1 parent",
+    "goals_count": 0,
+    "observed_at": "2026-10-25T21:40:40.134387+00:00",
+    "share_count": 0,
+    "intake_count": 0,
+    "report_count": 0,
+    "student_count": 0,
+    "version_count": 0,
+    "documents_count": 0,
+    "action_items_count": 0,
+    "evidence_items_count": 0,
+    "readiness_scores_count": 0,
+    "ppt_meeting_preps_count": 0,
+    "student_guardians_count": 0,
+    "document_extractions_count": 0,
+    "student_team_members_count": 0,
+    "report_evidence_links_count": 0,
+    "student_collaborators_count": 0,
+    "student_relationships_count": 0,
+    "student_saved_partners_count": 0,
+    "student_voice_responses_count": 0,
+    "student_opportunity_matches_count": 0,
+    "student_resource_recommendations_count": 0
+  },
+  "schema_inspection": {
+    "table": "public.students",
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid"
+      },
+      {
+        "name": "owner_id",
+        "type": "uuid"
+      },
+      {
+        "name": "first_name",
+        "type": "text"
+      },
+      {
+        "name": "last_name",
+        "type": "text"
+      },
+      {
+        "name": "grade_band",
+        "type": "text"
+      },
+      {
+        "name": "school",
+        "type": "text"
+      },
+      {
+        "name": "date_of_birth",
+        "type": "date"
+      },
+      {
+        "name": "photo_url",
+        "type": "text"
+      },
+      {
+        "name": "notes",
+        "type": "text"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone"
+      },
+      {
+        "name": "student_user_id",
+        "type": "uuid"
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid"
+      },
+      {
+        "name": "preferred_name",
+        "type": "text"
+      },
+      {
+        "name": "age",
+        "type": "integer"
+      },
+      {
+        "name": "expected_graduation_year",
+        "type": "integer"
+      },
+      {
+        "name": "primary_disability_category",
+        "type": "text"
+      },
+      {
+        "name": "strengths_summary",
+        "type": "text"
+      },
+      {
+        "name": "interests_summary",
+        "type": "text"
+      },
+      {
+        "name": "support_needs_summary",
+        "type": "text"
+      },
+      {
+        "name": "family_priorities",
+        "type": "text"
+      },
+      {
+        "name": "student_voice_statement",
+        "type": "text"
+      },
+      {
+        "name": "current_transition_status",
+        "type": "text"
+      },
+      {
+        "name": "readiness_level",
+        "type": "text"
+      },
+      {
+        "name": "is_demo",
+        "type": "boolean"
+      },
+      {
+        "name": "rights_status",
+        "type": "text"
+      },
+      {
+        "name": "transfer_notice_acknowledged_at",
+        "type": "timestamp with time zone"
+      },
+      {
+        "name": "iep_annual_review_date",
+        "type": "date"
+      },
+      {
+        "name": "iep_reevaluation_date",
+        "type": "date"
+      },
+      {
+        "name": "graduation_target_date",
+        "type": "date"
+      },
+      {
+        "name": "program_track",
+        "type": "text"
+      },
+      {
+        "name": "coverage_state",
+        "type": "text"
+      },
+      {
+        "name": "coverage_state_changed_at",
+        "type": "timestamp with time zone"
+      },
+      {
+        "name": "export_window_ends_at",
+        "type": "timestamp with time zone"
+      }
+    ],
+    "operator": "postgres",
+    "read_only": "on"
+  },
+  "runtime": {
+    "fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+    "file_count": 1185,
+    "backend": "qgrertkqbwanerqqemph",
+    "production_touched": false
+  },
+  "next": "Finish local/automatic review, then request fresh approval for one bounded repeat using the unchanged two-role generation/fixture budget. Do not dispatch automatically.",
+  "limitations": [
+    "No Pathway generation, regeneration, private-reader or PDF acceptance was reached.",
+    "Existing PPT source-fidelity caveat stays open.",
+    "Report polish and Parent Pilot/Pathway Snapshot remain deferred; full TF-01\u2013TF-26 and six milestones retained."
+  ],
+  "local_validation": {
+    "unit_tests": 4605,
+    "unit_files": 320,
+    "runtime": "bundled Node (same execution model as CI)",
+    "typescript": "passed",
+    "fixture_schema_compilation": "passed; negative regression rejects unsupported interests column (TS2353)",
+    "offline_discovery": "2 cases; no browser execution",
+    "automatic_checks": "pending corrected commit",
+    "earlier_bun_attempt": "Stopped after Bun-runtime Zod import failures in unrelated route tests; reran with intended Node runtime and full suite passed. No application changes to address that local runner mismatch."
+  }
+}

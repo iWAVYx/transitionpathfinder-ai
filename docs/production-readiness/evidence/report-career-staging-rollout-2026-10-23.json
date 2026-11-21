@@ -1,0 +1,1145 @@
+{
+  "date": "2026-10-23",
+  "status": "authorized-staging-release-published-parity-and-read-only-acceptance-passed",
+  "authorization": "User explicitly authorized staging-only c7ce64f1 release, isolated Lovable sync/publication update and read-only report/PDF checks; separately completed both GitHub human environment reviews.",
+  "sourceSha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+  "runtimeFingerprint": "0e9795d59b64725ae88e38d30f4d3a292e31e8734f925822493fe2059d973fd1",
+  "runtimeFileCount": 1184,
+  "cloudflare": {
+    "runId": 40002777221,
+    "conclusion": "success",
+    "health": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "transitionforward-staging.caysi101.workers.dev",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": false,
+      "ai_runtime": "unconfigured",
+      "runtime_source_fingerprint": "0e9795d59b64725ae88e38d30f4d3a292e31e8734f925822493fe2059d973fd1",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    }
+  },
+  "isolatedLovable": {
+    "projectId": "95c97302-11c6-4e89-bac3-2c68b970dd3d",
+    "repository": "iWAVYx/gentle-forward-reach",
+    "syncCommit": "f62f16943eaed32ae34a74eb5a3ceba576294bda",
+    "changedFiles": [
+      "src/components/documents/ReportBrochurePrintStyles.tsx",
+      "src/components/pathway/ReportView.tsx"
+    ],
+    "preservedFiles": [
+      ".env",
+      ".env.development",
+      ".env.production",
+      "package.json",
+      "bun.lock",
+      "src/integrations/supabase/types.ts"
+    ],
+    "builderEditPreserved": "Your Dashboard Widgets edit preserved; only the two named approved runtime files changed.",
+    "previewIdentityVerifiedBeforePublication": true,
+    "previewHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "preview--gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "0e9795d59b64725ae88e38d30f4d3a292e31e8734f925822493fe2059d973fd1",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": false,
+        "errors": [
+          "\"preview--gentle-forward-reach.lovable.app\" is not an allowed staging hostname.",
+          "GIT_COMMIT_SHA must contain the exact 40-character Git commit SHA."
+        ]
+      }
+    },
+    "stableHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "0e9795d59b64725ae88e38d30f4d3a292e31e8734f925822493fe2059d973fd1",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "identityLimit": "Lovable returns dev; source fingerprint verifies parity. No Git commit identity was invented."
+  },
+  "automaticChecks": {
+    "checks": [
+      {
+        "conclusion": "skipped",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824307/job/120581033526",
+        "name": "e2e",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/runs/120579854114",
+        "name": "Supabase Preview",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824288/job/120579676192",
+        "name": "role-leak-signedin",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824218/job/120579573829",
+        "name": "cross-district-rls",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824134/job/120579573581",
+        "name": "rls-regression",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824201/job/120579572971",
+        "name": "permission-regression",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824108/job/120579572887",
+        "name": "CT Seed v2 Live Staging Audit",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824155/job/120579572630",
+        "name": "Clean Production Build",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824307/job/120579571776",
+        "name": "unit",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824085/job/120579571313",
+        "name": "Credential-free Production Readiness Audit",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824180/job/120579571182",
+        "name": "replay",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824288/job/120579571121",
+        "name": "role-guard-matrix",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824159/job/120579571117",
+        "name": "report-a11y",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001824108/job/120579570973",
+        "name": "CT Seed v2 Static Audit",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40001816956/job/120579546676",
+        "name": "Clean Production Build",
+        "status": "completed"
+      }
+    ],
+    "total_count": 15
+  },
+  "readOnlyAcceptance": {
+    "runId": 40003357810,
+    "conclusion": "success",
+    "testSource": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+    "existingRoleSessionsPassed": 7,
+    "anonymousReportJourneysPassed": 4,
+    "retries": 0,
+    "samplePdfCount": 3,
+    "artifact": {
+      "expired": false,
+      "id": 12522329433,
+      "name": "staging-role-verification-40003357810",
+      "size_in_bytes": 2370871
+    },
+    "sanitizer": "Passed; zero unsafe files removed; retrieved only sanitized artifact.",
+    "coverage": "Four Family/Educator-origin mobile/desktop journeys exercise Student/Family/Educator tabs, exact audience/URL/Back/Forward/reload/optional-detail returns, no horizontal report overflow, and PDF source/question/end checks. Seven sign-ins are session verification, not full feature acceptance for every role."
+  },
+  "publishedReaderMeasurements": [
+    {
+      "host": "Cloudflare",
+      "audience": "Family",
+      "rootOverflow": false,
+      "tables": [
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21311.828125
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21311.828125
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21488.0625
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21488.0625
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21600.6171875
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21600.6171875
+              }
+            ]
+          ],
+          "title": "Animal CareDeveloping"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21844.15625
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21844.15625
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21987.3046875
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21987.3046875
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 22099.859375
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 22099.859375
+              }
+            ]
+          ],
+          "title": "Arts & Creative ProductionEmerging"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 22310.3125
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 22310.3125
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 22453.4609375
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 22453.4609375
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 22566.015625
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 22566.015625
+              }
+            ]
+          ],
+          "title": "Environmental & Outdoor WorkEmerging"
+        }
+      ]
+    },
+    {
+      "host": "Cloudflare",
+      "audience": "Educator",
+      "rootOverflow": false,
+      "tables": [
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 20549.8671875
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 20549.8671875
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 20726.1015625
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 20726.1015625
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 20838.65625
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 20838.65625
+              }
+            ]
+          ],
+          "title": "Animal CareDeveloping"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21082.1953125
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21082.1953125
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21225.34375
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21225.34375
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21337.8984375
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21337.8984375
+              }
+            ]
+          ],
+          "title": "Arts & Creative ProductionEmerging"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21548.3515625
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21548.3515625
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21691.5
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21691.5
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21804.0546875
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21804.0546875
+              }
+            ]
+          ],
+          "title": "Environmental & Outdoor WorkEmerging"
+        }
+      ]
+    },
+    {
+      "host": "Cloudflare",
+      "audience": "Student",
+      "rootOverflow": false,
+      "tables": [
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 20603.546875
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 20603.546875
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 20779.78125
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 20779.78125
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 20892.3359375
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 20892.3359375
+              }
+            ]
+          ],
+          "title": "Animal CareDeveloping"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21135.875
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21135.875
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21279.0234375
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21279.0234375
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21391.578125
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21391.578125
+              }
+            ]
+          ],
+          "title": "Arts & Creative ProductionEmerging"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21602.03125
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21602.03125
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21745.1796875
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21745.1796875
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21857.734375
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21857.734375
+              }
+            ]
+          ],
+          "title": "Environmental & Outdoor WorkEmerging"
+        }
+      ]
+    },
+    {
+      "host": "Lovable",
+      "audience": "Family",
+      "rootOverflow": false,
+      "tables": [
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21311.828125
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21311.828125
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21488.0625
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21488.0625
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21600.6171875
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21600.6171875
+              }
+            ]
+          ],
+          "title": "Animal CareDeveloping"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21844.15625
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21844.15625
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21987.3046875
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21987.3046875
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 22099.859375
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 22099.859375
+              }
+            ]
+          ],
+          "title": "Arts & Creative ProductionEmerging"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 22310.3125
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 22310.3125
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 22453.4609375
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 22453.4609375
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 22566.015625
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 22566.015625
+              }
+            ]
+          ],
+          "title": "Environmental & Outdoor WorkEmerging"
+        }
+      ]
+    },
+    {
+      "host": "Lovable",
+      "audience": "Educator",
+      "rootOverflow": false,
+      "tables": [
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 20549.8671875
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 20549.8671875
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 20726.1015625
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 20726.1015625
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 20838.65625
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 20838.65625
+              }
+            ]
+          ],
+          "title": "Animal CareDeveloping"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21082.1953125
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21082.1953125
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21225.34375
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21225.34375
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21337.8984375
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21337.8984375
+              }
+            ]
+          ],
+          "title": "Arts & Creative ProductionEmerging"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21548.3515625
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21548.3515625
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21691.5
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21691.5
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21804.0546875
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21804.0546875
+              }
+            ]
+          ],
+          "title": "Environmental & Outdoor WorkEmerging"
+        }
+      ]
+    },
+    {
+      "host": "Lovable",
+      "audience": "Student",
+      "rootOverflow": false,
+      "tables": [
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 20603.546875
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 20603.546875
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 20779.78125
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 20779.78125
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 20892.3359375
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 20892.3359375
+              }
+            ]
+          ],
+          "title": "Animal CareDeveloping"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21135.875
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21135.875
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21279.0234375
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21279.0234375
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21391.578125
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21391.578125
+              }
+            ]
+          ],
+          "title": "Arts & Creative ProductionEmerging"
+        },
+        {
+          "rows": [
+            [
+              {
+                "heading": "Example Jobs",
+                "x": 239.5078125,
+                "y": 21602.03125
+              },
+              {
+                "heading": "Skills Used",
+                "x": 719.1015625,
+                "y": 21602.03125
+              }
+            ],
+            [
+              {
+                "heading": "Education / Training",
+                "x": 239.5078125,
+                "y": 21745.1796875
+              },
+              {
+                "heading": "Work Environment",
+                "x": 719.1015625,
+                "y": 21745.1796875
+              }
+            ],
+            [
+              {
+                "heading": "Possible Accommodations",
+                "x": 239.5078125,
+                "y": 21857.734375
+              },
+              {
+                "heading": "Next Exploration Step",
+                "x": 719.1015625,
+                "y": 21857.734375
+              }
+            ]
+          ],
+          "title": "Environmental & Outdoor WorkEmerging"
+        }
+      ]
+    }
+  ],
+  "pdfReview": {
+    "pdfs": [
+      {
+        "audience": "educator",
+        "path": "/private/tmp/tf-career-staging-c7ce64f1/report-artifact/test-results/report-reader-lenses-prepa-e3e3a-t-lenses-1440px-from-family-anon/educator-prepared-report.pdf",
+        "sha256": "154a9de28147dcdac81085f7eff06f7f00ce3eeb0d2576e057dc15a4cf4d3dd7",
+        "pages": 30,
+        "emptyPages": [],
+        "outOfBounds": [],
+        "careerPages": [
+          22,
+          23
+        ],
+        "meetingPages": [
+          8,
+          10,
+          11
+        ],
+        "endingPresent": true,
+        "renderedPages": [
+          8,
+          10,
+          11,
+          22,
+          23,
+          30
+        ],
+        "visualReviewLimit": "Selected career/meeting/final-page review; not all-page proofreading or native print dialog."
+      },
+      {
+        "audience": "family",
+        "path": "/private/tmp/tf-career-staging-c7ce64f1/report-artifact/test-results/report-reader-lenses-prepa-e3e3a-t-lenses-1440px-from-family-anon/family-prepared-report.pdf",
+        "sha256": "7e28e75cc599327539d51840319d22780a82691c8d644f7a0cb2df767fdb3d6b",
+        "pages": 30,
+        "emptyPages": [],
+        "outOfBounds": [],
+        "careerPages": [
+          22,
+          23
+        ],
+        "meetingPages": [
+          8,
+          10,
+          11
+        ],
+        "endingPresent": true,
+        "renderedPages": [
+          8,
+          10,
+          11,
+          22,
+          23,
+          30
+        ],
+        "visualReviewLimit": "Selected career/meeting/final-page review; not all-page proofreading or native print dialog."
+      },
+      {
+        "audience": "student",
+        "path": "/private/tmp/tf-career-staging-c7ce64f1/report-artifact/test-results/report-reader-lenses-prepa-e3e3a-t-lenses-1440px-from-family-anon/student-prepared-report.pdf",
+        "sha256": "bb860ca5894549d5cf10ab79a0184185a65df096a41ef030c5941d6adc703a22",
+        "pages": 30,
+        "emptyPages": [],
+        "outOfBounds": [],
+        "careerPages": [
+          22,
+          23
+        ],
+        "meetingPages": [
+          8,
+          10,
+          11
+        ],
+        "endingPresent": true,
+        "renderedPages": [
+          8,
+          10,
+          11,
+          22,
+          23,
+          30
+        ],
+        "visualReviewLimit": "Selected career/meeting/final-page review; not all-page proofreading or native print dialog."
+      }
+    ],
+    "contactSheets": [
+      "/private/tmp/tf-career-staging-c7ce64f1/pdf-review/contact-1.jpg",
+      "/private/tmp/tf-career-staging-c7ce64f1/pdf-review/contact-2.jpg",
+      "/private/tmp/tf-career-staging-c7ce64f1/pdf-review/contact-3.jpg"
+    ]
+  },
+  "limits": [
+    "Prepared hosted samples remain30pages each; different prior saved fixtures remain32pages. Overall density is still open.",
+    "Selected career/meeting/final pages reviewed with Poppler; no all-page proofreading or native OS print-dialog acceptance claimed.",
+    "No new hosted saved/shared report fixtures or linked-editor relationships were authorized or created in this run. Earlier saved/shared coverage remains evidence on its named source.",
+    "Owner/admin data policy, stale browser intent, provenance/retention/bearer lifecycle and broader production gates remain open.",
+    "Full TF-01\u2013TF-26 and deferred Parent Pilot/Pathway Snapshot remain retained."
+  ],
+  "actions": {
+    "production": false,
+    "mainMerge": false,
+    "migrations": false,
+    "recordsCreated": 0,
+    "recordsDeleted": 0,
+    "aiCalls": 0,
+    "accountsOrRelationships": false,
+    "sharingGrants": false,
+    "paymentChanges": false,
+    "manualSecretChanges": false
+  },
+  "proofScreenshots": [
+    "/private/tmp/tf-career-staging-c7ce64f1/cloudflare-deployed.png",
+    "/private/tmp/tf-career-staging-c7ce64f1/lovable-publication-complete.png",
+    "/private/tmp/tf-career-staging-c7ce64f1/lovable-published-health.png",
+    "/private/tmp/tf-career-staging-c7ce64f1/read-only-report-check-passed.png",
+    "/private/tmp/tf-career-staging-c7ce64f1/cloudflare-career-reader.png",
+    "/private/tmp/tf-career-staging-c7ce64f1/lovable-career-reader.png"
+  ],
+  "ownerFollowUpPriority": {
+    "date": "2026-10-23",
+    "decision": "Defer report length and further cosmetic polish until the platform is up and running.",
+    "status": "deferred-not-launch-blocker",
+    "completedImprovements": "Retained without further application changes.",
+    "resumeCondition": "Owner chooses to resume after the platform is operational.",
+    "functionalDefects": "Continue addressing defects affecting normal use, accurate/complete content, save/restore/export or access.",
+    "earlierDensityGateNotes": "Historical observations retained; superseded as an active release requirement by this owner decision."
+  }
+}

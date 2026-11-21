@@ -1,0 +1,14 @@
+{
+  "schema": "document-text-review-authority-native-proof-v1",
+  "source_commit": "2d14b9a74f92768a41950f9a6db429e7920ce05d",
+  "tests": 39,
+  "passed": 39,
+  "failed": 0,
+  "skipped": 0,
+  "native": true,
+  "test_sha256": "b2e786cadc1beca3d8e48b3225cc78ffbacdd6367f5e54b62802512e861217a1",
+  "sql_sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5",
+  "log_sha256": "4de2cce22f591f9b146b8dd5a2d80d073b3b5e1d1d75d5ebaf2c1fcf711c12a4",
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

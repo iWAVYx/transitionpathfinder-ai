@@ -1,5 +1,8 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useOrganizationDashboardLoad } from "@/hooks/use-organization-dashboard-load";
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { useServerFn } from "@tanstack/react-start";
 
 import { DistrictPageShell, useDistrictDashboard } from "@/components/district/DistrictPageShell";
@@ -12,6 +15,8 @@ import { TrendsView } from "./school.readiness-trends";
 import { SchoolComparisonChart } from "@/components/district/SchoolComparisonChart";
 
 export const Route = createFileRoute("/_authenticated/district/readiness-trends")({
+  ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/district/readiness-trends"),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [
@@ -27,24 +32,14 @@ export const Route = createFileRoute("/_authenticated/district/readiness-trends"
 });
 
 function DistrictReadinessTrendsPage() {
-  const { data: dash, loading: dashLoading, districtId, reload } = useDistrictDashboard();
+  const { data: dash, loading: dashLoading, districtId, reload, recoverSelection } = useDistrictDashboard();
   const fetchTrends = useServerFn(getDistrictReadinessTrends);
-  const [trend, setTrend] = useState<ReadinessTrendData | null>(null);
-  const [trendLoading, setTrendLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      setTrendLoading(true);
-      try {
-        const d = await fetchTrends({ data: districtId ? { district_id: districtId } : {} });
-        if (alive) setTrend(d);
-      } finally {
-        if (alive) setTrendLoading(false);
-      }
-    })();
-    return () => { alive = false; };
-  }, [fetchTrends, districtId]);
+  const { data: trend, loading: trendLoading, reload: reloadTrend } = useOrganizationDashboardLoad<ReadinessTrendData>(
+    (id) => fetchTrends({ data: { district_id: id } }),
+    (result) => result.org_id,
+    "Could not load district readiness information.",
+    { id: districtId, active: !dashLoading && !!dash?.selected_district_id },
+  );
 
   return (
     <DistrictPageShell
@@ -55,11 +50,16 @@ function DistrictReadinessTrendsPage() {
       loading={dashLoading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {() => (
         <div className="space-y-6">
-          <SchoolComparisonChart />
-          <TrendsView data={trend} loading={trendLoading} scopeLabel="district" />
+          <SchoolComparisonChart schools={[]} />
+          {!trendLoading && !trend ? (
+            <OrganizationLoadError onRetry={() => void reloadTrend()} onRecoverSelection={recoverSelection} />
+          ) : (
+            <TrendsView data={trend} loading={trendLoading} scopeLabel="district" />
+          )}
         </div>
       )}
     </DistrictPageShell>

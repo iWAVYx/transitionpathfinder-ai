@@ -1,0 +1,556 @@
+TAP version 13
+# Subtest: caller RLS retained for parent
+ok 1 - caller RLS retained for parent
+  ---
+  duration_ms: 263.158807
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for guardian
+ok 2 - caller RLS retained for guardian
+  ---
+  duration_ms: 141.240932
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for educator
+ok 3 - caller RLS retained for educator
+  ---
+  duration_ms: 219.932767
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for teacher
+ok 4 - caller RLS retained for teacher
+  ---
+  duration_ms: 205.523214
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for case_manager
+ok 5 - caller RLS retained for case_manager
+  ---
+  duration_ms: 219.841054
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for administrator
+ok 6 - caller RLS retained for administrator
+  ---
+  duration_ms: 135.419605
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for school_admin
+ok 7 - caller RLS retained for school_admin
+  ---
+  duration_ms: 140.541371
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for admin
+ok 8 - caller RLS retained for admin
+  ---
+  duration_ms: 183.580852
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for district_admin
+ok 9 - caller RLS retained for district_admin
+  ---
+  duration_ms: 186.840141
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for partner
+ok 10 - caller RLS retained for partner
+  ---
+  duration_ms: 164.591372
+  type: 'test'
+  ...
+# Subtest: self setup reuses canonical identity without secondary student or relationship
+ok 11 - self setup reuses canonical identity without secondary student or relationship
+  ---
+  duration_ms: 141.855264
+  type: 'test'
+  ...
+# Subtest: rejects foreign owner without partial rows
+ok 12 - rejects foreign owner without partial rows
+  ---
+  duration_ms: 124.433544
+  type: 'test'
+  ...
+# Subtest: rejects foreign organization without partial rows
+ok 13 - rejects foreign organization without partial rows
+  ---
+  duration_ms: 133.800233
+  type: 'test'
+  ...
+# Subtest: rejects blank name without partial rows
+ok 14 - rejects blank name without partial rows
+  ---
+  duration_ms: 106.539214
+  type: 'test'
+  ...
+# Subtest: rejects wrong type without partial rows
+ok 15 - rejects wrong type without partial rows
+  ---
+  duration_ms: 136.374553
+  type: 'test'
+  ...
+# Subtest: rejects oversize name without partial rows
+ok 16 - rejects oversize name without partial rows
+  ---
+  duration_ms: 125.726272
+  type: 'test'
+  ...
+# Subtest: rejects bad grade without partial rows
+ok 17 - rejects bad grade without partial rows
+  ---
+  duration_ms: 247.670389
+  type: 'test'
+  ...
+# Subtest: rejects invalid date without partial rows
+ok 18 - rejects invalid date without partial rows
+  ---
+  duration_ms: 123.431262
+  type: 'test'
+  ...
+# Subtest: rejects stale actor before writes
+ok 19 - rejects stale actor before writes
+  ---
+  duration_ms: 127.382162
+  type: 'test'
+  ...
+# Subtest: missing profile does not become Parent
+ok 20 - missing profile does not become Parent
+  ---
+  duration_ms: 120.794337
+  type: 'test'
+  ...
+# Subtest: student_guardians failure rolls back all setup writes
+ok 21 - student_guardians failure rolls back all setup writes
+  ---
+  duration_ms: 126.758915
+  type: 'test'
+  ...
+# Subtest: student_team_members failure rolls back all setup writes
+ok 22 - student_team_members failure rolls back all setup writes
+  ---
+  duration_ms: 267.331556
+  type: 'test'
+  ...
+# Subtest: license_calls failure rolls back all setup writes
+ok 23 - license_calls failure rolls back all setup writes
+  ---
+  duration_ms: 129.443126
+  type: 'test'
+  ...
+# Subtest: contradictory relationship trigger rolls back inserted student
+ok 24 - contradictory relationship trigger rolls back inserted student
+  ---
+  duration_ms: 133.069444
+  type: 'test'
+  ...
+# Subtest: repeated request cannot duplicate student or relationship
+ok 25 - repeated request cannot duplicate student or relationship
+  ---
+  duration_ms: 162.036342
+  type: 'test'
+  ...
+# Subtest: does not bypass existing student insert policy
+ok 26 - does not bypass existing student insert policy
+  ---
+  duration_ms: 128.028485
+  type: 'test'
+  ...
+# Subtest: fixed path, invoker authority and authenticated-only grant
+ok 27 - fixed path, invoker authority and authenticated-only grant
+  ---
+  duration_ms: 177.713222
+  type: 'test'
+  ...
+# Subtest: competing same-request creation commits one complete setup
+ok 28 - competing same-request creation commits one complete setup
+  ---
+  duration_ms: 172.390273
+  type: 'test'
+  ...
+# Subtest: lost creation reply can be reconciled without creating another profile
+ok 29 - lost creation reply can be reconciled without creating another profile
+  ---
+  duration_ms: 136.008333
+  type: 'test'
+  ...
+# Subtest: unknown request is unconfirmed, never permission to retry
+ok 30 - unknown request is unconfirmed, never permission to retry
+  ---
+  duration_ms: 153.715997
+  type: 'test'
+  ...
+# Subtest: stale viewer cannot read an outcome
+ok 31 - stale viewer cannot read an outcome
+  ---
+  duration_ms: 122.324939
+  type: 'test'
+  ...
+# Subtest: another account cannot discover existence or tombstones
+ok 32 - another account cannot discover existence or tombstones
+  ---
+  duration_ms: 132.832983
+  type: 'test'
+  ...
+# Subtest: removal retains identity tombstone and blocks same-ID resurrection
+ok 33 - removal retains identity tombstone and blocks same-ID resurrection
+  ---
+  duration_ms: 141.11158
+  type: 'test'
+  ...
+# Subtest: rolled-back removal does not mark the profile removed
+ok 34 - rolled-back removal does not mark the profile removed
+  ---
+  duration_ms: 132.350933
+  type: 'test'
+  ...
+# Subtest: failed setup leaves no receipt and same request can commit once repaired
+ok 35 - failed setup leaves no receipt and same request can commit once repaired
+  ---
+  duration_ms: 137.82911
+  type: 'test'
+  ...
+# Subtest: documents blocks student removal without losing metadata or tombstone state
+ok 36 - documents blocks student removal without losing metadata or tombstone state
+  ---
+  duration_ms: 143.914048
+  type: 'test'
+  ...
+# Subtest: meetings blocks student removal without losing metadata or tombstone state
+ok 37 - meetings blocks student removal without losing metadata or tombstone state
+  ---
+  duration_ms: 128.292742
+  type: 'test'
+  ...
+# Subtest: ownership transfer does not expose the current profile to original creator
+ok 38 - ownership transfer does not expose the current profile to original creator
+  ---
+  duration_ms: 135.189841
+  type: 'test'
+  ...
+# Subtest: direct caller cannot forge, delete, or read lifecycle receipts
+ok 39 - direct caller cannot forge, delete, or read lifecycle receipts
+  ---
+  duration_ms: 114.870201
+  type: 'test'
+  ...
+# Subtest: recovery exposes identity and status only, never a student snapshot
+ok 40 - recovery exposes identity and status only, never a student snapshot
+  ---
+  duration_ms: 135.947892
+  type: 'test'
+  ...
+# Subtest: lifecycle helper is not directly callable and recovery excludes anon/service
+ok 41 - lifecycle helper is not directly callable and recovery excludes anon/service
+  ---
+  duration_ms: 132.773308
+  type: 'test'
+  ...
+# Subtest: legacy profile deletion also leaves a tombstone
+ok 42 - legacy profile deletion also leaves a tombstone
+  ---
+  duration_ms: 122.951671
+  type: 'test'
+  ...
+# Subtest: student ID cannot change around the permanent identity reservation
+ok 43 - student ID cannot change around the permanent identity reservation
+  ---
+  duration_ms: 127.276864
+  type: 'test'
+  ...
+# Subtest: outcome waits for an actual deletion commit
+ok 44 - outcome waits for an actual deletion commit
+  ---
+  duration_ms: 176.198108
+  type: 'test'
+  ...
+# Subtest: outcome waits for an actual deletion rollback
+ok 45 - outcome waits for an actual deletion rollback
+  ---
+  duration_ms: 166.073847
+  type: 'test'
+  ...
+# Subtest: foreign outcome lookup does not lock another owner profile
+ok 46 - foreign outcome lookup does not lock another owner profile
+  ---
+  duration_ms: 136.970078
+  type: 'test'
+  ...
+# Subtest: ownership removal permanently retires recovery visibility, including re-addition and deletion
+ok 47 - ownership removal permanently retires recovery visibility, including re-addition and deletion
+  ---
+  duration_ms: 138.539558
+  type: 'test'
+  ...
+# Subtest: closing an unknown request permanently prevents its delayed creation
+ok 48 - closing an unknown request permanently prevents its delayed creation
+  ---
+  duration_ms: 114.005961
+  type: 'test'
+  ...
+# Subtest: a lost closure reply can be checked again without changing its result
+ok 49 - a lost closure reply can be checked again without changing its result
+  ---
+  duration_ms: 127.941444
+  type: 'test'
+  ...
+# Subtest: closing a committed creation returns present without deleting it
+ok 50 - closing a committed creation returns present without deleting it
+  ---
+  duration_ms: 122.707214
+  type: 'test'
+  ...
+# Subtest: removed profile can be acknowledged without permitting resurrection
+ok 51 - removed profile can be acknowledged without permitting resurrection
+  ---
+  duration_ms: 132.766639
+  type: 'test'
+  ...
+# Subtest: failed setup can be closed before choosing a fresh identity
+ok 52 - failed setup can be closed before choosing a fresh identity
+  ---
+  duration_ms: 116.029513
+  type: 'test'
+  ...
+# Subtest: closure cannot reclaim an identity after ownership changed away and back
+ok 53 - closure cannot reclaim an identity after ownership changed away and back
+  ---
+  duration_ms: 127.48024
+  type: 'test'
+  ...
+# Subtest: another account cannot close or inspect an existing request
+ok 54 - another account cannot close or inspect an existing request
+  ---
+  duration_ms: 130.392253
+  type: 'test'
+  ...
+# Subtest: stale viewer cannot reserve a closure
+ok 55 - stale viewer cannot reserve a closure
+  ---
+  duration_ms: 121.561932
+  type: 'test'
+  ...
+# Subtest: rolled-back closure leaves the original request usable
+ok 56 - rolled-back closure leaves the original request usable
+  ---
+  duration_ms: 113.20719
+  type: 'test'
+  ...
+# Subtest: feed_events cleans only the removed student records atomically
+ok 57 - feed_events cleans only the removed student records atomically
+  ---
+  duration_ms: 128.730014
+  type: 'test'
+  ...
+# Subtest: in_app_notifications cleans only the removed student records atomically
+ok 58 - in_app_notifications cleans only the removed student records atomically
+  ---
+  duration_ms: 139.812502
+  type: 'test'
+  ...
+# Subtest: student_saved_partners cleans only the removed student records atomically
+ok 59 - student_saved_partners cleans only the removed student records atomically
+  ---
+  duration_ms: 121.38421
+  type: 'test'
+  ...
+# Subtest: document_apply_completion_receipts preserves unresolved content and blocks student deletion
+ok 60 - document_apply_completion_receipts preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 116.497137
+  type: 'test'
+  ...
+# Subtest: document_registration_completion_receipts preserves unresolved content and blocks student deletion
+ok 61 - document_registration_completion_receipts preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 152.316607
+  type: 'test'
+  ...
+# Subtest: document_summary_completion_receipts preserves unresolved content and blocks student deletion
+ok 62 - document_summary_completion_receipts preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 130.087115
+  type: 'test'
+  ...
+# Subtest: document_summary_operation_bindings preserves unresolved content and blocks student deletion
+ok 63 - document_summary_operation_bindings preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 130.576425
+  type: 'test'
+  ...
+# Subtest: document_upload_operation_bindings preserves unresolved content and blocks student deletion
+ok 64 - document_upload_operation_bindings preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 131.322772
+  type: 'test'
+  ...
+# Subtest: form_responses preserves unresolved content and blocks student deletion
+ok 65 - form_responses preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 128.166687
+  type: 'test'
+  ...
+# Subtest: message_threads preserves unresolved content and blocks student deletion
+ok 66 - message_threads preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 119.924092
+  type: 'test'
+  ...
+# Subtest: ppt_meeting_preps preserves unresolved content and blocks student deletion
+ok 67 - ppt_meeting_preps preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 146.238809
+  type: 'test'
+  ...
+# Subtest: student_voice_responses preserves unresolved content and blocks student deletion
+ok 68 - student_voice_responses preserves unresolved content and blocks student deletion
+  ---
+  duration_ms: 128.566643
+  type: 'test'
+  ...
+# Subtest: feed_events rejects an orphaned new reference
+ok 69 - feed_events rejects an orphaned new reference
+  ---
+  duration_ms: 121.066399
+  type: 'test'
+  ...
+# Subtest: in_app_notifications rejects an orphaned new reference
+ok 70 - in_app_notifications rejects an orphaned new reference
+  ---
+  duration_ms: 126.554379
+  type: 'test'
+  ...
+# Subtest: student_saved_partners rejects an orphaned new reference
+ok 71 - student_saved_partners rejects an orphaned new reference
+  ---
+  duration_ms: 133.260922
+  type: 'test'
+  ...
+# Subtest: document_apply_completion_receipts rejects an orphaned new reference
+ok 72 - document_apply_completion_receipts rejects an orphaned new reference
+  ---
+  duration_ms: 117.337558
+  type: 'test'
+  ...
+# Subtest: document_registration_completion_receipts rejects an orphaned new reference
+ok 73 - document_registration_completion_receipts rejects an orphaned new reference
+  ---
+  duration_ms: 112.902011
+  type: 'test'
+  ...
+# Subtest: document_summary_completion_receipts rejects an orphaned new reference
+ok 74 - document_summary_completion_receipts rejects an orphaned new reference
+  ---
+  duration_ms: 128.20652
+  type: 'test'
+  ...
+# Subtest: document_summary_operation_bindings rejects an orphaned new reference
+ok 75 - document_summary_operation_bindings rejects an orphaned new reference
+  ---
+  duration_ms: 120.939047
+  type: 'test'
+  ...
+# Subtest: document_upload_operation_bindings rejects an orphaned new reference
+ok 76 - document_upload_operation_bindings rejects an orphaned new reference
+  ---
+  duration_ms: 131.634985
+  type: 'test'
+  ...
+# Subtest: form_responses rejects an orphaned new reference
+ok 77 - form_responses rejects an orphaned new reference
+  ---
+  duration_ms: 107.154431
+  type: 'test'
+  ...
+# Subtest: message_threads rejects an orphaned new reference
+ok 78 - message_threads rejects an orphaned new reference
+  ---
+  duration_ms: 135.111377
+  type: 'test'
+  ...
+# Subtest: ppt_meeting_preps rejects an orphaned new reference
+ok 79 - ppt_meeting_preps rejects an orphaned new reference
+  ---
+  duration_ms: 123.077956
+  type: 'test'
+  ...
+# Subtest: student_voice_responses rejects an orphaned new reference
+ok 80 - student_voice_responses rejects an orphaned new reference
+  ---
+  duration_ms: 122.064697
+  type: 'test'
+  ...
+# Subtest: blocked deletion rolls back cascaded cleanup too
+ok 81 - blocked deletion rolls back cascaded cleanup too
+  ---
+  duration_ms: 123.267933
+  type: 'test'
+  ...
+# Subtest: closure routine has a fixed path and excludes anonymous/service callers
+ok 82 - closure routine has a fixed path and excludes anonymous/service callers
+  ---
+  duration_ms: 121.464759
+  type: 'test'
+  ...
+# Subtest: closure observes actual competing creation COMMIT
+ok 83 - closure observes actual competing creation COMMIT
+  ---
+  duration_ms: 154.503868
+  type: 'test'
+  ...
+# Subtest: closure observes actual competing creation ROLLBACK
+ok 84 - closure observes actual competing creation ROLLBACK
+  ---
+  duration_ms: 147.464039
+  type: 'test'
+  ...
+# Subtest: creation arriving after committed closure cannot save a duplicate
+ok 85 - creation arriving after committed closure cannot save a duplicate
+  ---
+  duration_ms: 163.394154
+  type: 'test'
+  ...
+# Subtest: feed_events writer waits for deleting parent COMMIT
+ok 86 - feed_events writer waits for deleting parent COMMIT
+  ---
+  duration_ms: 153.49155
+  type: 'test'
+  ...
+# Subtest: feed_events writer waits for deleting parent ROLLBACK
+ok 87 - feed_events writer waits for deleting parent ROLLBACK
+  ---
+  duration_ms: 171.053201
+  type: 'test'
+  ...
+# Subtest: message_threads writer waits for deleting parent COMMIT
+ok 88 - message_threads writer waits for deleting parent COMMIT
+  ---
+  duration_ms: 174.761813
+  type: 'test'
+  ...
+# Subtest: message_threads writer waits for deleting parent ROLLBACK
+ok 89 - message_threads writer waits for deleting parent ROLLBACK
+  ---
+  duration_ms: 165.012469
+  type: 'test'
+  ...
+# Subtest: channels does not let student removal silently discard conversation history
+ok 90 - channels does not let student removal silently discard conversation history
+  ---
+  duration_ms: 122.720469
+  type: 'test'
+  ...
+# Subtest: student_channel_removals does not let student removal silently discard conversation history
+ok 91 - student_channel_removals does not let student removal silently discard conversation history
+  ---
+  duration_ms: 132.946689
+  type: 'test'
+  ...
+1..91
+# tests 91
+# suites 0
+# pass 91
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13025.250796

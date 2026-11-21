@@ -1,0 +1,50 @@
+{
+  "schema": "planning-record-delete-full-schema-v1",
+  "source_commit": "8659b61f5b7c73730468f8be6ac9eb61e79848df",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 12,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "new_routines": 1,
+  "new_private_revision_helpers": 0,
+  "new_authenticated_only_rpcs": 1,
+  "new_triggers": 0,
+  "all_existing_public_routines_preserved": true,
+  "all_existing_policies_preserved": true,
+  "all_existing_triggers_preserved": true,
+  "all_existing_columns_indexes_constraints_and_table_privileges_preserved": true,
+  "all_existing_action_data_preserved": true,
+  "real_schema_smoke": {
+    "real_auth_student_intake_report_goal_action_feed_tables": true,
+    "authenticated_goal_and_action_deletion": true,
+    "prior_completion_activity_preserved": true,
+    "fictional_transaction_rolled_back": true
+  },
+  "raw_writer_retirement_claimed": false,
+  "whole_p1_complete": false,
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_atomic_action_proof_sha256": "b24bec88252eebc1c64492e47a336333c1e1343b7445946e0bf4ec301cf70811",
+  "before_catalog_sha256": "74acba8f10c203431ac47344fd6c42a60cc36a80c139405b8191f1af5a4d0a15",
+  "after_catalog_sha256": "62df746b1806e896d15190c5f5bdb082aff28469dc98eb2c6d2c17181ba10fba",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/planning-record-delete/atomic-planning-delete.review.sql",
+      "sha256": "1deca22478a819ae10a5d1da73f547262d40e0308a636dd971632f3dc0a0c141"
+    },
+    {
+      "path": "tests/database/planning-record-delete.test.mjs",
+      "sha256": "593f08d10def1fa599cbb700fbbae1100dadeada8d32136a3babffa3a1a560c2"
+    },
+    {
+      "path": "tests/database/run-planning-record-delete-schema.mjs",
+      "sha256": "a627fd6a736b9f054e01b9f19c2bd6ce001f202b2fdf97b693c4adff65e6847f"
+    },
+    {
+      "path": ".github/workflows/planning-record-delete-review.yml",
+      "sha256": "d2fbca1756e22236c6ccd72ab5e3f7244dcade1086ed07343817ded4c3b40d3a"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

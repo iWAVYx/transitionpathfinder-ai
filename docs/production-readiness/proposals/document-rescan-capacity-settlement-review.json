@@ -1,0 +1,120 @@
+{
+  "schema": "document-rescan-capacity-settlement-review-v1",
+  "date": "2026-11-01",
+  "base_source": "f8b15c44f8e9638aab8c949964796832710bdbed",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql",
+    "sha256": "b86a3065a5cd7fd0a174398e27dfd727f8ed2bf3218234ca983e904c1c5e54d6"
+  },
+  "routines": [
+    {
+      "name": "read_internal_document_rescan_completion",
+      "signature": "public.read_internal_document_rescan_completion(uuid,text)",
+      "body_md5": "6027e68e0591c80ac53fe6e79024c513",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_document_rescan_completion_receipt",
+      "signature": "public.guard_document_rescan_completion_receipt()",
+      "body_md5": "66fc62f3994165d4d1cc5d2baae32f88",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "record_internal_document_rescan_completion",
+      "signature": "public.record_internal_document_rescan_completion(uuid)",
+      "body_md5": "d33cda072581b15c7172ca9046d8b958",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_unfinished_document_rescan",
+      "signature": "public.guard_unfinished_document_rescan()",
+      "body_md5": "be1187efef8bef6e42bd2932bbc1f634",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_completed_document_rescan_lease",
+      "signature": "public.guard_completed_document_rescan_lease()",
+      "body_md5": "1217646df6772f74ae458ce269c71a49",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_document_capacity_rescan_settlement",
+      "signature": "public.guard_document_capacity_rescan_settlement()",
+      "body_md5": "d0847740f46ca699471dab7a2df59c00",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "settle_internal_document_rescan_capacity",
+      "signature": "public.settle_internal_document_rescan_capacity(uuid)",
+      "body_md5": "27739ecef53efbe6d20e553200bcca56",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "finish_document_operation",
+      "signature": "public.finish_document_operation(uuid,uuid,uuid,text)",
+      "body_md5": "02a82f905e1a198511cdeacade5f5138",
+      "definer": true,
+      "owner": "admission_owner"
+    },
+    {
+      "name": "guard_document_capacity_reservation",
+      "signature": "public.guard_document_capacity_reservation()",
+      "body_md5": "4c09f0f14edc20a934e14923c5d80ff6",
+      "definer": false,
+      "owner": "migration_executor"
+    }
+  ],
+  "scope": "Thirteenth noncanonical/unapplied owner-internal exact producer completion receipt and conservative rescan capacity settlement. No endpoint, automatic capacity-release/worker hooks, held reconciliation, IO, selected limits or activation.",
+  "proof": "Require an earlier committed immutable outcome/pending/source binding, original registered upload/origin-completion proof, unchanged current file/object/version/hash/size/type and scan result/correlation, current explicit editor/view/non-partner access, exact active/completed producer lease and two-unit reservation. The before-finish guard requires exact outcome and queue/worker proof; the unchanged capability checks in existing finish run before that update.",
+  "consumer_states": "Exact selected job may remain queued/unclaimed, or have its exact immutable worker operation/source binding in processing, known review hold, or actually guarded completed output. Unbound or typed processing/completed states refuse. A worker hold keeps its own obligation counted; a producer hold cannot complete or settle. Parent and worker finish/settlement may happen in either order.",
+  "metadata_scope": "The twelfth-stage full-document snapshot is only its original commit witness. Later benign metadata/derived-result updates are allowed while current immutable file tuple and exact scan/outcome/job evidence must still match. Source/pending/outcome/scan/finish timestamps in proof use canonical microsecond UTC strings to avoid session-time-zone drift. Local scan UUID/time/hash remains metadata, never provider cancellation or physical-byte proof.",
+  "atomic_completion": "Extend the existing service finish under its unchanged SQL owner. It records the new immutable receipt after the guarded lease update in the same transaction; actual RETURNING fields and same-transaction lease-write witness are checked. Skipped/altered receipt writes roll back finish. Capability is not copied/returned; duplicate/lost finish cannot adopt an existing completion. Confirmed leases/receipts freeze against reopening or deletion.",
+  "settlement": "Exactly one producer unit after confirmed clean/selected-queue completion, leaving summary obligation independent. Exactly two only for confirmed quarantine with no linked or unresolved new summary; prior completed historical summaries remain allowed/frozen. Immutable settlement rows and actual RETURNING checks prevent duplicate/altered release. All three policy scopes subtract the new exact settlement independently of existing guarded summary/registration settlement. No expiry, reset, held release or deletion path.",
+  "ownership": "Exact prerequisite hashes/owners/fixed paths/private grants, enabled receipt/queue/lease guards, original finish/control/lease owner coherence, paused/unset/empty state and trusted lease row-lock authority are required. Reuse the reviewed narrow owner/admin DDL bridge, preserve finish owner/grants, restore executor, and grant only the new private recorder to that existing SQL owner. No role attributes, ownership transfers or ordinary/private execution grants.",
+  "remaining_authority_boundary": "Current authority is rechecked after source/job locking; full transaction-held relationship/legacy writer fencing and physical/provider quiescence remain activation gates. Unknown earlier actor-only rescans and conflicting bound work refuse completion; no cancellation or drain is inferred.",
+  "private_rescan_completion_settlement_prepared": true,
+  "clean_producer_units": 1,
+  "confirmed_quarantine_units": 2,
+  "ordinary_private_execution_grants": false,
+  "automatic_capacity_settlement_hooks_installed": false,
+  "endpoint_source_claim_wired": false,
+  "general_application_limits_implemented": false,
+  "held_release_implemented": false,
+  "trusted_reconciliation_implemented": false,
+  "physical_copy_attested": false,
+  "provider_quiescence_verified": false,
+  "ready_for_cutover": false,
+  "hosted_authorized": false,
+  "verification": {
+    "focused_tests": 52,
+    "focused_passed": 41,
+    "focused_native_only_skips": 11,
+    "full_local_pending": false,
+    "native_full_schema_pending": false,
+    "full_local": {
+      "tests": 1296,
+      "pass": 1140,
+      "fail": 0,
+      "skipped": 156
+    },
+    "model_groups": [
+      847,
+      311,
+      86,
+      52
+    ],
+    "verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
+  },
+  "required_next": [
+    "Integrate exact source-bound claim/copy/committed-pending/result/finish/settlement wrappers; attach the already-reserved selected worker slot atomically and allow only that counted work to drain while paused/at cap. No broad pause or quota bypass.",
+    "Complete Apply/general hooks, trusted held reconciliation, legacy/direct/writer/relationship fences, physical Storage/provider acceptance and final canonical/ledger packaging.",
+    "Seek fresh specific authorization for coordinated isolated staging schema, separate website/worker rollout and bounded acceptance; production/main merge remain separate gates."
+  ]
+}

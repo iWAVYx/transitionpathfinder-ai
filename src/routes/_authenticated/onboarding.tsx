@@ -1,5 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useStudentCreationRecovery } from "@/hooks/use-student-creation-recovery";
+import { StudentCreationRecovery } from "@/components/StudentCreationRecovery";
+import { usePlanningLifetime } from "@/hooks/use-planning-lifetime";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
@@ -21,32 +24,46 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import {
-  completeOnboarding,
-  getProfile,
-  saveOnboardingProgress,
-} from "@/lib/profile.functions";
-import {
-  createStudent,
-  ensureOwnStudentProfile,
-} from "@/lib/students.functions";
+import { completeOnboarding, getProfile, saveOnboardingProgress } from "@/lib/profile.functions";
+import { createStudent, ensureOwnStudentProfile } from "@/lib/students.functions";
 import { getMyActivatedLicenseRole } from "@/lib/access-codes.functions";
 import { SchoolPicker } from "@/components/forms/SchoolPicker";
 import { fallbackPathFor } from "@/lib/role-policy";
-import {
-  questionsForRole,
-  tipsForRole,
-  type OnboardingQuestion,
-} from "@/lib/onboarding-questions";
+import { questionsForRole, tipsForRole, type OnboardingQuestion } from "@/lib/onboarding-questions";
 import { Lightbulb } from "lucide-react";
 
 const ROLE_OPTIONS = [
   { id: "student", label: "Student", note: "This is my plan", icon: User },
-  { id: "parent", label: "Parent or Guardian", note: "I'm planning with my child", icon: HeartHandshake },
-  { id: "educator", label: "Educator or Case Manager", note: "I support students at school — teacher, special educator, transition coordinator, or case manager", icon: GraduationCap },
-  { id: "school_admin", label: "School Administrator", note: "I lead transition planning at a single school or building", icon: Users },
-  { id: "district_admin", label: "School District Administrator", note: "I oversee transition planning across multiple schools in a district", icon: Users },
-  { id: "partner", label: "Partner Organization", note: "I run programs students can join", icon: Users },
+  {
+    id: "parent",
+    label: "Parent or Guardian",
+    note: "I'm planning with my child",
+    icon: HeartHandshake,
+  },
+  {
+    id: "educator",
+    label: "Educator or Case Manager",
+    note: "I support students at school — teacher, special educator, transition coordinator, or case manager",
+    icon: GraduationCap,
+  },
+  {
+    id: "school_admin",
+    label: "School Administrator",
+    note: "I lead transition planning at a single school or building",
+    icon: Users,
+  },
+  {
+    id: "district_admin",
+    label: "School District Administrator",
+    note: "I oversee transition planning across multiple schools in a district",
+    icon: Users,
+  },
+  {
+    id: "partner",
+    label: "Partner Organization",
+    note: "I run programs students can join",
+    icon: Users,
+  },
 ] as const;
 
 type RoleId = (typeof ROLE_OPTIONS)[number]["id"];
@@ -80,6 +97,13 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 });
 
 function OnboardingPage() {
+  const lifetime = usePlanningLifetime("onboarding");
+  const recovery = useStudentCreationRecovery(
+    lifetime.viewerId,
+    lifetime.current,
+    lifetime.available,
+  );
+  const finished = useRef(false);
   const navigate = useNavigate();
   const loadProfile = useServerFn(getProfile);
   const loadActivatedLicenseRole = useServerFn(getMyActivatedLicenseRole);
@@ -91,8 +115,7 @@ function OnboardingPage() {
 
   const [idx, setIdx] = useState(0);
   const [role, setRole] = useState<RoleId | null>(null);
-  const [activatedLicenseRole, setActivatedLicenseRole] =
-    useState<RoleId | null>(null);
+  const [activatedLicenseRole, setActivatedLicenseRole] = useState<RoleId | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [answers, setAnswers] = useState<AnswerMap>({});
@@ -106,20 +129,40 @@ function OnboardingPage() {
   // Prefill from existing profile (resumable); bounce if onboarding already done.
   useEffect(() => {
     let cancelled = false;
+    finished.current = false;
+    setBootstrapped(false);
+    setFirstName("");
+    setLastName("");
+    setStudentFirst("");
+    setStudentLast("");
+    setStudentSchool("");
+    setStudentGrade("");
+    setAnswers({});
+    setRole(null);
+    if (!lifetime.available) return;
     (async () => {
       try {
         const [p, licensedRole] = await Promise.all([
-          loadProfile(),
+          loadProfile({ data: { expected_viewer_id: lifetime.viewerId } }),
           loadActivatedLicenseRole(),
         ]);
         if (cancelled) return;
-        const validLicensedRole = ROLE_OPTIONS.some(
-          (option) => option.id === licensedRole,
-        )
+        const validLicensedRole = ROLE_OPTIONS.some((option) => option.id === licensedRole)
           ? (licensedRole as RoleId)
           : null;
         setActivatedLicenseRole(validLicensedRole);
-        if (p.onboarding_completed) {
+        setRole(validLicensedRole ?? (p.primary_role as RoleId | null) ?? null);
+        setFirstName(p.first_name ?? "");
+        setLastName(p.last_name ?? "");
+        setAnswers((p.onboarding_answers ?? {}) as AnswerMap);
+        let canLeave = false;
+        try {
+          canLeave = !recovery.pending();
+        } catch {
+          /* Keep recovery visible; never discard uncertain storage. */
+        }
+        if (cancelled) return;
+        if (p.onboarding_completed && canLeave) {
           const pr = (p.primary_role as RoleId | null) ?? null;
           if (pr) {
             // Send already-onboarded users straight to their primary workspace.
@@ -147,7 +190,7 @@ function OnboardingPage() {
     return () => {
       cancelled = true;
     };
-  }, [loadActivatedLicenseRole, loadProfile, navigate]);
+  }, [loadActivatedLicenseRole, loadProfile, navigate, lifetime.viewerId, lifetime.available]);
 
   // Parents and educators add a student record in onboarding. A "student" role
   // user IS the student, so we auto-create their record from their profile name
@@ -204,8 +247,10 @@ function OnboardingPage() {
   // Persist progress on step change so refresh resumes where you left off.
   async function persistProgress(nextRole: RoleId | null = role) {
     try {
+      if (!lifetime.current() || recovery.pending()) return;
       await saveProgress({
         data: {
+          expected_viewer_id: lifetime.viewerId,
           ...(nextRole ? { primary_role: nextRole } : {}),
           ...(firstName.trim() ? { first_name: firstName.trim() } : {}),
           ...(lastName.trim() ? { last_name: lastName.trim() } : {}),
@@ -220,7 +265,7 @@ function OnboardingPage() {
   const goBack = () => safeIdx > 0 && setIdx(safeIdx - 1);
   const goNext = async () => {
     await persistProgress();
-    if (safeIdx < activeSteps.length - 1) setIdx(safeIdx + 1);
+    if (lifetime.current() && safeIdx < activeSteps.length - 1) setIdx(safeIdx + 1);
   };
 
   function setAnswer(key: string, value: AnswerValue) {
@@ -239,58 +284,97 @@ function OnboardingPage() {
 
   async function handleFinish(e: FormEvent) {
     e.preventDefault();
+    if (finished.current) return;
     if (!role || !firstName.trim()) return;
     if (activatedLicenseRole && role !== activatedLicenseRole) {
       toast.error("Finish setup with the account type assigned by your license.");
       return;
     }
-    if (needsStudent && !studentFirst.trim()) return;
+    if (needsStudent && !studentFirst.trim() && !recovery.intent) return;
+    if (!recovery.ready || recovery.error) return;
+    if (recovery.intent) lifetime.confirmRead();
+    if (!lifetime.begin()) return;
     setSubmitting(true);
     try {
-      // 1) Persist name + primary_role FIRST (without flipping onboarding_completed).
-      //    createStudent reads profile.primary_role to wire the right relationship
-      //    row (parent → student_guardians, educator → student_team_members), so
-      //    primary_role must exist on the profile before we insert the student.
-      await saveProgress({
-        data: {
-          primary_role: role,
-          first_name: firstName.trim(),
-          last_name: lastName.trim() || undefined,
-          onboarding_answers: answers as Record<string, unknown>,
-        },
-      });
-
-      // 2) Create the linked student record BEFORE marking onboarding complete.
-      //    If this fails, the user stays here with onboarding_completed=false so
-      //    a refresh resumes the wizard instead of stranding them on /dashboard
-      //    with no student.
-      if (needsStudent) {
-        await addStudent({
+      await recovery.locked(async () => {
+        const pending = recovery.pending();
+        if (pending) {
+          if (pending.origin !== "onboarding" || pending.role !== role)
+            throw Error(
+              "Return to the account type used for your earlier setup before continuing.",
+            );
+          const result = await recovery.inspect(pending);
+          if (result.status !== "present")
+            throw Error(
+              "Your earlier setup is not confirmed. Check the saved setup before continuing.",
+            );
+        }
+        // 1) Persist name + primary_role FIRST (without flipping onboarding_completed).
+        //    createStudent reads profile.primary_role to wire the right relationship
+        //    row (parent → student_guardians, educator → student_team_members), so
+        //    primary_role must exist on the profile before we insert the student.
+        await saveProgress({
           data: {
-            first_name: studentFirst.trim(),
-            last_name: studentLast.trim() || undefined,
-            grade_band: (studentGrade || undefined) as never,
-            school: studentSchool.trim() || undefined,
+            expected_viewer_id: lifetime.viewerId,
+            primary_role: role,
+            first_name: firstName.trim(),
+            last_name: lastName.trim() || undefined,
+            onboarding_answers: answers as Record<string, unknown>,
           },
         });
-      } else if (role === "student") {
-        // Student accounts are the subject of their own plan. This creates or
-        // repairs that direct identity link; no self-collaborator is involved.
-        await ensureStudentProfile();
-      }
 
-      // 3) Now flip onboarding_completed and assign user_roles.
-      await saveProfile({
-        data: {
-          primary_role: role,
-          first_name: firstName.trim(),
-          last_name: lastName.trim() || undefined,
-          onboarding_answers: answers as Record<string, unknown>,
-        },
+        // 2) Create the linked student record BEFORE marking onboarding complete.
+        //    If this fails, the user stays here with onboarding_completed=false so
+        //    a refresh resumes the wizard instead of stranding them on /dashboard
+        //    with no student.
+        if (!lifetime.current()) return;
+        let intent = pending;
+        if (!intent && (needsStudent || role === "student")) {
+          intent = {
+            version: 1,
+            requestId: crypto.randomUUID(),
+            origin: "onboarding",
+            kind: role === "student" ? "self" : "linked",
+            role,
+          };
+          recovery.reserve(intent);
+        }
+        if (!pending && needsStudent) {
+          await addStudent({
+            data: {
+              expected_viewer_id: lifetime.viewerId,
+              request_id: intent!.requestId,
+              first_name: studentFirst.trim(),
+              last_name: studentLast.trim() || undefined,
+              grade_band: (studentGrade || undefined) as never,
+              school: studentSchool.trim() || undefined,
+            },
+          });
+        } else if (!pending && role === "student") {
+          // Student accounts are the subject of their own plan. This creates or
+          // repairs that direct identity link; no self-collaborator is involved.
+          await ensureStudentProfile({ data: { expected_viewer_id: lifetime.viewerId } });
+        }
+
+        if (!lifetime.current()) return;
+        // 3) Now flip onboarding_completed and assign user_roles.
+        await saveProfile({
+          data: {
+            expected_viewer_id: lifetime.viewerId,
+            primary_role: role,
+            first_name: firstName.trim(),
+            last_name: lastName.trim() || undefined,
+            onboarding_answers: answers as Record<string, unknown>,
+          },
+        });
+
+        if (!lifetime.current()) return;
+        if (intent) recovery.clear(intent);
+        finished.current = true;
       });
-
+      if (!lifetime.current()) return;
       if (needsStudent) {
-        toast.success(`${studentFirst.trim()} is on the dashboard. Let's keep going.`);
+        toast.success("Your saved student profile is ready. Let’s keep going.");
       } else {
         toast.success("You're all set. Welcome to TransitionForward.");
       }
@@ -306,13 +390,17 @@ function OnboardingPage() {
             : fallbackPathFor([role]);
       navigate({ to: target, replace: true });
     } catch (err) {
+      if (!lifetime.current()) return;
+      lifetime.markUncertain();
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       console.error("onboarding finish failed", err);
       toast.error(msg, {
-        description: "Your progress is saved — try again or come back later.",
+        description:
+          "Check your student list before repeating setup. Some information may already be saved.",
       });
     } finally {
-      setSubmitting(false);
+      lifetime.finish();
+      if (lifetime.current()) setSubmitting(false);
     }
   }
 
@@ -333,233 +421,263 @@ function OnboardingPage() {
       </section>
 
       <section className="mx-auto max-w-3xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
+        <StudentCreationRecovery
+          recovery={recovery}
+          onClose={
+            recovery.intent?.origin === "onboarding" && recovery.intent.kind === "linked"
+              ? () =>
+                  void recovery.closePending().then((status) => {
+                    if (status === "closed" && lifetime.current()) {
+                      lifetime.confirmRead();
+                    }
+                  })
+              : undefined
+          }
+          onContinue={
+            recovery.intent?.origin === "onboarding" && !submitting
+              ? () => void handleFinish({ preventDefault() {} } as FormEvent)
+              : undefined
+          }
+        />
+        {recovery.intent?.origin === "students" && (
+          <Link to="/students" className="text-sm underline">
+            Review Student List
+          </Link>
+        )}
         <div className="mb-5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Step {safeIdx + 1} of {activeSteps.length}</span>
+            <span>
+              Step {safeIdx + 1} of {activeSteps.length}
+            </span>
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="mt-2 h-2" />
         </div>
 
-        <form
-          onSubmit={handleFinish}
-          className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8"
-        >
-          {stepId === "role" && (
-            <div className="space-y-5">
-              <Header
-                eyebrow="Welcome"
-                title="Which best describes you?"
-                body={
-                  activatedLicenseRole
-                    ? "Your school or district license has already assigned this account type."
-                    : "This shapes the kinds of guidance and resources we surface."
-                }
-              />
-              {activatedLicenseRole ? (
-                <p className="border-l-2 border-primary pl-3 text-sm text-muted-foreground">
-                  The assigned account type cannot be changed here because it
-                  controls the seat and permissions connected to your license.
-                </p>
-              ) : null}
-              <div className="grid gap-3 sm:grid-cols-2">
-                {ROLE_OPTIONS.map(({ id, label, note, icon: Icon }) => {
-                  const active = role === id;
-                  const locked =
-                    activatedLicenseRole !== null && id !== activatedLicenseRole;
-                  return (
-                    <button
-                      type="button"
-                      key={id}
-                      disabled={locked}
-                      onClick={() => {
-                        if (locked) return;
-                        setRole(id);
-                        // Reset answers when role changes since the question set is different.
-                        if (role !== id) setAnswers({});
-                      }}
-                      className={cn(
-                        "flex items-start gap-3 rounded-2xl border bg-background p-4 text-left transition-colors",
-                        active
-                          ? "border-primary bg-primary/5"
-                          : "hover:border-primary/40",
-                        locked && "cursor-not-allowed opacity-45",
-                      )}
-                    >
-                      <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold">{label}</p>
-                        <p className="text-xs text-muted-foreground">{note}</p>
-                      </div>
-                      {active && <Check className="ml-auto h-4 w-4 text-primary" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {stepId === "you" && (
-            <div className="space-y-5">
-              <Header
-                eyebrow="About you"
-                title="What should we call you?"
-                body="Used on your dashboard, share links, and meeting prep handouts."
-              />
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="you-first">First name</Label>
-                  <Input
-                    id="you-first"
-                    autoFocus
-                    maxLength={80}
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="e.g. Jordan"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="you-last">Last name <span className="text-muted-foreground">(optional)</span></Label>
-                  <Input
-                    id="you-last"
-                    maxLength={80}
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
+        <form onSubmit={handleFinish} className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+          <fieldset
+            disabled={!!recovery.intent || submitting || !lifetime.available}
+            className="min-w-0"
+          >
+            {stepId === "role" && (
+              <div className="space-y-5">
+                <Header
+                  eyebrow="Welcome"
+                  title="Which best describes you?"
+                  body={
+                    activatedLicenseRole
+                      ? "Your school or district license has already assigned this account type."
+                      : "This shapes the kinds of guidance and resources we surface."
+                  }
+                />
+                {activatedLicenseRole ? (
+                  <p className="border-l-2 border-primary pl-3 text-sm text-muted-foreground">
+                    The assigned account type cannot be changed here because it controls the seat
+                    and permissions connected to your license.
+                  </p>
+                ) : null}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {ROLE_OPTIONS.map(({ id, label, note, icon: Icon }) => {
+                    const active = role === id;
+                    const locked = activatedLicenseRole !== null && id !== activatedLicenseRole;
+                    return (
+                      <button
+                        type="button"
+                        key={id}
+                        disabled={locked}
+                        onClick={() => {
+                          if (locked) return;
+                          setRole(id);
+                          // Reset answers when role changes since the question set is different.
+                          if (role !== id) setAnswers({});
+                        }}
+                        className={cn(
+                          "flex items-start gap-3 rounded-2xl border bg-background p-4 text-left transition-colors",
+                          active ? "border-primary bg-primary/5" : "hover:border-primary/40",
+                          locked && "cursor-not-allowed opacity-45",
+                        )}
+                      >
+                        <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold">{label}</p>
+                          <p className="text-xs text-muted-foreground">{note}</p>
+                        </div>
+                        {active && <Check className="ml-auto h-4 w-4 text-primary" />}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {stepId === "questions" && roleQuestions && (
-            <div className="space-y-6">
-              <Header
-                eyebrow="A few quick questions"
-                title={roleQuestions.title}
-                body={roleQuestions.body}
-              />
+            {stepId === "you" && (
+              <div className="space-y-5">
+                <Header
+                  eyebrow="About you"
+                  title="What should we call you?"
+                  body="Used on your dashboard, share links, and meeting prep handouts."
+                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="you-first">First name</Label>
+                    <Input
+                      id="you-first"
+                      autoFocus
+                      maxLength={80}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="e.g. Jordan"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="you-last">
+                      Last name <span className="text-muted-foreground">(optional)</span>
+                    </Label>
+                    <Input
+                      id="you-last"
+                      maxLength={80}
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {stepId === "questions" && roleQuestions && (
               <div className="space-y-6">
-                {roleQuestions.questions.map((q) => (
-                  <QuestionField
-                    key={q.key}
-                    question={q}
-                    value={answers[q.key]}
-                    onSetSingle={(v) => setAnswer(q.key, v)}
-                    onToggleMulti={(v) => toggleMulti(q.key, v)}
-                    onSetText={(v) => setAnswer(q.key, v)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {stepId === "student" && (
-            <div className="space-y-5">
-              <Header
-                eyebrow="Your student"
-                title="Add your first student"
-                body="You can edit this any time, share it securely, or add more students later."
-              />
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="s-first">Student first name *</Label>
-                  <Input
-                    id="s-first"
-                    autoFocus
-                    maxLength={80}
-                    value={studentFirst}
-                    onChange={(e) => setStudentFirst(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="s-last">Student last name <span className="text-muted-foreground">(optional)</span></Label>
-                  <Input
-                    id="s-last"
-                    maxLength={80}
-                    value={studentLast}
-                    onChange={(e) => setStudentLast(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="s-grade">Grade band</Label>
-                  <select
-                    id="s-grade"
-                    value={studentGrade}
-                    onChange={(e) => setStudentGrade(e.target.value)}
-                    className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-                  >
-                    <option value="">—</option>
-                    {GRADE_OPTIONS.map((g) => (
-                      <option key={g.value} value={g.value}>{g.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="s-school">School <span className="text-muted-foreground">(optional)</span></Label>
-                  <SchoolPicker
-                    id="s-school"
-                    value={studentSchool}
-                    onChange={setStudentSchool}
-                  />
+                <Header
+                  eyebrow="A few quick questions"
+                  title={roleQuestions.title}
+                  body={roleQuestions.body}
+                />
+                <div className="space-y-6">
+                  {roleQuestions.questions.map((q) => (
+                    <QuestionField
+                      key={q.key}
+                      question={q}
+                      value={answers[q.key]}
+                      onSetSingle={(v) => setAnswer(q.key, v)}
+                      onToggleMulti={(v) => toggleMulti(q.key, v)}
+                      onSetText={(v) => setAnswer(q.key, v)}
+                    />
+                  ))}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {stepId === "tips" && roleTips && (
-            <div className="space-y-5">
-              <Header
-                eyebrow="You're Set"
-                title={roleTips.title}
-                body={roleTips.body}
-              />
-              <ul className="space-y-3">
-                {roleTips.items.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-3 rounded-2xl border bg-background p-4 text-sm"
-                  >
-                    <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+            {stepId === "student" && (
+              <div className="space-y-5">
+                <Header
+                  eyebrow="Your student"
+                  title="Add your first student"
+                  body="You can edit this any time, share it securely, or add more students later."
+                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="s-first">Student first name *</Label>
+                    <Input
+                      id="s-first"
+                      autoFocus
+                      maxLength={80}
+                      value={studentFirst}
+                      onChange={(e) => setStudentFirst(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="s-last">
+                      Student last name <span className="text-muted-foreground">(optional)</span>
+                    </Label>
+                    <Input
+                      id="s-last"
+                      maxLength={80}
+                      value={studentLast}
+                      onChange={(e) => setStudentLast(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="s-grade">Grade band</Label>
+                    <select
+                      id="s-grade"
+                      value={studentGrade}
+                      onChange={(e) => setStudentGrade(e.target.value)}
+                      className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                    >
+                      <option value="">—</option>
+                      {GRADE_OPTIONS.map((g) => (
+                        <option key={g.value} value={g.value}>
+                          {g.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="s-school">
+                      School <span className="text-muted-foreground">(optional)</span>
+                    </Label>
+                    <SchoolPicker id="s-school" value={studentSchool} onChange={setStudentSchool} />
+                  </div>
+                </div>
+              </div>
+            )}
 
+            {stepId === "tips" && roleTips && (
+              <div className="space-y-5">
+                <Header eyebrow="You're Set" title={roleTips.title} body={roleTips.body} />
+                <ul className="space-y-3">
+                  {roleTips.items.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-3 rounded-2xl border bg-background p-4 text-sm"
+                    >
+                      <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={goBack}
-              disabled={safeIdx === 0 || submitting}
-            >
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Button>
-
-            {!isLastStep ? (
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
               <Button
                 type="button"
-                onClick={goNext}
-                disabled={!canAdvance}
+                variant="ghost"
+                onClick={goBack}
+                disabled={safeIdx === 0 || submitting}
               >
-                Continue <ArrowRight className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" /> Back
               </Button>
-            ) : (
-              <Button type="submit" disabled={!canAdvance || submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Saving…
-                  </>
-                ) : (
-                  <>
-                    <Check className="h-4 w-4" /> Finish & open dashboard
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
+
+              {!isLastStep ? (
+                <Button type="button" onClick={goNext} disabled={!canAdvance}>
+                  Continue <ArrowRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={
+                    !canAdvance ||
+                    submitting ||
+                    lifetime.uncertain ||
+                    !lifetime.available ||
+                    !recovery.ready ||
+                    !!recovery.intent ||
+                    !!recovery.error
+                  }
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Saving…
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4" /> Finish & open dashboard
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </fieldset>
         </form>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
@@ -597,9 +715,7 @@ function QuestionField({
     <div className="space-y-3">
       <div>
         <p className="text-sm font-semibold">{question.label}</p>
-        {question.help && (
-          <p className="mt-1 text-xs text-muted-foreground">{question.help}</p>
-        )}
+        {question.help && <p className="mt-1 text-xs text-muted-foreground">{question.help}</p>}
       </div>
 
       {question.type === "single" && question.options && (

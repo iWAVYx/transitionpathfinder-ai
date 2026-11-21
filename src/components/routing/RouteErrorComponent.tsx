@@ -1,18 +1,19 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
+import { useRouter } from "@tanstack/react-router";
 
 /**
  * Shared error boundary for route-level `errorComponent` slots.
  *
  * Route-level errorComponents are required by knowledge for every route that
  * defines a loader; using this shared component keeps the recovery UX
- * consistent (invalidate + reset + return-home affordance) and avoids
+ * consistent (invalidate + reset + return-to-source affordance) and avoids
  * bespoke boundaries that might swallow the retry contract.
  */
 export function RouteErrorComponent({
   error,
   reset,
 }: {
-  error: Error;
+  error: unknown;
   reset: () => void;
 }) {
   // Surface the error in the browser console for debugging; the friendly
@@ -29,7 +30,7 @@ export function RouteErrorComponent({
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong while loading this page. You can try again or head back home.
+          Something went wrong while loading this page. You can try again or return to the previous page.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -43,12 +44,8 @@ export function RouteErrorComponent({
           >
             Try Again
           </button>
-          <Link
-            to="/"
-            className="inline-flex items-center rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
-          >
-            Return Home
-          </Link>
+          <ContextualBackLink to="/" label="Return Home"
+            className="inline-flex items-center rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted" />
         </div>
       </div>
     </main>

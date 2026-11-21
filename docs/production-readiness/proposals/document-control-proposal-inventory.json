@@ -1,0 +1,471 @@
+{
+  "schema": "document-control-proposal-inventory-v1",
+  "date": "2026-11-13",
+  "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+  "scope": "All41 review-only SQL drafts and2405 native cases are verified through full225+41 replay. Read-only Owner pasted-text work inventory passes48 component and16 actual role deletion/demotion races. Other recovery/writer/process/provider and hosted/release gates remain open; no release authority.",
+  "proposal_count": 19,
+  "proposals": [
+    {
+      "order": 1,
+      "path": "docs/production-readiness/proposals/document-operation-admission.sql",
+      "sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb",
+      "disposable_replay_step": "Verify proposed durable admission against complete canonical replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 2,
+      "path": "docs/production-readiness/proposals/document-apply-admission.sql",
+      "sha256": "e79a8d152da88eb6f6c85f5bffcb2b246a6f0af83b31a8cd2acf6a0b761dc0ff",
+      "disposable_replay_step": "Verify atomic Apply pause fence against complete replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 3,
+      "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
+      "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1",
+      "disposable_replay_step": "Verify reviewed upload pause fence after canonical replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 4,
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad",
+      "disposable_replay_step": "Verify durable upload interval after canonical replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 5,
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
+      "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a",
+      "disposable_replay_step": "Verify retained upload limits after durable interval replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 6,
+      "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
+      "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5",
+      "disposable_replay_step": "Verify atomic summary operation handoff after retained upload limits",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 7,
+      "path": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+      "sha256": "0892b4312a4845aae7e6ab5b9a68b1332b32ab36b7a44adc33b5b3087b89e021",
+      "disposable_replay_step": "Verify dormant private capacity foundation after atomic summary handoff",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 8,
+      "path": "docs/production-readiness/proposals/document-summary-capacity-settlement.sql",
+      "sha256": "861d744fc1352e5305f8a4c34ac5c6997c6d422930f0b8ad0743a8605447667b",
+      "disposable_replay_step": "Verify atomic summary completion receipt and private capacity settlement",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 9,
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f",
+      "disposable_replay_step": "Verify source-bound registration completion and capacity settlement",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 10,
+      "path": "docs/production-readiness/proposals/document-rescan-source-claim.sql",
+      "sha256": "fad01efea48b9d10d2b6d01ae9cb92369c2001192eaa89065247a68ccf720406",
+      "disposable_replay_step": "Verify private rescan source claim and dormant capacity boundary",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 11,
+      "path": "docs/production-readiness/proposals/document-rescan-pending-transition.sql",
+      "sha256": "4b0e72d6efab8470cbd2952eb03292320827ce8418cc4235d17f776fe3c4d0d9",
+      "disposable_replay_step": "Verify private one-use rescan pending transition",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 12,
+      "path": "docs/production-readiness/proposals/document-rescan-outcome-queue.sql",
+      "sha256": "02d44e5eb75159b2aaa722e367e9010834713108e9c38a6aab180cbd6f0891a6",
+      "disposable_replay_step": "Verify private atomic rescan result and counted queue",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 13,
+      "path": "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql",
+      "sha256": "b86a3065a5cd7fd0a174398e27dfd727f8ed2bf3218234ca983e904c1c5e54d6",
+      "disposable_replay_step": "Verify private rescan completion and exact producer settlement",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 14,
+      "path": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
+      "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c",
+      "disposable_replay_step": "Verify atomic already-counted summary worker handoff",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 15,
+      "path": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+      "sha256": "59979fc2c2f5c5fd42694f4f12b7dd20210aa97ed75d89006d66b7abeab0e931",
+      "disposable_replay_step": "Verify automatic exact worker settlement and preserved finish owner",
+      "source_checked_against": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2",
+      "native_status": "verified_through_stage15",
+      "hosted_applied": false
+    },
+    {
+      "order": 16,
+      "path": "docs/production-readiness/proposals/document-rescan-service-boundary.sql",
+      "sha256": "bf3f953f69c1878ee4999dc18f97d554281969a0ca61f71d223efc35b30de8ee",
+      "disposable_replay_step": "Verify rescan service boundary after complete replay",
+      "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+      "native_status": "verified_stage16_on_e921e422",
+      "hosted_applied": false
+    },
+    {
+      "order": 17,
+      "path": "docs/production-readiness/proposals/document-registration-capacity-admission.sql",
+      "sha256": "71224aff2d490d4686f67c82d009d0c53e1d08e013f34fd3bdca142523df49da",
+      "disposable_replay_step": "Verify integrated registration reservation queue and release",
+      "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+      "native_status": "verified_complete_native_and_full_schema",
+      "hosted_applied": false
+    },
+    {
+      "order": 18,
+      "path": "docs/production-readiness/proposals/document-registration-queue-transfer.sql",
+      "sha256": "bb237c4ac1508857bbf3e76fe8f070f2ebda36918b7e2dbda8e4a75111f38dc6",
+      "disposable_replay_step": "Verify integrated registration reservation queue and release",
+      "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+      "native_status": "verified_complete_native_and_full_schema",
+      "hosted_applied": false
+    },
+    {
+      "order": 19,
+      "path": "docs/production-readiness/proposals/document-registration-automatic-release.sql",
+      "sha256": "ade89b1e38cf985cc0de3b911e8a561a0b26ce4f2111d7ff616d6356f9fe64d0",
+      "disposable_replay_step": "Verify integrated registration reservation queue and release",
+      "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+      "native_status": "verified_complete_native_and_full_schema",
+      "hosted_applied": false
+    }
+  ],
+  "verified_parent_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json",
+  "canonical_migration_count": 225,
+  "separate_prepared_canonical_batch_count": 15,
+  "canonical_batch_generator": "tests/database/document-upload-rollout-sql.mjs",
+  "includes_canonical_batch": false,
+  "final_canonical_ledger_package_prepared": false,
+  "complete_release_package": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false,
+  "superseded_candidate_runs": [
+    41678048798,
+    41678056736
+  ],
+  "new_native_proof_pending": false,
+  "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json",
+  "verified_stage16_evidence": "docs/production-readiness/evidence/document-rescan-service-boundary-verified-2026-11-05.json",
+  "additional_unordered_drafts": [
+    {
+      "path": "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+      "sha256": "4e8326170df60b10c9d44176c6a6e1bfdc346727e0b77aa644a1bd5f3c1ab110",
+      "native_status": "verified_complete_native_and_full_schema",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+      "sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25",
+      "native_status": "verified_complete_native_and_full_schema",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
+      "sha256": "195cec8efe3ec370dd795127d4162483985a199ea32a179ae776f9dd0db717c2",
+      "native_status": "verified_complete_native_and_full_schema",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-capacity-release.sql",
+      "sha256": "8c5d5e61d975cc820d1edaf139ebe1a4b5f5079723b1d7f3a4c268003b7abeae",
+      "native_status": "verified_complete_native_and_full_schema",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-automatic-release.sql",
+      "sha256": "98050642564389e3bc2cea07999ff23464c9008e08e2f580194f00ee301f7a2d",
+      "native_status": "verified_complete_native_and_full_schema",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
+      "sha256": "163e0e01f98a4dadfce64f1a09addd6b623aa0f15b5703723374cb9831cd3f21",
+      "native_status": "verified_native_and_full_schema_no_hosted_activation",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-operation-review.sql",
+      "sha256": "7d4b5ee80ac137aeeb9f8114f9a2d8ca0ceb40cd20e575555ef722f2c16b4c16",
+      "native_status": "verified_native_and_full_schema_retain_work_only",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
+      "sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07",
+      "native_status": "verified_native1594_and_full225_plus27_schema",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-private-operation-admission.sql",
+      "sha256": "5e7861721abaa2022ded87715d3c1f4fc9929ab4e7bb9d8aff5526133ba7af88",
+      "native_status": "verified_native1640_and_full225_plus29_schema",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
+      "sha256": "f14500b6706e63921703b4957c9b257883c664770f0ea4153e9ec11ef7105fe0",
+      "native_status": "verified_native1640_and_full225_plus29_schema",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql",
+      "sha256": "52c55637dc94c51c3da305e613947830e2f4f83b8ae48825baa88764f6619247",
+      "native_status": "verified_native1660_full225_plus30",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-save.sql",
+      "sha256": "1e5721be2ed060549acb1dcdea983a76c20d35929645f9f2e7b6e32f300a5837",
+      "native_status": "verified_native31_plus1660_existing_full225_plus31",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+      "sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5",
+      "native_status": "verified_native39_plus31_save_plus1660_existing_full225_plus32",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
+      "sha256": "d7ea4c4b5b80e63a1c8e83a474d6b429ab7a1536e70721af0efea2a41bb60974",
+      "native_status": "verified_native38_plus39_authority_plus31_save_plus1660_existing_full225_plus33",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+      "sha256": "f0a019d92cc8c2058bac12f1cbc4cebe12842dbc75dead528c8e95875cf6b3c5",
+      "native_status": "verified_native48_and_full225_plus35",
+      "hosted_applied": false,
+      "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-source-admission.sql",
+      "sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba",
+      "native_status": "verified_native68_actual_consumer5_and_full225_plus35",
+      "hosted_applied": false,
+      "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+      "sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069",
+      "native_status": "verified_native56_plus1884_regressions_full225_plus36",
+      "hosted_applied": false,
+      "verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql",
+      "sha256": "58877488d0cb42e35c3ae6a897fc89de915af700f53df0f1bacd5bc761b3c7b0",
+      "native_status": "verified_complete_native_and_full_schema",
+      "local_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
+      "hosted_applied": false,
+      "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-authority-lock.sql",
+      "sha256": "42936e91ad6e9d721c839360e589011cbeebf97ad7557a09ad99ae8174265d97",
+      "local_verified": true,
+      "native_full_schema_verified": true,
+      "hosted_applied": false,
+      "evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json",
+      "native_status": "verified_complete_native_and_full_schema",
+      "verified_evidence": "docs/production-readiness/evidence/document-summary-authority-verified-2026-11-13.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-producer-authority-lock.sql",
+      "sha256": "3974bb53390e88a5b0ab43451a9fab97715d58c6a6ee594952f35145c5ad6fb8",
+      "local_verified": true,
+      "native_full_schema_verified": true,
+      "hosted_applied": false,
+      "local_evidence": "docs/production-readiness/evidence/document-producer-authority-local-2026-11-13.json",
+      "native_status": "verified_complete_native_and_full_schema",
+      "verified_evidence": "docs/production-readiness/evidence/document-producer-authority-verified-2026-11-13.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-owner-review-boundary.sql",
+      "sha256": "70cdc3b80c1b5dbf7b92f06a4595ba910aae96be9bcc8821c8942d3b1305c160",
+      "local_verified": true,
+      "native_full_schema_verified": true,
+      "hosted_applied": false,
+      "local_evidence": "docs/production-readiness/evidence/document-owner-review-local-2026-11-13.json",
+      "native_status": "verified_complete_native_and_full_schema",
+      "verified_evidence": "docs/production-readiness/evidence/document-owner-review-verified-2026-11-13.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-owner-text-work-review.sql",
+      "sha256": "20b0529fac9b96fb6769173e9201288123304993288d8c02cb57f5ccc231f327",
+      "local_verified": true,
+      "native_full_schema_verified": true,
+      "hosted_applied": false,
+      "local_evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+      "native_status": "verified_complete_native_and_full_schema",
+      "verified_evidence": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json"
+    }
+  ],
+  "registration_replay_failure": {
+    "run": 41973652684,
+    "step": "Verify integrated registration reservation queue and release",
+    "error": "permission denied to set role supabase_admin",
+    "accepted": false,
+    "full_native_suite": "still running at observation",
+    "correction_evidence": "docs/production-readiness/evidence/document-registration-executor-local-2026-11-05.json",
+    "corrected_source_verified": false,
+    "correction_schema_verified_run": 41979082941
+  },
+  "apply_installation_hardening_evidence": "docs/production-readiness/evidence/document-apply-install-hardening-local-2026-11-05.json",
+  "apply_atomic_installer": {
+    "generator": "tests/database/document-apply-rollout-sql.mjs",
+    "plan": "docs/production-readiness/proposals/document-apply-atomic-install-plan.json",
+    "evidence": "docs/production-readiness/evidence/document-apply-atomic-install-local-2026-11-05.json",
+    "native_full_schema_verified": false,
+    "canonical_ledger_package": false,
+    "full_schema_replay_step": "Verify atomic Apply chain after complete schema replay",
+    "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json"
+  },
+  "verified_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json",
+  "verification_appendix_order": [
+    "docs/production-readiness/proposals/document-rescan-automatic-release.sql",
+    "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+    "docs/production-readiness/proposals/document-apply-bound-save.sql",
+    "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
+    "docs/production-readiness/proposals/document-apply-capacity-release.sql",
+    "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
+    "docs/production-readiness/proposals/document-operation-review.sql",
+    "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
+    "docs/production-readiness/proposals/document-private-operation-admission.sql",
+    "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
+    "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql",
+    "docs/production-readiness/proposals/document-text-review-save.sql",
+    "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+    "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
+    "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+    "docs/production-readiness/proposals/document-text-source-admission.sql",
+    "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+    "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql",
+    "docs/production-readiness/proposals/document-summary-authority-lock.sql",
+    "docs/production-readiness/proposals/document-producer-authority-lock.sql",
+    "docs/production-readiness/proposals/document-owner-review-boundary.sql",
+    "docs/production-readiness/proposals/document-owner-text-work-review.sql"
+  ],
+  "verification_appendix_scope": "All22 appendix drafts after ordered19 are native/full-schema verified through225+41 replay and2405 native cases, zero failures/skips. Other recovery/writer/process/provider and hosted/release gates remain open.",
+  "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
+  "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
+  "complete_native_suite_pending": false,
+  "complete_native_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
+  "selected_policy_preparation_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
+  "workstream1_complete_evidence": "docs/production-readiness/evidence/workstream-1-source-verification-complete-2026-11-05.json",
+  "selected_policy_native_full_schema_pending": false,
+  "selected_policy_verified_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-verified-2026-11-05.json",
+  "operation_review_preparation_evidence": "docs/production-readiness/evidence/document-operation-review-local-2026-11-05.json",
+  "operation_review_verified_evidence": "docs/production-readiness/evidence/document-operation-review-verified-2026-11-05.json",
+  "apply_no_save_preparation_evidence": "docs/production-readiness/evidence/document-apply-no-save-reconciliation-local-2026-11-05.json",
+  "apply_no_save_native_evidence": "docs/production-readiness/evidence/document-apply-no-save-native-verified-2026-11-05.json",
+  "apply_no_save_verified_evidence": "docs/production-readiness/evidence/document-recovery-native-schema-verified-2026-11-05.json",
+  "read_only_drain_inventory": {
+    "path": "docs/production-readiness/proposals/document-pause-drain-inventory.sql",
+    "sha256": "72f10bbbd1760fc55165e1195ca305131fb77281df2865f59b16d4271dcc8a2a",
+    "local_evidence": "docs/production-readiness/evidence/document-pause-drain-inventory-local-2026-11-05.json",
+    "not_a_schema_installation": true,
+    "native_full_schema_verified": true,
+    "previous_verified_sha256": "dde428e3aa44f07a323c0014f62747e3887a525fce60145609d90b54f23cdc83",
+    "previous_verified_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json",
+    "legacy_guard_extension_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json",
+    "verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json"
+  },
+  "private_generic_admission_preparation_evidence": "docs/production-readiness/evidence/document-private-admission-local-2026-11-05.json",
+  "summary_claim_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
+  "private_generic_admission_native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json",
+  "legacy_writer_verified_evidence": "docs/production-readiness/evidence/document-legacy-writers-native-schema-verified-2026-11-05.json",
+  "summary_queue_entry_preparation_evidence": "docs/production-readiness/evidence/document-summary-queue-entry-local-2026-11-05.json",
+  "summary_queue_entry_verified_evidence": "docs/production-readiness/evidence/document-summary-queue-entry-verified-2026-11-05.json",
+  "text_review_save_preparation_evidence": "docs/production-readiness/evidence/document-text-review-save-local-2026-11-06.json",
+  "text_review_save_verified_evidence": "docs/production-readiness/evidence/document-text-review-save-verified-2026-11-06.json",
+  "text_review_authority_preparation_evidence": "docs/production-readiness/evidence/document-text-review-authority-local-2026-11-06.json",
+  "text_review_authority_verified_evidence": "docs/production-readiness/evidence/document-text-review-authority-verified-2026-11-06.json",
+  "unified_text_capacity_drain_inventory": {
+    "path": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql",
+    "sha256": "19bf4f2f3079dbec60997faaaefbdb26b4e0d87aec3aab80859b06fd3e633437",
+    "not_a_schema_installation": true,
+    "local_verified": true,
+    "native_full_schema_verified": true,
+    "previous_verified_sha256": "0b78de5e7914294a21cf17987877acc27d45169f8aebe4531f881a9b5a6292e3",
+    "previous_verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json",
+    "completion_guard_extension_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
+    "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json"
+  },
+  "text_capacity_foundation_preparation_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json",
+  "text_capacity_foundation_verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json",
+  "completion_aware_text_drain_inventory": {
+    "path": "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql",
+    "sha256": "4cca38a575a9a8ee3f133f4c89bb487d97c367cec66e89bba9dd5034580c39ce",
+    "not_a_schema_installation": true,
+    "local_verified": true,
+    "native_full_schema_verified": true,
+    "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json"
+  },
+  "text_bound_save_preparation_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
+  "text_source_admission_preparation_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
+  "candidate_full_replay_pending": false,
+  "text_source_protocol_verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
+  "extraction_source_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
+  "extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json",
+  "guarded_apply_recovery_composite_local_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-local-2026-11-12.json",
+  "guarded_apply_recovery_composite_verified_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-verified-2026-11-12.json",
+  "manual_review_save_local_evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json",
+  "completion_marker_fence_local_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
+  "completion_marker_fence_verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json",
+  "summary_authority_preparation_evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json",
+  "summary_authority_verified_evidence": "docs/production-readiness/evidence/document-summary-authority-verified-2026-11-13.json",
+  "producer_authority_preparation_evidence": "docs/production-readiness/evidence/document-producer-authority-local-2026-11-13.json",
+  "producer_authority_verified_evidence": "docs/production-readiness/evidence/document-producer-authority-verified-2026-11-13.json",
+  "owner_review_preparation_evidence": "docs/production-readiness/evidence/document-owner-review-local-2026-11-13.json",
+  "owner_review_verified_evidence": "docs/production-readiness/evidence/document-owner-review-verified-2026-11-13.json",
+  "owner_text_work_preparation_evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+  "owner_text_work_verified_evidence": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json"
+}

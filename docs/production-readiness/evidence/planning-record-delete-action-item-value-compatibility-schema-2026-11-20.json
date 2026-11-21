@@ -1,0 +1,46 @@
+{
+  "schema": "action-item-value-compatibility-full-schema-v1",
+  "source_commit": "8659b61f5b7c73730468f8be6ac9eb61e79848df",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 10,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "exact_constraints_changed": [
+    "action_items_status_check",
+    "action_items_category_check"
+  ],
+  "all_constraints_validated": true,
+  "all_existing_public_routines_preserved": true,
+  "all_existing_policies_preserved": true,
+  "all_existing_triggers_preserved": true,
+  "all_existing_columns_indexes_and_table_privileges_preserved": true,
+  "all_existing_action_data_preserved": true,
+  "authenticated_value_combinations": 35,
+  "fictional_transaction_rolled_back": true,
+  "access_policy_closure_claimed": false,
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_voice_proof_sha256": "35e5e071106009a0d32e41142458634a4cc71f0a92ec25f2264bbe82802e414c",
+  "before_catalog_sha256": "cfd7fb2d0fe3d62bc62b20670c9082846da4745d1f5e440c6cd1e31d17ec509d",
+  "after_catalog_sha256": "cfd7fb2d0fe3d62bc62b20670c9082846da4745d1f5e440c6cd1e31d17ec509d",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/action-item-value-compatibility/allow-current-action-values.review.sql",
+      "sha256": "ed9e4cf80cf759c97535218031c0ec27bfc2752431de98d5c03aadd46e854e23"
+    },
+    {
+      "path": "tests/database/action-item-value-compatibility.test.mjs",
+      "sha256": "868cce7ce7bf7bc51001eaf29551feadbdda30ef349c898a62ee4c3f48582f11"
+    },
+    {
+      "path": "tests/database/run-action-item-value-compatibility-schema.mjs",
+      "sha256": "2050210d780dcd38516799b28d6f8e8d5c16f55166be89f65620ed0e2cf4a672"
+    },
+    {
+      "path": ".github/workflows/action-item-value-compatibility-review.yml",
+      "sha256": "19f30262fd3cd907caa3b3e65570fb3ec03536b0a7d00b59c446203337ee60d7"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

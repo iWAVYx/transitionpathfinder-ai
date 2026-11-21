@@ -1,0 +1,101 @@
+{
+  "schema": "transitionforward-document-admin-grant-retirement-verified-v1",
+  "date": "2026-11-15",
+  "checkout_commit": "7fa8dd0c85bc620732e9e9ae42b72c285feb7b52",
+  "workflow_run": 43752545647,
+  "workflow_conclusion": "success",
+  "source_component_complete": true,
+  "native_cases": 48,
+  "native_failed": 0,
+  "native_skipped": 0,
+  "local_model_cases": 36,
+  "full_schema_stages": 56,
+  "canonical_count": 225,
+  "prior_control_drafts": 41,
+  "separate_review_drafts": 1,
+  "native_full_schema_verified": true,
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
+      "sha256": "2e6302818b3cb4af98b9fec9614f8538659d6ec9ab9c6c15b8df2faa7b4ff079"
+    },
+    {
+      "path": "tests/database/document-admin-grant-retirement.test.mjs",
+      "sha256": "f2593ec73ac104f3e34070e2e17665c7adcc5d509220d59bfb334d1d94b4f1d8"
+    },
+    {
+      "path": "tests/database/document-admin-grant-cases.mjs",
+      "sha256": "f1101d41394f8890d8fd42468d79f2e0eda6ec76484274163071104c29a6bb51"
+    },
+    {
+      "path": "tests/database/run-document-grant-native.mjs",
+      "sha256": "e52353395d8b4564548f0eb0964e5b0284c8456c5fd4355be5c501a0a1ca7f0c"
+    },
+    {
+      "path": "tests/database/run-document-grant-full-schema.mjs",
+      "sha256": "ead65b04ea6120c61c0a31fdc2d86cc564abe0157ac8b02b65db9c80ce5cdbc1"
+    },
+    {
+      "path": "tests/database/document-admin-grant-full-chain-review.sql",
+      "sha256": "c365393934193c75ba7bf165e492b1165a86148e68f9c119ae425248cd3b28c4"
+    },
+    {
+      "path": ".github/workflows/document-admin-grant-review.yml",
+      "sha256": "b21b0e9394b2548ab808439e28dce66a30569191433374ea913ae892dc589a6f"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "f4fb30fb9ed25ab3e63213edee428dff8d9898bf951da0609736f75651659423"
+    }
+  ],
+  "native_evidence": {
+    "path": "docs/production-readiness/evidence/document-admin-grant-retirement-native-2026-11-15.json",
+    "sha256": "2b28b972688dfc2823b7df86d0e8e3276654c1b1a3aea953dd44dc9c8b3f352e",
+    "log_sha256": "98047c30bcb09b37b64babee5cf8e4396df71445b277809cb31cad78b7d1f627"
+  },
+  "schema_evidence": {
+    "path": "docs/production-readiness/evidence/document-admin-grant-retirement-schema-2026-11-15.json",
+    "sha256": "ddc6e19390529cd59ba11091c0e11d0a4030728df5627b50fa505244fa20a97c"
+  },
+  "unchanged_prior_sql_baseline": {
+    "canonical": 225,
+    "drafts": 41,
+    "sql_files": 297,
+    "retained_cases": 2405,
+    "original_test_source_unchanged": true,
+    "fresh_prior_regression_rerun_claimed": false,
+    "artifact_sha256": "359ed24ed24cef588e4fa43508d3a1b03abc436bb432110130d331a9d94ac42c",
+    "artifact_name": "document-grant-full-chain/document-grant-original-baseline.json",
+    "prior_evidence": {
+      "path": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json",
+      "sha256": "b8baf01b370a0d849582f268f020019e86fc4f619edcc09f392e667559bc46b2"
+    }
+  },
+  "verified_boundaries": [
+    "Current July grant-revocation and August Storage definitions, exact body preflight and existing quarantine/no-replacement/deletion gates.",
+    "Unexpired and service-written legacy grants are inert; cached grant inserts and reads, concurrent COMMIT/ROLLBACK and actual lock waits are verified.",
+    "Management roles require explicit student access; non-clean review copies require current editing authority and uploader/assigned-management status. Removed uploaders and role-only access are denied.",
+    "Historical grant rows and unrelated public routines/policies/ACL, document/Storage/control data remain unchanged; only the reviewed two routines and grant policies/INSERT privilege change.",
+    "Fresh schema service reuses every56 original bootstrap/install/catalog run body verbatim; original prior regression workflow remains intact."
+  ],
+  "correction_history": {
+    "failed_run": 43748300906,
+    "phase": "retirement preflight before permission mutation",
+    "cause": "Initial fixture pinned June helper rather than the current July replacement and omitted the later Storage exception.",
+    "corrected": "Current canonical definitions and new non-clean-role/removal cases; no preflight bypass or relaxed expected hash."
+  },
+  "limitations": [
+    "Targeted role/race fixtures and full catalog installation compose separate proofs; not every targeted data journey was rerun inside the full application schema.",
+    "Existing signed bearer URLs may survive until expiry; no provider cessation or physical-byte guarantee is claimed.",
+    "Audience-derived document permissions and operational/provider acceptance remain in existing role/privacy and hosted gates.",
+    "Canonical/ledger promotion and actual target preflight/rollout remain workstreams4/6/7; this review draft is not installed hosted."
+  ],
+  "runtime_application_changed": false,
+  "canonical_or_ledger_promoted": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false
+}

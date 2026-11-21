@@ -1,0 +1,184 @@
+{
+  "schema": "document-personal-sample-writer-retired-v1",
+  "date": "2026-11-13",
+  "source_base": "b32a8c31a141c9ca90896bb53b4577b432d7d01d",
+  "workstream_actions": [
+    "2.5"
+  ],
+  "scope": "Retire the personal-account demo seeder and its nonexistent-file document writes/fabricated consent; consolidate obsolete signed-in demo display into the canonical shared role previews. Source/local verification only.",
+  "source_manifest": [
+    {
+      "path": "src/lib/golden-path.functions.ts",
+      "sha256": "d2e04ad9029d5efd1347021aa75a63886e6eacc16cd83f25de6c7a78416c85a4"
+    },
+    {
+      "path": "src/routes/_authenticated/dashboard.tsx",
+      "sha256": "d01f292e223880d35c9d94c80624dfe39053fb34ee3e8f23bfcbc6f91ae3cb83"
+    },
+    {
+      "path": "src/routes/_authenticated/demo-mode.tsx",
+      "sha256": "ee59de7b863825dec6b2834bb422b5a5d477053bb68d30e5a8345f0b20a03260"
+    },
+    {
+      "path": "tests/unit/retired-sample-workspace.test.ts",
+      "sha256": "217bb92494a5c16b5b381f432a9cf7fb3306055f925951d6237a649e72ff3770"
+    },
+    {
+      "path": "tests/unit/dashboard-selection-freshness.test.tsx",
+      "sha256": "23099b6cc1922d77968b8569717bd19316f787b8895ce16993c32bb62f6a07f9"
+    },
+    {
+      "path": "tests/unit/live-family-dashboard-alignment.test.ts",
+      "sha256": "bc0e95f377b83a0ea1619e1a037cbf982c23b46b25e4d9afc30df0e19a34b29a"
+    }
+  ],
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "3300a8f3aa0cf36d8f93d24a7712afa3779cf359249715c71b195b50348c48f3",
+    "fileCount": 1214
+  },
+  "component_complete": true,
+  "whole_workstream_complete": false,
+  "focused_tests_passed": 90,
+  "unit_tests_passed": 5837,
+  "unit_files_passed": 367,
+  "inventory_navigation_contracts_passed": 87,
+  "release_security_contracts_passed": 72,
+  "typescript_passed": true,
+  "isolated_environment_file_free_staging_build_passed": true,
+  "local_visual_checks": [
+    {
+      "width": 320,
+      "viewport": 320,
+      "documentWidth": 320,
+      "links": [
+        {
+          "label": "Explore a Sample DashboardPreview a fictional student's goals, Pathway Report, planning tools, and resources. Nothing is added to your account.",
+          "href": "/demo/family"
+        },
+        {
+          "label": "Add your studentCreate a private student profile. You control who sees it. Documents and reports stay in your account.",
+          "href": "/students"
+        },
+        {
+          "label": "Explore Other Role Previews",
+          "href": "/demo"
+        }
+      ],
+      "overflow": [],
+      "path": "/private/tmp/tf-sample-writer-local-320.png"
+    },
+    {
+      "width": 390,
+      "viewport": 390,
+      "documentWidth": 390,
+      "links": [
+        {
+          "label": "Explore a Sample DashboardPreview a fictional student's goals, Pathway Report, planning tools, and resources. Nothing is added to your account.",
+          "href": "/demo/family"
+        },
+        {
+          "label": "Add your studentCreate a private student profile. You control who sees it. Documents and reports stay in your account.",
+          "href": "/students"
+        },
+        {
+          "label": "Explore Other Role Previews",
+          "href": "/demo"
+        }
+      ],
+      "overflow": [],
+      "path": "/private/tmp/tf-sample-writer-local-390.png"
+    },
+    {
+      "width": 1280,
+      "viewport": 1280,
+      "documentWidth": 1280,
+      "links": [
+        {
+          "label": "Explore a Sample DashboardPreview a fictional student's goals, Pathway Report, planning tools, and resources. Nothing is added to your account.",
+          "href": "/demo/family"
+        },
+        {
+          "label": "Add your studentCreate a private student profile. You control who sees it. Documents and reports stay in your account.",
+          "href": "/students"
+        },
+        {
+          "label": "Explore Other Role Previews",
+          "href": "/demo"
+        }
+      ],
+      "overflow": [],
+      "path": "/private/tmp/tf-sample-writer-local-1280.png"
+    }
+  ],
+  "local_log_hashes": [
+    {
+      "path": "/private/tmp/tf-sample-writer-focused.log",
+      "sha256": "fd9555b26280bbac714215c4bce6681f7d6f2e9aee39d7fa87db93bc5ed3e1fd"
+    },
+    {
+      "path": "/private/tmp/tf-sample-writer-all-units-final.log",
+      "sha256": "460319f165e12743dac4fa18cd060fcdf30bdd11d2d7a18305cfd10b7c4cc148"
+    },
+    {
+      "path": "/private/tmp/tf-sample-writer-contracts.log",
+      "sha256": "3aaf777045f6a9b85679f64920c5bb406958f2e6be7a952e99afd664c61a9a94"
+    },
+    {
+      "path": "/private/tmp/tf-sample-writer-release-contracts.log",
+      "sha256": "f1c275837d2a17a749b2ebff11486fd1e9b0793862c0f8b16995b5fc0a1ce17f"
+    },
+    {
+      "path": "/private/tmp/tf-sample-writer-ts.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/tf-sample-writer-isolated-build.log",
+      "sha256": "f34aa7b1cc5877b9404e2e2d1626475a99dcd53ba515ad425497560406ae30b7"
+    }
+  ],
+  "roles_checked": [
+    "parent",
+    "student",
+    "educator",
+    "partner",
+    "school_admin",
+    "district_admin",
+    "admin",
+    "platform_owner",
+    "platform_admin",
+    "content_manager",
+    "support_admin"
+  ],
+  "verified": [
+    "The retired authenticated handler always refuses before application database/file/queue/AI access, for all eleven role categories and for legacy calls without viewer intent; stale viewer intent remains refused first. Existing authentication middleware is preserved.",
+    "The actual empty Family dashboard now links directly to /demo/family and the existing /students page; exploring the sample does not seed, select, repair or generate any live record.",
+    "Legacy /demo-mode replaces itself with the existing /demo role chooser rather than rendering an outdated Family page for every role. All seven canonical role previews remain available through the established chooser.",
+    "Removed the old copied sample report/student/document/goals/meetings/readiness/consent dataset from the personal-account writer; no new data permissions or processing path is introduced.",
+    "Existing sample/account rows and separately administered Demo Hub provisioning are untouched. The latter has no document-row writer in its checked-in source and is not certified by this component.",
+    "No SQL, canonical migrations or native database test sources changed since the prior successful 2341-case/full225+40 verification. This app change does not claim fresh native or hosted acceptance.",
+    "The first full local run found one obsolete assertion demanding hard-coded readiness in the retired page; replacement asserts canonical isSample rendering and absence of sample readiness from live document views. Final full suite passes."
+  ],
+  "historical_first_unit_run": {
+    "passed": 5836,
+    "failed": 1,
+    "accepted": false,
+    "cause": "Obsolete source expectation for the retired duplicate demo page; replaced with canonical-demo/live-data boundary assertions."
+  },
+  "database_source_unchanged_since": "b32a8c31a141c9ca90896bb53b4577b432d7d01d",
+  "prior_native_sql_evidence": "docs/production-readiness/evidence/document-owner-review-verified-2026-11-13.json",
+  "new_native_or_hosted_acceptance_claimed": false,
+  "remaining": [
+    "Other trusted reconciliation kinds and verified recovery actions under2.3.",
+    "Remaining Storage/service/scheduled/deployed-writer and process/provider coverage under2.5-2.7.",
+    "Final canonical/ledger/application/worker packaging and separately authorized coordinated staging/acceptance/merge/production rollout."
+  ],
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "records_created_or_deleted": false,
+  "permissions_changed": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

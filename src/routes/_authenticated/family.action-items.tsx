@@ -1,3 +1,5 @@
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
+import {useAuth} from "@/hooks/use-auth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useMemo, useState } from "react";
@@ -42,40 +44,46 @@ export const Route = createFileRoute("/_authenticated/family/action-items")({
   ),
 });
 
-function FamilyActionItemsPage() {
+function FamilyActionItemsPage(){const{user,loading}=useAuth();if(loading)return <p>Loading action items…</p>;if(!user)return <p>Sign in to view action items.</p>;return <FamilyActionItemsPageSession key={user.id}/>;}
+function FamilyActionItemsPageSession() {
+  const [loadError,setLoadError]=useState(false);
   const loadStudents = useServerFn(listStudents);
   const loadItems = useServerFn(listStudentActionItems);
   const updateItem = useServerFn(updateStudentActionItem);
 
   const [students, setStudents] = useState<Student[]>([]);
   const [studentId, setStudentId] = useState<string>("");
+  const scope=usePlanningLifetime(studentId);
+  const [itemsStudentId,setItemsStudentId]=useState('');
+  const [canEdit,setCanEdit]=useState(false);
   const [items, setItems] = useState<StudentActionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
-    loadStudents()
-      .then(({ students }) => {
+    loadStudents({data:{expected_viewer_id:scope.viewerId}})
+      .then(({ students,loadFailed }) => {
+        if(!scope.current())return;if(loadFailed)throw Error();
         setStudents(students);
         if (students[0]) setStudentId(students[0].id);
         else setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(()=>{if(scope.current()){setLoadError(true);setLoading(false);}});
   }, [loadStudents]);
 
   useEffect(() => {
     if (!studentId) return;
     setLoading(true);
-    loadItems({ data: { student_id: studentId } })
-      .then(({ items }) => setItems(items))
-      .catch(() => toast.error("Could not load action items"))
-      .finally(() => setLoading(false));
+    loadItems({ data: { student_id: studentId,expected_viewer_id:scope.viewerId } })
+      .then(({items,canEdit})=>{if(scope.current()){setItems(items);setItemsStudentId(studentId);setCanEdit(canEdit);setLoadError(false);scope.confirmRead();}})
+      .catch(()=>{if(scope.current()){setLoadError(true);setItems([]);}})
+      .finally(()=>{if(scope.current())setLoading(false);});
   }, [studentId, loadItems]);
 
   // Family view: category === 'family' OR unassigned family-facing items.
   const familyItems = useMemo(
-    () => items.filter((i) => i.category === "family"),
-    [items],
+    () => itemsStudentId===studentId?items.filter((i) => i.category === "family"):[],
+    [items,itemsStudentId,studentId],
   );
 
   const { open, done } = useMemo(() => {
@@ -91,27 +99,30 @@ function FamilyActionItemsPage() {
   async function toggleComplete(item: StudentActionItem) {
     const nextStatus =
       item.status === "completed" ? "not_started" : "completed";
+    if(!scope.begin())return;
     setSavingId(item.id);
     try {
-      await updateItem({ data: { id: item.id, status: nextStatus } });
+      const receipt=await updateItem({data:{id:item.id,student_id:item.student_id,expected_updated_at:item.updated_at,expected_viewer_id:scope.viewerId,status:nextStatus}});
+      if(!scope.current())return;
       setItems((prev) =>
         prev.map((it) =>
-          it.id === item.id ? { ...it, status: nextStatus } : it,
+          it.id === item.id ? {...it,...receipt.item} : it,
         ),
       );
       toast.success(
         nextStatus === "completed" ? "Marked complete" : "Reopened",
       );
     } catch (e) {
+      if(!scope.current())return;scope.markUncertain();
       toast.error(e instanceof Error ? e.message : "Update failed");
     } finally {
-      setSavingId(null);
+      scope.finish();if(scope.current())setSavingId(null);
     }
   }
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="family-action-items-page"
         className="mx-auto max-w-4xl px-4 py-8"
       >
@@ -146,7 +157,7 @@ function FamilyActionItemsPage() {
           </div>
         ) : null}
 
-        {loading ? (
+        {loadError||scope.uncertain?<div role="alert" className="rounded-xl border p-4 text-sm">Saved action items are unavailable or changed. Refresh this page before another change.</div>:loading||(!!studentId&&itemsStudentId!==studentId) ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
@@ -168,14 +179,14 @@ function FamilyActionItemsPage() {
               title={`Open (${open.length})`}
               items={open}
               savingId={savingId}
-              onToggle={toggleComplete}
+              onToggle={toggleComplete} canChange={item=>canEdit||item.assigned_to_user_id===scope.viewerId}
             />
             {done.length > 0 && (
               <Section
                 title={`Completed (${done.length})`}
                 items={done}
                 savingId={savingId}
-                onToggle={toggleComplete}
+                onToggle={toggleComplete} canChange={item=>canEdit||item.assigned_to_user_id===scope.viewerId}
                 muted
               />
             )}
@@ -184,7 +195,7 @@ function FamilyActionItemsPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }
@@ -194,11 +205,13 @@ function Section({
   items,
   savingId,
   onToggle,
+  canChange,
   muted = false,
 }: {
   title: string;
   items: StudentActionItem[];
   savingId: string | null;
+  canChange:(item:StudentActionItem)=>boolean;
   onToggle: (i: StudentActionItem) => void;
   muted?: boolean;
 }) {
@@ -215,7 +228,7 @@ function Section({
           >
             <button
               onClick={() => onToggle(it)}
-              disabled={savingId === it.id}
+              disabled={savingId!==null||!canChange(it)}
               aria-label={
                 it.status === "completed" ? "Mark incomplete" : "Mark complete"
               }

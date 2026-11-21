@@ -1,3 +1,4 @@
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -78,6 +79,7 @@ function ConfidenceChip({ band }: { band: "low" | "medium" | "high" }) {
 
 
 export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
+  const lifetime=usePlanningLifetime(studentId);
   const fetchMatches = useServerFn(matchPartnersForStudent);
   const save = useServerFn(persistPartnerMatch);
   const addAction = useServerFn(addRecommendationToActionItems);
@@ -94,15 +96,20 @@ export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
   }, [studentId, fetchMatches]);
 
   async function run<T>(key: string, label: string, fn: () => Promise<T>) {
+    if(!lifetime.begin())return;
     setBusy(key);
     try {
       const res: any = await fn();
+      if(!lifetime.current())return;
       if (res && res.ok === false && res.message) toast.message(res.message);
       else toast.success(label);
     } catch (err) {
+      if(!lifetime.current())return;
+      lifetime.markUncertain();
       toast.error(err instanceof Error ? err.message : `Could not ${label.toLowerCase()}.`);
     } finally {
-      setBusy(null);
+      lifetime.finish();
+      if(lifetime.current())setBusy(null);
     }
   }
 
@@ -132,6 +139,8 @@ export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
           {items.map((m) => {
             const baseInput = {
+              expected_viewer_id:lifetime.viewerId,
+              request_id:crypto.randomUUID(),
               student_id: studentId,
               source_kind: "partner" as const,
               source_id: m.partner_id,
@@ -235,7 +244,7 @@ export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
                       size="sm"
                       variant="ghost"
                       title="Save partner"
-                      disabled={busy === `save-${m.partner_id}`}
+                      disabled={busy !== null || lifetime.uncertain || !lifetime.available}
                       onClick={() =>
                         run(`save-${m.partner_id}`, `Saved ${m.organization_name}`, () =>
                           save({
@@ -259,7 +268,7 @@ export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
                       size="sm"
                       variant="ghost"
                       title="Add to action items"
-                      disabled={busy === `act-${m.partner_id}`}
+                      disabled={busy !== null || lifetime.uncertain || !lifetime.available}
                       onClick={() =>
                         run(`act-${m.partner_id}`, "Added to action items", () =>
                           addAction({ data: baseInput }),
@@ -276,7 +285,7 @@ export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
                       size="sm"
                       variant="ghost"
                       title="Add follow-up to calendar"
-                      disabled={busy === `cal-${m.partner_id}`}
+                      disabled={busy !== null || lifetime.uncertain || !lifetime.available}
                       onClick={() =>
                         run(`cal-${m.partner_id}`, "Added to calendar", () =>
                           addCal({ data: baseInput }),
@@ -294,7 +303,7 @@ export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
                         size="sm"
                         variant="ghost"
                         title="Discuss at next meeting"
-                        disabled={busy === `prep-${m.partner_id}`}
+                        disabled={busy !== null || lifetime.uncertain || !lifetime.available}
                         onClick={() =>
                           run(`prep-${m.partner_id}`, "Queued for next meeting", () =>
                             addPrep({ data: baseInput }),

@@ -1,0 +1,60 @@
+{
+  "schema": "transitionforward-rights-status-consistency-prepared-v1",
+  "date": "2026-11-16",
+  "source_base": "7c199840c123bc597cec1b10f619f791bfea8d06",
+  "status": "source-local-prepared-native-pending",
+  "source_manifest": [
+    {
+      "path": "src/lib/rights-status-contract.ts",
+      "sha256": "65838e3455c8ba298dd0539ba5e49b4e4cd3da665b3ef517747d19116525e810"
+    },
+    {
+      "path": "src/lib/rights-status.server.ts",
+      "sha256": "68dd5c8328990db0e8db9de61a6acfd47a2e30399dcdc38d94d9054290bed964"
+    },
+    {
+      "path": "src/lib/rights.functions.ts",
+      "sha256": "c5a17d183ab316098f546e2fc75d52ad4abc032e28dd754469564e34460f5f2d"
+    },
+    {
+      "path": "src/components/students/RightsStatusCard.tsx",
+      "sha256": "09025927bbce877caecf54ec3c537009dca2f5adfdd0748c60c0cfb5f799229a"
+    },
+    {
+      "path": "tests/unit/rights-status-sharing-boundary.test.ts",
+      "sha256": "5b67c0d263d224985549a092357bb6d2eda7593bfdbf8f84164d607c12ce4f18"
+    },
+    {
+      "path": "tests/unit/rights-status-lifetime.test.tsx",
+      "sha256": "2f33d9458cc34666db608e30ef820bf781051870d31e438c1bf631acb68921b4"
+    },
+    {
+      "path": "docs/database-proposals/rights-status-consistency/atomic-rights-review.review.sql",
+      "sha256": "4937ccb7464a01efdbcdc2144bf46a3119179e676a961de93a6f2e4dd89ebc53"
+    },
+    {
+      "path": "tests/database/rights-status-consistency.test.mjs",
+      "sha256": "df8c618a6bda831a37738cf6bda4747fe7aa3c78a22f85f1456c621e4542bf57"
+    },
+    {
+      "path": "tests/database/run-rights-status-consistency-schema.mjs",
+      "sha256": "081366a0c43ef65a5adae7d03304e3f1b0517544ec262bb9129014c84a7ddd5b"
+    }
+  ],
+  "local_database_tests": 54,
+  "local_database_passed": 54,
+  "local_database_failed": 0,
+  "focused_app_tests": 59,
+  "typescript": "passed",
+  "native_verified": false,
+  "full_schema_verified": false,
+  "full_application_suite": "pending",
+  "legacy_data_rewritten": false,
+  "revision_metadata_added_by_review_draft": true,
+  "new_consent_or_sharing_writes": false,
+  "whole_workstream_complete": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

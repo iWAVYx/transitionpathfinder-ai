@@ -47,7 +47,7 @@ type StatusFilter = "all" | "draft" | "pending_review" | "approved" | "inactive"
 const statusSearchSchema = z.object({
   status: z
     .enum(["all", "draft", "pending_review", "approved", "inactive"])
-    .catch("all"),
+    .default("all").catch("all"),
 });
 
 export const Route = createFileRoute("/_authenticated/partners-manage_/opportunities")({

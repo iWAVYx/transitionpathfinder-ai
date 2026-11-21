@@ -1,0 +1,17 @@
+{
+  "schema": "document-owner-review-schema-proof-v1",
+  "canonical_count": 225,
+  "review_drafts": 40,
+  "exact_new_boundaries": 4,
+  "preexisting_public_routines_unchanged": true,
+  "admin_role_acl_rls_unchanged": true,
+  "private_recovery_grants_unchanged": true,
+  "metadata_only": true,
+  "release_authority_added": false,
+  "read_only_drain_clear": true,
+  "paused": true,
+  "remaining_capacity_units": 0,
+  "provider_quiescence_verified": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

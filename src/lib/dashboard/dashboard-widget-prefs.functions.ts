@@ -44,9 +44,11 @@ export function widgetsForRole(value: unknown, role: DashboardWidgetRole): Dashb
 
 export const getDashboardWidgetPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => z.object({ role: dashboardRoleSchema }).parse(input))
+  .validator((input: unknown) => z.object({ role: dashboardRoleSchema, expected_viewer_id: z.string().min(1).max(100).optional() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    if (data.expected_viewer_id && data.expected_viewer_id !== userId)
+      throw new Error("Your sign-in changed. Please try again.");
     const { data: row, error } = await supabase
       .from("user_ui_prefs")
       .select("dashboard_layout")
@@ -59,13 +61,15 @@ export const getDashboardWidgetPrefs = createServerFn({ method: "POST" })
 export const updateDashboardWidgetPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
-    z.object({ role: dashboardRoleSchema, widgets: widgetListSchema })
+    z.object({ role: dashboardRoleSchema, widgets: widgetListSchema, expected_viewer_id: z.string().min(1).max(100).optional() })
       .refine(({ role, widgets }) => widgets.every((widget) => WIDGETS_BY_ROLE[role].includes(widget)),
         "Widget unavailable for this role.")
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    if (data.expected_viewer_id && data.expected_viewer_id !== userId)
+      throw new Error("Your sign-in changed. Please try again.");
     const { data: existing, error: readError } = await supabase
       .from("user_ui_prefs")
       .select("dashboard_layout")

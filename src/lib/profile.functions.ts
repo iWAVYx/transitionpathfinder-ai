@@ -1,3 +1,6 @@
+import { viewerIntentSchema } from "./viewer-intent";
+import { readOrganizationPages, organizationReadError } from "@/lib/organization-query-pages";
+import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -26,11 +29,15 @@ export type Profile = {
 
 export const getProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data: intent, context }) => {
     const { supabase, userId } = context;
+    assertExpectedViewer(intent, userId);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, full_name, first_name, last_name, preferred_name, pronouns, title, bio, phone, avatar_url, time_zone, communication_preference, profile_visibility, primary_role, organization_id, onboarding_completed, language, onboarding_answers")
+      .select(
+        "id, full_name, first_name, last_name, preferred_name, pronouns, title, bio, phone, avatar_url, time_zone, communication_preference, profile_visibility, primary_role, organization_id, onboarding_completed, language, onboarding_answers",
+      )
       .eq("id", userId)
       .maybeSingle();
     if (error) {
@@ -61,16 +68,13 @@ export const getProfile = createServerFn({ method: "GET" })
     return {
       ...base,
       ...data,
-      onboarding_answers:
-        (data.onboarding_answers as Record<string, unknown> | null) ?? {},
+      onboarding_answers: (data.onboarding_answers as Record<string, unknown> | null) ?? {},
     } as Profile;
   });
 
 export const updateProfileLanguage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({ language: z.string().min(2).max(8) }).parse(i),
-  )
+  .validator((i: unknown) => z.object({ language: z.string().min(2).max(8) }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -119,48 +123,44 @@ export const completeOnboarding = createServerFn({ method: "POST" })
   .validator((i: unknown) =>
     z
       .object({
+        ...viewerIntentSchema.shape,
         primary_role: z.enum(PRIMARY_ROLES),
         first_name: z.string().trim().min(1).max(80),
         last_name: z.string().trim().max(80).optional().or(z.literal("")),
-        onboarding_answers: z
-          .record(z.string().max(80), jsonValueSchema)
-          .optional(),
+        onboarding_answers: z.record(z.string().max(80), jsonValueSchema).optional(),
       })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
-    const { data: activatedLicenseRole, error: licenseRoleError } =
-      await supabase.rpc("my_activated_license_role");
+    const { data: activatedLicenseRole, error: licenseRoleError } = await supabase.rpc(
+      "my_activated_license_role",
+    );
     if (licenseRoleError) {
       console.error("completeOnboarding license-role check failed", licenseRoleError);
       throw new Error("Could not verify your activated license. Please try again.");
     }
-    if (
-      activatedLicenseRole &&
-      activatedLicenseRole !== data.primary_role
-    ) {
+    if (activatedLicenseRole && activatedLicenseRole !== data.primary_role) {
       throw new Error(
         `This account activated a ${activatedLicenseRole.replaceAll("_", " ")} license. Finish setup with that account type.`,
       );
     }
     const full_name = [data.first_name, data.last_name].filter(Boolean).join(" ").trim() || null;
-    const { error } = await supabase
-      .from("profiles")
-      .upsert(
-        {
-          id: userId,
-          first_name: data.first_name,
-          last_name: data.last_name || null,
-          full_name,
-          primary_role: data.primary_role,
-          onboarding_completed: true,
-          ...(data.onboarding_answers
-            ? { onboarding_answers: data.onboarding_answers as never }
-            : {}),
-        } as never,
-        { onConflict: "id" },
-      );
+    const { error } = await supabase.from("profiles").upsert(
+      {
+        id: userId,
+        first_name: data.first_name,
+        last_name: data.last_name || null,
+        full_name,
+        primary_role: data.primary_role,
+        onboarding_completed: true,
+        ...(data.onboarding_answers
+          ? { onboarding_answers: data.onboarding_answers as never }
+          : {}),
+      } as never,
+      { onConflict: "id" },
+    );
     if (error) {
       console.error("completeOnboarding failed", error);
       throw new Error("Could not save your profile. Please try again.");
@@ -186,15 +186,18 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       .delete()
       .eq("user_id", userId)
       .in("role", replaceable as never);
-    if (clearError) console.error("completeOnboarding: clear roles failed", clearError);
+    if (clearError)
+      throw new Error(
+        "We could not finish account setup. Please check your saved setup before continuing.",
+      );
     for (const role of mappedRoles) {
       const { error: roleError } = await supabase
         .from("user_roles")
-        .upsert(
-          { user_id: userId, role: role as never },
-          { onConflict: "user_id,role" },
+        .upsert({ user_id: userId, role: role as never }, { onConflict: "user_id,role" });
+      if (roleError)
+        throw new Error(
+          "We could not finish account setup. Please check your saved setup before continuing.",
         );
-      if (roleError) console.error("completeOnboarding: user_roles upsert failed", role, roleError);
     }
     return { ok: true };
   });
@@ -205,26 +208,23 @@ export const saveOnboardingProgress = createServerFn({ method: "POST" })
   .validator((i: unknown) =>
     z
       .object({
+        ...viewerIntentSchema.shape,
         primary_role: z.enum(PRIMARY_ROLES).optional(),
         first_name: z.string().trim().max(80).optional(),
         last_name: z.string().trim().max(80).optional(),
-        onboarding_answers: z
-          .record(z.string().max(80), jsonValueSchema)
-          .optional(),
+        onboarding_answers: z.record(z.string().max(80), jsonValueSchema).optional(),
       })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
     const patch: Record<string, unknown> = { id: userId };
     if (data.primary_role !== undefined) patch.primary_role = data.primary_role;
     if (data.first_name !== undefined) patch.first_name = data.first_name || null;
     if (data.last_name !== undefined) patch.last_name = data.last_name || null;
-    if (data.onboarding_answers !== undefined)
-      patch.onboarding_answers = data.onboarding_answers;
-    const { error } = await supabase
-      .from("profiles")
-      .upsert(patch as never, { onConflict: "id" });
+    if (data.onboarding_answers !== undefined) patch.onboarding_answers = data.onboarding_answers;
+    const { error } = await supabase.from("profiles").upsert(patch as never, { onConflict: "id" });
     if (error) {
       console.error("saveOnboardingProgress failed", error);
       throw new Error("Could not save progress.");
@@ -234,13 +234,23 @@ export const saveOnboardingProgress = createServerFn({ method: "POST" })
 
 export const getMyRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data: intent, context }) => {
     const { supabase, userId } = context;
-    const [{ data: rolesData }, { data: profile }] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", userId),
+    assertExpectedViewer(intent, userId);
+    const [rolesData, profileResult] = await Promise.all([
+      readOrganizationPages<{ role: string }>((from, to) =>
+        supabase
+          .from("user_roles")
+          .select("id,role", { count: "exact" })
+          .eq("user_id", userId)
+          .order("id")
+          .range(from, to),
+      ),
       supabase.from("profiles").select("primary_role").eq("id", userId).maybeSingle(),
     ]);
-    const roles = (rolesData ?? []).map((r) => r.role as string);
-    if (profile?.primary_role) roles.push(profile.primary_role);
+    if (profileResult.error) throw organizationReadError();
+    const roles = rolesData.map((row) => row.role);
+    if (profileResult.data?.primary_role) roles.push(profileResult.data.primary_role);
     return { roles: Array.from(new Set(roles)) };
   });

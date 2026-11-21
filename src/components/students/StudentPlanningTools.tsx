@@ -14,6 +14,8 @@ import { WhoCanSeeThisPanel } from "@/components/students/WhoCanSeeThisPanel";
 import type { Goal, Student } from "@/lib/students.functions";
 
 type Props = {
+  goalsUnavailable?:boolean;
+  canEdit?:boolean;
   section: "plan" | "resources" | "team";
   student: Student | null;
   studentId: string;
@@ -21,18 +23,20 @@ type Props = {
   onChange: () => void | Promise<void>;
 };
 
-export function StudentPlanningTools({ section, student, studentId, goals, onChange }: Props) {
+export function StudentPlanningTools({ section, student, studentId, goals, onChange,goalsUnavailable=false,canEdit=false }: Props) {
   return (
     <div className="mt-4 space-y-3">
       {section === "plan" && (
         <>
           <ToolSection title="Goals" initiallyOpen>
-            <GoalsEditor
+            {goalsUnavailable?<p role="alert" className="text-sm">Saved goals could not be loaded. <button onClick={()=>void onChange()} className="underline">Refresh Saved Goals</button></p>:<>
+            <GoalsEditor canEdit={canEdit}
               studentId={studentId}
               studentFirstName={student?.first_name ?? null}
               goals={goals}
               onChange={onChange}
             />
+            </>}
           </ToolSection>
           <ToolSection title="Student voice">
             <StudentVoicePanel studentId={studentId} />

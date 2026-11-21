@@ -1,0 +1,85 @@
+{
+  "schema": "document-counted-summary-handoff-local-v1",
+  "date": "2026-11-02",
+  "base_source": "462b6139",
+  "review": "docs/production-readiness/proposals/document-counted-summary-handoff-review.json",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
+    "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c"
+  },
+  "focused": {
+    "tests": 44,
+    "passed": 36,
+    "failed": 0,
+    "native_only_skips": 8,
+    "generated_ten_routine_proof": "passed in applicable local fixtures",
+    "workflow_yaml_and_shell": "passed"
+  },
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
+      "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "2eedb27825712aecb59a61a1b3c6575ecb6cdbc922a0a3fa6ba043bdcd83ae45"
+    },
+    {
+      "path": "tests/database/run-document-path-local-model.mjs",
+      "sha256": "9f8bc167a4ec396874d72fc0c04bdf6e96bea906aaa3b624e2ab10cc3f38f974"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "8ac16e7d8a078a417297036fccc74bec0bc18e4baa48340fc5f4185640324ca9"
+    }
+  ],
+  "prior_local_attempts": [
+    {
+      "result": "29 failures /6 native-only skips",
+      "cause": "Missing automaticTransfer fixture propagation meant the proposal was not installed. No success claimed; fixture propagation corrected."
+    },
+    {
+      "result": "28 passed /1 failed /6 native-only skips",
+      "cause": "Held rescan settlement correctly refused with55000; the test expected42501. Exact state/count refusal assertions preserved and code expectation corrected."
+    }
+  ],
+  "final_focused": {
+    "tests": 44,
+    "passed": 36,
+    "failed": 0,
+    "native_only_skipped": 8
+  },
+  "readiness_contracts_passed": 41,
+  "full_local_pending": false,
+  "native_full_schema_pending": false,
+  "generated_exact_proof_routines": 10,
+  "runtime_changed": false,
+  "canonical_migrations_changed": false,
+  "canonical_count": 225,
+  "noncanonical_unapplied_proposals": 14,
+  "separate_canonical_batch_migrations": 15,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "automatic_summary_settlement_hook_installed": false,
+  "full_local_coverage": {
+    "tests": 1340,
+    "pass": 1176,
+    "fail": 0,
+    "skipped": 164
+  },
+  "model_groups": [
+    44,
+    847,
+    311,
+    86,
+    52
+  ],
+  "final_focused_overlay": "The full run covers all1340 cases; the final44 focused run additionally verifies the later exact generated proof, added prerequisite hash and unchanged RPC field set.",
+  "safety_contracts_passed": 39,
+  "workflow_yaml_and_shell": "passed",
+  "full_local_log_sha256": "daa3ef58e5b1f8bfca9ec1993ed8adf901f198b288b8804ec49ebed41465806f",
+  "final_focused_log_sha256": "f7b2bf9bd806acf6bd9714c7188c3214e6686a56625ec8101643ec76eaad0d98",
+  "verified_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json"
+}

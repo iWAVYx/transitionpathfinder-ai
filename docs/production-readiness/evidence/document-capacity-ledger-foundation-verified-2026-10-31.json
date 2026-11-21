@@ -1,0 +1,35 @@
+{
+  "schema": "document-capacity-ledger-foundation-verified-v1",
+  "date": "2026-10-31",
+  "verified_source": "496ad3695f23e5c8e983f87b01a55494fcc8a0d9",
+  "native_each": {
+    "tests": 954,
+    "passed": 954,
+    "failed": 0,
+    "skipped": 0,
+    "canonical_migrations": 225,
+    "noncanonical_proposals": 7
+  },
+  "proof_artifacts": [
+    {
+      "path": "docs/production-readiness/evidence/document-capacity-ledger-foundation-proof-41216353465-2026-10-31.json",
+      "sha256": "e6b5a90e0d7262819e95f2ef5684cbb5bc60f7a7ba5561ef728c416c7d0d83cd",
+      "run": 41216353465
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-capacity-ledger-foundation-proof-41216350161-2026-10-31.json",
+      "sha256": "e6b5a90e0d7262819e95f2ef5684cbb5bc60f7a7ba5561ef728c416c7d0d83cd",
+      "run": 41216350161
+    }
+  ],
+  "proof_scope": "Dormant private foundation. Exact five invoker helper hashes/owners/paths/private grants; empty ledger, unset policy, paused control. This does not prove later summary settlement, source-bound app integration or hosted behavior.",
+  "hosted_actions": false,
+  "provider_calls": false,
+  "ready_for_cutover": false,
+  "automatic_checks": {
+    "successes": 9,
+    "failures": 0,
+    "pending": 0,
+    "skipped_not_performed": 7
+  }
+}

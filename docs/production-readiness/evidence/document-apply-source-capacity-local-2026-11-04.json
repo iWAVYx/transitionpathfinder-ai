@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-04",
+  "workstream_action": "1.4",
+  "completed_substep": "Source-bound one-unit Apply reservation locally implemented and verified",
+  "proposal": "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+  "proposal_sha256": "c3cf4cd528bb93b066b6ff2ae877faf5f1f0159db387c145c26c47cf8e52f18b",
+  "focused_database_tests": 19,
+  "passed": 19,
+  "failed": 0,
+  "log_sha256": "e2353bde17337aa6185ee19c5a372b9cc74a6cc34b7147c602d009f425f7eb8b",
+  "binding_retention": "Actor/student/document/extraction identifiers, exact revision and hashes only; no reviewed section text retained",
+  "save_rpc_wired": false,
+  "native_full_schema_verified": false,
+  "in_ordered_replay_inventory": false,
+  "remaining": [
+    "Exact dependency/owner/grant/trigger installation hardening",
+    "Bind original caller-RLS atomic save and completion/settlement to this source operation",
+    "Native source/access races and full-schema proof",
+    "Final packaging and authorized hosted acceptance"
+  ],
+  "hosted_actions": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false
+}

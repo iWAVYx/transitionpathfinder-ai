@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-08",
+  "source_base": "7639892183d6b6470ea3677fad31f68cacf7a715",
+  "workstream_actions": [
+    "2.5"
+  ],
+  "failure": {
+    "run": 42555868835,
+    "job": 128961295598,
+    "merge_checkout": "aa2e9dc9ef23bc6ef5758d4303b7c718aa5f73ee",
+    "native_tests": 48,
+    "native_passed": 47,
+    "native_failed": 1,
+    "native_skipped": 0,
+    "all_ten_concurrency_cases_passed": true,
+    "cause": "The raw count(*) result is a PostgreSQL bigint. pg returns it as text; PGlite returns a number. The exact audit-count assertion compared string 1 against numeric 1.",
+    "raw_job_log_sha256": "a331faae8a80c9c4f4ce1b4f77b38a8773161a0dbbd0b0700d2ae50d4689844a"
+  },
+  "correction": "Cast this fixture count to PostgreSQL integer; retain exact count=1, all ten races, all assertions, zero retries and unchanged SQL.",
+  "runtime_sql_changed": false,
+  "test_path": "tests/database/document-text-bound-save.test.mjs",
+  "test_sha256": "35afb219b60d02ab7e7f5f19114f86220f55e2d93516b016a1eba63d955872c6",
+  "local": {
+    "tests": 48,
+    "passed": 38,
+    "failed": 0,
+    "native_only_skipped": 10,
+    "release_contracts_passed": 45
+  },
+  "native_full_schema_verified": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

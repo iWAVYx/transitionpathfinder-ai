@@ -34,6 +34,18 @@ const OWNER_LABEL: Record<NonNullable<ValueCalloutData["owner"]>, string> = {
  * Information Used. Tone is warm + plain.
  */
 export function ValueCallout({ data, variant = "inline", className }: Props) {
+  const informationUsed = (
+    <Row
+      icon="informationUsed"
+      label="Information Used"
+      body={
+        <span className="text-xs text-muted-foreground">
+          {data.informationUsed.join(" · ")}
+        </span>
+      }
+      last
+    />
+  );
   return (
     <aside
       aria-label="What this means and what to do next"
@@ -67,23 +79,26 @@ export function ValueCallout({ data, variant = "inline", className }: Props) {
           label="Questions To Bring To The Team"
           body={
             <ul className="mt-1 list-disc space-y-1 pl-5 marker:text-primary/60">
-              {data.questionsForTeam.map((q) => (
-                <li key={q}>{q}</li>
+              {data.questionsForTeam.map((q, index) => (
+                <li key={q} data-value-callout-question data-value-callout-last-question={index === data.questionsForTeam.length - 1 ? true : undefined}>{q}</li>
               ))}
             </ul>
           }
         />
       )}
-      <Row
-        icon="informationUsed"
-        label="Information Used"
-        body={
-          <span className="text-xs text-muted-foreground">
-            {data.informationUsed.join(" · ")}
-          </span>
-        }
-        last
-      />
+      {/* Print a bounded final-question/source group; the normal screen list
+          and source row remain unchanged. Document styles select one copy. */}
+      {data.questionsForTeam.length > 0 && (
+        <div data-value-callout-print-tail className="hidden">
+          <ul className="list-disc marker:text-primary/60">
+            <li data-value-callout-question>{data.questionsForTeam.at(-1)}</li>
+          </ul>
+          {informationUsed}
+        </div>
+      )}
+      <div data-value-callout-original-source={data.questionsForTeam.length > 0 ? true : undefined}>
+        {informationUsed}
+      </div>
     </aside>
   );
 }
@@ -102,6 +117,7 @@ function Row({
   const Icon = ROW_ICONS[icon];
   return (
     <div
+      data-value-callout-row={icon}
       className={cn(
         "flex gap-3 py-2.5",
         !last && "border-b border-primary/10",
@@ -111,7 +127,7 @@ function Row({
         <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+        <p data-value-callout-label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
           {label}
         </p>
         <div className="mt-0.5 text-foreground/90">{body}</div>

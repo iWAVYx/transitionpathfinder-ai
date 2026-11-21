@@ -1,0 +1,112 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.5",
+  "source_commit": "22722cb76d485b832652c99dfd476dfae83f7c1d",
+  "scope": "Current source review of the four prepared producer/worker paths and their older generic admission entry point. Not a complete deployed-writer inventory.",
+  "source_manifest": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "d4e12fcc379eb1d6f50566eb879d18a5bbf1e4e2a88b5b839d7b6d61fd00771d"
+    },
+    {
+      "path": "src/lib/document-upload-registration-operation.server.ts",
+      "sha256": "5729e6b88578e81133203ca130038eeaeca64cb267a7035c43ef3f357db0b984"
+    },
+    {
+      "path": "src/lib/document-rescan-operation.server.ts",
+      "sha256": "23408729c1b48ec091d2588e5474412cec9e80ee7a342bdaea73559b5546808c"
+    },
+    {
+      "path": "src/lib/document-extraction-apply.server.ts",
+      "sha256": "4e35e0778e5358486ffc6e51be5f5bd87f16ac48f7c37fd0e0236cea5ee47700"
+    },
+    {
+      "path": "src/lib/document-operation-admission.server.ts",
+      "sha256": "5d990ab99ce2248f16b7c6bcb541e5c1b39c63a3f3614609a5024cea91b4b425"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-operation-admission.sql",
+      "sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
+      "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c"
+    },
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-admission.sql",
+      "sha256": "71224aff2d490d4686f67c82d009d0c53e1d08e013f34fd3bdca142523df49da"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-source-claim.sql",
+      "sha256": "fad01efea48b9d10d2b6d01ae9cb92369c2001192eaa89065247a68ccf720406"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+      "sha256": "4e8326170df60b10c9d44176c6a6e1bfdc346727e0b77aa644a1bd5f3c1ab110"
+    }
+  ],
+  "current_prepared_paths": [
+    {
+      "kind": "Registration",
+      "entry": "src/lib/documents.functions.ts",
+      "adapter": "runClaimedDocumentRegistration"
+    },
+    {
+      "kind": "Rescan",
+      "entry": "src/lib/documents.functions.ts",
+      "adapter": "runBoundDocumentRescan"
+    },
+    {
+      "kind": "Apply",
+      "entry": "src/lib/extractions.functions.ts",
+      "adapter": "applyReviewedExtractionWithAdmission",
+      "admission": "begin_bound_document_apply"
+    },
+    {
+      "kind": "Summary",
+      "entry": "supabase/functions/ai-job-processor/index.ts",
+      "adapter": "claimAdmittedSummaryOperation",
+      "guard": "document_summary branch continues without legacy PATCH/begin or dispatch after an uncertain claim"
+    }
+  ],
+  "first_remaining_source_fence": {
+    "entry": "public.begin_document_operation(uuid,uuid,text)",
+    "finding": "Prepared SQL still grants service_role direct execution of generic admission, separate from the four source-bound application paths. Generic adapters remain exported for isolated parity, with no current application call sites found by symbol search.",
+    "known_internal_callers": [
+      "Registration capacity admission trigger",
+      "Source-bound rescan admission",
+      "Source-bound Apply admission",
+      "Counted summary claim"
+    ],
+    "next_implementation": "Prepare a reviewed private EXECUTE bridge for exact trusted function owners, remove ordinary/service direct generic admission execution, and prove all four source-bound paths still work. Do not infer authority from an operator UUID or expose raw ledgers.",
+    "required_tests": [
+      "Direct anon/authenticated/service generic admission refuses before creating a lease",
+      "Exact register/rescan/Apply/summary paths retain current ownership and work through private bridge",
+      "Distinct admission owner and nested trusted callers are preserved without broad table grants",
+      "Existing admitted operations may finish while paused; no forced cancellation or hold release",
+      "Unexpected owner/role membership/grant drift refuses installation; no repair in preflight"
+    ]
+  },
+  "separate_remaining_review": [
+    "Other service/raw database/storage writers and older deployed versions remain under2.5",
+    "Archive/restore, extraction edits and relationship/access changes remain under2.6",
+    "Current source cannot prove old hosted handlers, cron workers or providers have stopped"
+  ],
+  "whole_action_complete": false,
+  "database_privileges_changed": false,
+  "hosted_inventory_performed": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,40 @@
+{
+  "schema": "document-rescan-consumer-bridge-verified-v1",
+  "date": "2026-11-01",
+  "verified_source": "182dbb2e2d8ed43ada9497558f8804ecab3337e2",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-rescan-outcome-queue.sql",
+    "sha256": "02d44e5eb75159b2aaa722e367e9010834713108e9c38a6aab180cbd6f0891a6"
+  },
+  "runs": [
+    {
+      "run": 41352193687,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41352193687",
+      "native_tests": 1239,
+      "passed": 1239,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 12,
+      "consumer_bridge_cases": 5,
+      "artifact": "docs/production-readiness/evidence/document-rescan-consumer-bridge-proof-41352193687-2026-11-01.json",
+      "artifact_sha256": "3b77487e0ea6e1600ccef991b538996853777298c60a8f7ea1ec12299da55283",
+      "log_sha256": "20679747874e151a706fc40ef1fb6fef11571ed692e959485454a9796f1fa176"
+    },
+    {
+      "run": 41352190053,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41352190053",
+      "native_tests": 1239,
+      "passed": 1239,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 12,
+      "consumer_bridge_cases": 5,
+      "artifact": "docs/production-readiness/evidence/document-rescan-consumer-bridge-proof-41352190053-2026-11-01.json",
+      "artifact_sha256": "3b77487e0ea6e1600ccef991b538996853777298c60a8f7ea1ec12299da55283",
+      "log_sha256": "1e590e4c2d7a9720558da894637fe89924074f70846c467a45af88ce9ed6d050"
+    }
+  ],
+  "scope": "Five native database protocol journeys plus complete1239 suites and canonical225+12 replay; direct owner-internal capacity attachment in the fixtures. No actual Deno handler, provider/file transport, automatic capacity hook or producer completion/settlement implementation.",
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

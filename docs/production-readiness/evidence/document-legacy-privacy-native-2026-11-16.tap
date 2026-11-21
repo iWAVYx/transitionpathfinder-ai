@@ -1,0 +1,574 @@
+TAP version 13
+# Subtest: private legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+ok 1 - private legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+  ---
+  duration_ms: 142.093615
+  type: 'test'
+  ...
+# Subtest: private legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+ok 2 - private legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+  ---
+  duration_ms: 95.97651
+  type: 'test'
+  ...
+# Subtest: private legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+ok 3 - private legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+  ---
+  duration_ms: 87.69573
+  type: 'test'
+  ...
+# Subtest: private legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+ok 4 - private legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+  ---
+  duration_ms: 95.76267
+  type: 'test'
+  ...
+# Subtest: private legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+ok 5 - private legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+  ---
+  duration_ms: 91.729486
+  type: 'test'
+  ...
+# Subtest: private legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+ok 6 - private legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+  ---
+  duration_ms: 89.053965
+  type: 'test'
+  ...
+# Subtest: family legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+ok 7 - family legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+  ---
+  duration_ms: 92.43761
+  type: 'test'
+  ...
+# Subtest: family legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+ok 8 - family legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+  ---
+  duration_ms: 90.367058
+  type: 'test'
+  ...
+# Subtest: family legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+ok 9 - family legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+  ---
+  duration_ms: 93.619663
+  type: 'test'
+  ...
+# Subtest: family legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+ok 10 - family legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+  ---
+  duration_ms: 90.391517
+  type: 'test'
+  ...
+# Subtest: family legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+ok 11 - family legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+  ---
+  duration_ms: 89.430823
+  type: 'test'
+  ...
+# Subtest: family legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+ok 12 - family legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+  ---
+  duration_ms: 99.009222
+  type: 'test'
+  ...
+# Subtest: student legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+ok 13 - student legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+  ---
+  duration_ms: 89.939819
+  type: 'test'
+  ...
+# Subtest: student legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+ok 14 - student legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+  ---
+  duration_ms: 97.484738
+  type: 'test'
+  ...
+# Subtest: student legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+ok 15 - student legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+  ---
+  duration_ms: 90.768487
+  type: 'test'
+  ...
+# Subtest: student legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+ok 16 - student legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+  ---
+  duration_ms: 85.352057
+  type: 'test'
+  ...
+# Subtest: student legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+ok 17 - student legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+  ---
+  duration_ms: 84.284542
+  type: 'test'
+  ...
+# Subtest: student legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+ok 18 - student legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+  ---
+  duration_ms: 86.899972
+  type: 'test'
+  ...
+# Subtest: unknown legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+ok 19 - unknown legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+  ---
+  duration_ms: 89.076913
+  type: 'test'
+  ...
+# Subtest: unknown legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+ok 20 - unknown legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+  ---
+  duration_ms: 92.498508
+  type: 'test'
+  ...
+# Subtest: unknown legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+ok 21 - unknown legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+  ---
+  duration_ms: 84.340932
+  type: 'test'
+  ...
+# Subtest: unknown legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+ok 22 - unknown legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+  ---
+  duration_ms: 87.90676
+  type: 'test'
+  ...
+# Subtest: unknown legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+ok 23 - unknown legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+  ---
+  duration_ms: 91.131362
+  type: 'test'
+  ...
+# Subtest: unknown legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+ok 24 - unknown legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+  ---
+  duration_ms: 85.275614
+  type: 'test'
+  ...
+# Subtest: null legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+ok 25 - null legacy label blocks unrelated-to-upload student document/storage/raw/summary access
+  ---
+  duration_ms: 84.069905
+  type: 'test'
+  ...
+# Subtest: null legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+ok 26 - null legacy label blocks unrelated-to-upload educator document/storage/raw/summary access
+  ---
+  duration_ms: 87.283381
+  type: 'test'
+  ...
+# Subtest: null legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+ok 27 - null legacy label blocks unrelated-to-upload school document/storage/raw/summary access
+  ---
+  duration_ms: 88.674326
+  type: 'test'
+  ...
+# Subtest: null legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+ok 28 - null legacy label blocks unrelated-to-upload district document/storage/raw/summary access
+  ---
+  duration_ms: 86.389351
+  type: 'test'
+  ...
+# Subtest: null legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+ok 29 - null legacy label blocks unrelated-to-upload owner document/storage/raw/summary access
+  ---
+  duration_ms: 94.444387
+  type: 'test'
+  ...
+# Subtest: null legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+ok 30 - null legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access
+  ---
+  duration_ms: 86.925917
+  type: 'test'
+  ...
+# Subtest: private legacy label preserves uploader current access without rewriting rows
+ok 31 - private legacy label preserves uploader current access without rewriting rows
+  ---
+  duration_ms: 85.619123
+  type: 'test'
+  ...
+# Subtest: family legacy label preserves uploader current access without rewriting rows
+ok 32 - family legacy label preserves uploader current access without rewriting rows
+  ---
+  duration_ms: 89.508975
+  type: 'test'
+  ...
+# Subtest: student legacy label preserves uploader current access without rewriting rows
+ok 33 - student legacy label preserves uploader current access without rewriting rows
+  ---
+  duration_ms: 86.934507
+  type: 'test'
+  ...
+# Subtest: unknown legacy label preserves uploader current access without rewriting rows
+ok 34 - unknown legacy label preserves uploader current access without rewriting rows
+  ---
+  duration_ms: 89.77388
+  type: 'test'
+  ...
+# Subtest: null legacy label preserves uploader current access without rewriting rows
+ok 35 - null legacy label preserves uploader current access without rewriting rows
+  ---
+  duration_ms: 89.611915
+  type: 'test'
+  ...
+# Subtest: team original/raw/summary access remains available to family
+ok 36 - team original/raw/summary access remains available to family
+  ---
+  duration_ms: 85.956863
+  type: 'test'
+  ...
+# Subtest: team original/raw/summary access remains available to student
+ok 37 - team original/raw/summary access remains available to student
+  ---
+  duration_ms: 91.954447
+  type: 'test'
+  ...
+# Subtest: team original/raw/summary access remains available to educator
+ok 38 - team original/raw/summary access remains available to educator
+  ---
+  duration_ms: 97.946908
+  type: 'test'
+  ...
+# Subtest: team original/raw/summary access remains available to school
+ok 39 - team original/raw/summary access remains available to school
+  ---
+  duration_ms: 89.417048
+  type: 'test'
+  ...
+# Subtest: team original/raw/summary access remains available to district
+ok 40 - team original/raw/summary access remains available to district
+  ---
+  duration_ms: 91.741896
+  type: 'test'
+  ...
+# Subtest: team label does not create student access for owner
+ok 41 - team label does not create student access for owner
+  ---
+  duration_ms: 88.472082
+  type: 'test'
+  ...
+# Subtest: team label does not create student access for partner
+ok 42 - team label does not create student access for partner
+  ---
+  duration_ms: 86.087746
+  type: 'test'
+  ...
+# Subtest: team label does not create student access for outsider
+ok 43 - team label does not create student access for outsider
+  ---
+  duration_ms: 83.420482
+  type: 'test'
+  ...
+# Subtest: summary-only relationship retains team projection without gaining originals
+ok 44 - summary-only relationship retains team projection without gaining originals
+  ---
+  duration_ms: 89.295559
+  type: 'test'
+  ...
+# Subtest: summary-only relationship cannot project a private upload
+ok 45 - summary-only relationship cannot project a private upload
+  ---
+  duration_ms: 86.818126
+  type: 'test'
+  ...
+# Subtest: fresh explicit sharing can authorize a legacy-labelled original without relabelling it
+ok 46 - fresh explicit sharing can authorize a legacy-labelled original without relabelling it
+  ---
+  duration_ms: 97.693584
+  type: 'test'
+  ...
+# Subtest: retirement and re-addition cannot revive a private-document grant
+ok 47 - retirement and re-addition cannot revive a private-document grant
+  ---
+  duration_ms: 92.726465
+  type: 'test'
+  ...
+# Subtest: old uploader identity does not survive loss of current student access
+ok 48 - old uploader identity does not survive loss of current student access
+  ---
+  duration_ms: 88.230168
+  type: 'test'
+  ...
+# Subtest: raw updates cannot rewrite document privacy identity visibility
+ok 49 - raw updates cannot rewrite document privacy identity visibility
+  ---
+  duration_ms: 83.145859
+  type: 'test'
+  ...
+# Subtest: raw updates cannot rewrite document privacy identity uploaded_by
+ok 50 - raw updates cannot rewrite document privacy identity uploaded_by
+  ---
+  duration_ms: 82.938753
+  type: 'test'
+  ...
+# Subtest: raw updates cannot rewrite document privacy identity student_id
+ok 51 - raw updates cannot rewrite document privacy identity student_id
+  ---
+  duration_ms: 76.945505
+  type: 'test'
+  ...
+# Subtest: ordinary uploader metadata updates remain supported
+ok 52 - ordinary uploader metadata updates remain supported
+  ---
+  duration_ms: 88.465077
+  type: 'test'
+  ...
+# Subtest: another editor cannot modify hidden legacy document metadata
+ok 53 - another editor cannot modify hidden legacy document metadata
+  ---
+  duration_ms: 78.604939
+  type: 'test'
+  ...
+# Subtest: cached INSERT cannot create unsupported visibility private
+ok 54 - cached INSERT cannot create unsupported visibility private
+  ---
+  duration_ms: 75.846842
+  type: 'test'
+  ...
+# Subtest: cached INSERT cannot create unsupported visibility family
+ok 55 - cached INSERT cannot create unsupported visibility family
+  ---
+  duration_ms: 77.757551
+  type: 'test'
+  ...
+# Subtest: cached INSERT cannot create unsupported visibility student
+ok 56 - cached INSERT cannot create unsupported visibility student
+  ---
+  duration_ms: 82.810833
+  type: 'test'
+  ...
+# Subtest: team INSERT retains the ordinary caller route
+ok 57 - team INSERT retains the ordinary caller route
+  ---
+  duration_ms: 79.860201
+  type: 'test'
+  ...
+# Subtest: ordinary family cannot hard-delete document rows even with a future permissive policy
+ok 58 - ordinary family cannot hard-delete document rows even with a future permissive policy
+  ---
+  duration_ms: 77.455699
+  type: 'test'
+  ...
+# Subtest: ordinary student cannot hard-delete document rows even with a future permissive policy
+ok 59 - ordinary student cannot hard-delete document rows even with a future permissive policy
+  ---
+  duration_ms: 79.298956
+  type: 'test'
+  ...
+# Subtest: ordinary educator cannot hard-delete document rows even with a future permissive policy
+ok 60 - ordinary educator cannot hard-delete document rows even with a future permissive policy
+  ---
+  duration_ms: 78.444446
+  type: 'test'
+  ...
+# Subtest: ordinary school cannot hard-delete document rows even with a future permissive policy
+ok 61 - ordinary school cannot hard-delete document rows even with a future permissive policy
+  ---
+  duration_ms: 83.284624
+  type: 'test'
+  ...
+# Subtest: ordinary district cannot hard-delete document rows even with a future permissive policy
+ok 62 - ordinary district cannot hard-delete document rows even with a future permissive policy
+  ---
+  duration_ms: 78.409577
+  type: 'test'
+  ...
+# Subtest: ordinary owner cannot hard-delete document rows even with a future permissive policy
+ok 63 - ordinary owner cannot hard-delete document rows even with a future permissive policy
+  ---
+  duration_ms: 77.430822
+  type: 'test'
+  ...
+# Subtest: ordinary partner cannot hard-delete document rows even with a future permissive policy
+ok 64 - ordinary partner cannot hard-delete document rows even with a future permissive policy
+  ---
+  duration_ms: 83.595952
+  type: 'test'
+  ...
+# Subtest: document DELETE privilege is revoked independently of policies
+ok 65 - document DELETE privilege is revoked independently of policies
+  ---
+  duration_ms: 77.388789
+  type: 'test'
+  ...
+# Subtest: ordinary family cannot delete registered original bytes
+ok 66 - ordinary family cannot delete registered original bytes
+  ---
+  duration_ms: 79.715254
+  type: 'test'
+  ...
+# Subtest: ordinary student cannot delete registered original bytes
+ok 67 - ordinary student cannot delete registered original bytes
+  ---
+  duration_ms: 85.597222
+  type: 'test'
+  ...
+# Subtest: ordinary educator cannot delete registered original bytes
+ok 68 - ordinary educator cannot delete registered original bytes
+  ---
+  duration_ms: 79.225886
+  type: 'test'
+  ...
+# Subtest: ordinary school cannot delete registered original bytes
+ok 69 - ordinary school cannot delete registered original bytes
+  ---
+  duration_ms: 76.776023
+  type: 'test'
+  ...
+# Subtest: ordinary district cannot delete registered original bytes
+ok 70 - ordinary district cannot delete registered original bytes
+  ---
+  duration_ms: 79.973291
+  type: 'test'
+  ...
+# Subtest: ordinary owner cannot delete registered original bytes
+ok 71 - ordinary owner cannot delete registered original bytes
+  ---
+  duration_ms: 81.142711
+  type: 'test'
+  ...
+# Subtest: ordinary partner cannot delete registered original bytes
+ok 72 - ordinary partner cannot delete registered original bytes
+  ---
+  duration_ms: 81.530524
+  type: 'test'
+  ...
+# Subtest: an editing account can clean its unregistered upload without exposing registered private files
+ok 73 - an editing account can clean its unregistered upload without exposing registered private files
+  ---
+  duration_ms: 79.908347
+  type: 'test'
+  ...
+# Subtest: unregistered upload cleanup is not opened to an unrelated account
+ok 74 - unregistered upload cleanup is not opened to an unrelated account
+  ---
+  duration_ms: 77.810638
+  type: 'test'
+  ...
+# Subtest: unrelated bucket delete policies are preserved
+ok 75 - unrelated bucket delete policies are preserved
+  ---
+  duration_ms: 75.831836
+  type: 'test'
+  ...
+# Subtest: trusted cleanup can remove registered rows without granting ordinary delete authority
+ok 76 - trusted cleanup can remove registered rows without granting ordinary delete authority
+  ---
+  duration_ms: 77.551363
+  type: 'test'
+  ...
+# Subtest: visibility helper stays private and cleanup helper refuses anonymous/unrelated probes
+ok 77 - visibility helper stays private and cleanup helper refuses anonymous/unrelated probes
+  ---
+  duration_ms: 78.865494
+  type: 'test'
+  ...
+# Subtest: installation rollback restores earlier reader and delete behavior atomically
+ok 78 - installation rollback restores earlier reader and delete behavior atomically
+  ---
+  duration_ms: 80.960035
+  type: 'test'
+  ...
+# Subtest: repeated installation stops without partial changes
+ok 79 - repeated installation stops without partial changes
+  ---
+  duration_ms: 78.42269
+  type: 'test'
+  ...
+# Subtest: baseline reproduces broad-admin hard deletion despite no student access
+ok 80 - baseline reproduces broad-admin hard deletion despite no student access
+  ---
+  duration_ms: 76.382813
+  type: 'test'
+  ...
+# Subtest: native cached documents read respects newly installed legacy boundary
+ok 81 - native cached documents read respects newly installed legacy boundary
+  ---
+  duration_ms: 86.556007
+  type: 'test'
+  ...
+# Subtest: native cached Storage read respects newly installed legacy boundary
+ok 82 - native cached Storage read respects newly installed legacy boundary
+  ---
+  duration_ms: 91.245312
+  type: 'test'
+  ...
+# Subtest: native cached document_extractions read respects newly installed legacy boundary
+ok 83 - native cached document_extractions read respects newly installed legacy boundary
+  ---
+  duration_ms: 95.040404
+  type: 'test'
+  ...
+# Subtest: native cached document_summaries read respects newly installed legacy boundary
+ok 84 - native cached document_summaries read respects newly installed legacy boundary
+  ---
+  duration_ms: 88.515496
+  type: 'test'
+  ...
+# Subtest: native cached projection read respects newly installed legacy boundary
+ok 85 - native cached projection read respects newly installed legacy boundary
+  ---
+  duration_ms: 87.977296
+  type: 'test'
+  ...
+# Subtest: native registration-first file deletion uses fresh post-lock state after COMMIT
+ok 86 - native registration-first file deletion uses fresh post-lock state after COMMIT
+  ---
+  duration_ms: 112.199101
+  type: 'test'
+  ...
+# Subtest: native registration-first file deletion uses fresh post-lock state after ROLLBACK
+ok 87 - native registration-first file deletion uses fresh post-lock state after ROLLBACK
+  ---
+  duration_ms: 111.827219
+  type: 'test'
+  ...
+# Subtest: native cached admin DELETE loses both privilege and policy authority
+ok 88 - native cached admin DELETE loses both privilege and policy authority
+  ---
+  duration_ms: 87.562202
+  type: 'test'
+  ...
+# Subtest: native documents writer-first installation waits through COMMIT
+ok 89 - native documents writer-first installation waits through COMMIT
+  ---
+  duration_ms: 120.910404
+  type: 'test'
+  ...
+# Subtest: native documents writer-first installation waits through ROLLBACK
+ok 90 - native documents writer-first installation waits through ROLLBACK
+  ---
+  duration_ms: 113.603809
+  type: 'test'
+  ...
+# Subtest: native storage.objects writer-first installation waits through COMMIT
+ok 91 - native storage.objects writer-first installation waits through COMMIT
+  ---
+  duration_ms: 113.526003
+  type: 'test'
+  ...
+# Subtest: native storage.objects writer-first installation waits through ROLLBACK
+ok 92 - native storage.objects writer-first installation waits through ROLLBACK
+  ---
+  duration_ms: 118.626703
+  type: 'test'
+  ...
+# Subtest: baseline reproduces private-label original/raw/summary exposure to another editor
+ok 93 - baseline reproduces private-label original/raw/summary exposure to another editor
+  ---
+  duration_ms: 83.326746
+  type: 'test'
+  ...
+# Subtest: reader default argument expressions and arity are exactly preserved
+ok 94 - reader default argument expressions and arity are exactly preserved
+  ---
+  duration_ms: 83.138754
+  type: 'test'
+  ...
+1..94
+# tests 94
+# suites 0
+# pass 94
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8436.377545

@@ -1,0 +1,15 @@
+{
+  "schema": "document-text-bound-save-native-proof-v1",
+  "source_commit": "2d14b9a74f92768a41950f9a6db429e7920ce05d",
+  "tests": 48,
+  "passed": 48,
+  "failed": 0,
+  "skipped": 0,
+  "native": true,
+  "test_sha256": "35afb219b60d02ab7e7f5f19114f86220f55e2d93516b016a1eba63d955872c6",
+  "sql_sha256": "f0a019d92cc8c2058bac12f1cbc4cebe12842dbc75dead528c8e95875cf6b3c5",
+  "log_sha256": "7b952e40f18e8143e58dc4ea05d5b0e3553762bb40a77c69e7b81ea6f765b060",
+  "provider_admission_verified": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

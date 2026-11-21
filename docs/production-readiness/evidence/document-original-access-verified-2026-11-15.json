@@ -1,0 +1,159 @@
+{
+  "schema": "transitionforward-document-original-access-verified-v1",
+  "date": "2026-11-15",
+  "source_commit": "1ef84739ff9be0d0b8ec6db292c1942a98287c46",
+  "run_id": 43779785340,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43779785340",
+  "status": "grant-origin original-file component verified in source/disposable scope",
+  "workstreams": [
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-original-access/restrict-original-file-grants.review.sql",
+      "sha256": "8ecdce7ae2eff1122281de91dc6a5e6be2a123998d4d86af51d8c46506fbe109"
+    },
+    {
+      "path": "tests/database/document-original-access.test.mjs",
+      "sha256": "f1ab4c0323d7602e2cec51132353c65b2ff05b88504265a7cff3f609d677aae3"
+    },
+    {
+      "path": "tests/database/run-document-original-access-schema.mjs",
+      "sha256": "c78a6173903b669cbde440c9b089487851dc98c40d9c43e4c4c12a9fed30b3ab"
+    },
+    {
+      "path": ".github/workflows/document-original-access-review.yml",
+      "sha256": "780237c96ac4c8af988d45aac064329e6c4992920c6896fb7ab8a9b192106c83"
+    },
+    {
+      "path": "src/components/students/DocumentPermissionsDialog.tsx",
+      "sha256": "9ca53355ba1c6f9a01c921cac05dfcaca5b5ddeca4775adce628d56f1307678d"
+    },
+    {
+      "path": "tests/unit/document-permissions-lifetime.test.tsx",
+      "sha256": "414750ec35d8a3648017db61c604ff73b258c38d6084c3b45b33da61d2f5d05f"
+    }
+  ],
+  "native": {
+    "tests": 53,
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0,
+    "fresh_database_per_case": true,
+    "case_names": [
+      "a service-written summary grant is also inert for original-file access",
+      "baseline: a role grant exposes an original to an unrelated matching audience",
+      "baseline: view_student_friendly_summary alone exposes original metadata and Storage",
+      "baseline: view_summary alone exposes original metadata and Storage",
+      "cached UPDATE cannot promote an existing limited grant",
+      "cached authenticated edit_metadata INSERT is refused",
+      "cached authenticated manage INSERT is refused",
+      "cached authenticated role-wide INSERT is refused",
+      "cached authenticated view_student_friendly_summary INSERT is refused",
+      "cached authenticated view_summary INSERT is refused",
+      "changed Storage prerequisite refuses installation before predicate changes",
+      "changed prerequisite and repeated installation stop before partial mutation",
+      "disabled row security refuses installation before predicate changes",
+      "existing data and routine metadata are preserved while UPDATE alone is retired",
+      "existing district_admin audience grant cannot expose originals to unrelated accounts",
+      "existing educator audience grant cannot expose originals to unrelated accounts",
+      "existing individual download_document preserves its original-file read capability",
+      "existing individual edit_metadata preserves its original-file read capability",
+      "existing individual manage preserves its original-file read capability",
+      "existing individual review_document preserves its original-file read capability",
+      "existing individual view_document preserves its original-file read capability",
+      "existing none grant alone cannot read originals after correction",
+      "existing parent audience grant cannot expose originals to unrelated accounts",
+      "existing request_summary grant alone cannot read originals after correction",
+      "existing school_admin audience grant cannot expose originals to unrelated accounts",
+      "existing view_student_friendly_summary grant alone cannot read originals after correction",
+      "existing view_summary grant alone cannot read originals after correction",
+      "genuine assigned Owner access is preserved",
+      "independent approved relationship access is unchanged; baseline summary-role scope remains a separate gate",
+      "independent student-team access is preserved for district",
+      "independent student-team access is preserved for educator",
+      "independent student-team access is preserved for family",
+      "independent student-team access is preserved for school",
+      "independent student-team access is preserved for student",
+      "legitimate editing pre-registration Storage reads are preserved",
+      "management role plus a legacy individual grant cannot bypass explicit student access",
+      "native cached Storage read cannot reuse role grant after installation",
+      "native cached Storage read cannot reuse summary grant after installation",
+      "native cached UPDATE cannot promote a summary grant after installation",
+      "native cached metadata read cannot reuse role grant after installation",
+      "native cached metadata read cannot reuse summary grant after installation",
+      "native legacy-grant-first migration waits then denies original after COMMIT",
+      "native legacy-grant-first migration waits then denies original after ROLLBACK",
+      "native migration-first cached limited INSERT after COMMIT",
+      "native migration-first cached limited INSERT after ROLLBACK",
+      "new full grant also excludes partner-only recipients with an editing collaboration",
+      "new full grant requires a recipient with current student access",
+      "other Storage buckets retain their independent policies",
+      "partner-only accounts cannot read originals even with a legacy full grant and collaboration",
+      "quarantine still prevents blocked bytes even for the uploader",
+      "restoring UPDATE privilege and adding permissive policies cannot bypass the restrictive fences",
+      "rollback restores the prior predicate and permissions atomically",
+      "supported full-document INSERT and exact DELETE RETURNING remain available"
+    ],
+    "observed_migration_lock_cases": 4,
+    "cached_metadata_storage_read_cases": 4,
+    "cached_update_promotion_case": 1,
+    "raw_tap": "docs/production-readiness/evidence/document-original-access-native-2026-11-15.tap",
+    "raw_tap_sha256": "7ba8cbff5b2f0016d495e54e48ee0e1499f63ea6c57e944c42c9089cffb12c57"
+  },
+  "schema_installation": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 3,
+    "inherited_install_catalog_stages": 56,
+    "all_inherited_script_log_pairs_independently_checked": true,
+    "original_sql_files_independently_checked": 297,
+    "original_core_test_sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a",
+    "proof": "docs/production-readiness/evidence/document-original-access-schema-2026-11-15.json",
+    "proof_sha256": "88a924155a6619e17e00068cc9af110a088d794d6ea49aaf45789fdc983a2c6d",
+    "prior_parent_proof_sha256": "8a091fb087dcbb2edf5ebe1ccdb7856aceae542b0dc6dfad78b5197735c4e886",
+    "all_existing_policies_preserved": true,
+    "new_restrictive_policies": 4,
+    "only_update_privilege_retired": true,
+    "all_unrelated_routines_and_triggers_preserved": true,
+    "all_document_grant_storage_rows_preserved": true,
+    "prior_regression_cases_rerun_claimed": false
+  },
+  "application": {
+    "local_database_cases": 44,
+    "local_failed": 0,
+    "local_skipped": 0,
+    "local_log": "docs/production-readiness/evidence/document-original-access-local-2026-11-15.tap",
+    "local_log_sha256": "2ec0b8b89b914806ec732830171fdf9c79b810663f91735ff5379b4f1f01b83d",
+    "focused_app_tests": 89,
+    "unit_tests": 6156,
+    "unit_files": 377,
+    "typescript": "passed",
+    "isolated_environment_file_free_build": "passed",
+    "runtime_source_fingerprint": "1e757b213af968405cdffff4fddc9021b358142b54800a40ca9dc8ae364e21a1",
+    "runtime_source_file_count": 1227,
+    "inventory_navigation_contracts": 103,
+    "release_security_contracts": 72,
+    "isolated_copy_fingerprint_matches": true
+  },
+  "completed": [
+    "Limited-tier and role-wide grants by themselves no longer authorize original document or Storage rows.",
+    "Supported existing individual full-file grants and independent team access remain supported. Management roles require explicit student access; partner-only actors are excluded.",
+    "New individual full-file INSERT matches the supported source flow. Cached UPDATE is retired; restrictive checks withstand future permissive policies/privilege restoration.",
+    "Shared dialog labels align with grant-origin capabilities."
+  ],
+  "remaining": [
+    "Approved student relationships labelled view_summary still satisfy the broad can_access_student baseline. The independent-baseline test deliberately preserves this current behavior; relationship-level summary privacy needs its own correction and safe summary reader review.",
+    "Grant retirement after recipient/grantor access removal and re-addition remains open.",
+    "Separate rights-transfer upsert still requires review; no replacement/grant update behavior is enabled by this correction.",
+    "Historical private/family visibility metadata, real summary-reader boundaries and grant lifecycle remain in the existing5.2 privacy gate.",
+    "No provider/Storage API acceptance, no bearer-URL revocation; canonical promotion/ledger/order/target preflight/hosted authorization remain separate."
+  ],
+  "canonical_or_ledger_promoted": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

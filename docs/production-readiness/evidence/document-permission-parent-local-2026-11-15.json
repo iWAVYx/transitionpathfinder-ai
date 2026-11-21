@@ -1,0 +1,68 @@
+{
+  "schema": "transitionforward-document-permission-parent-local-v1",
+  "date": "2026-11-15",
+  "source_base": "b5e1b7fe9555b115a88cf90df608b3aa7093dd9a",
+  "status": "review-only draft; 32 local database cases pass; native and full-schema verification pending",
+  "workstream": "5.2",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-permission-parent/bind-document-permission-parent.review.sql",
+      "sha256": "ea25ac327c157169eb90b5a03d39dd3297f4051b2e71dfbf4712eb65c6e5bb21"
+    },
+    {
+      "path": "tests/database/document-permission-parent.test.mjs",
+      "sha256": "d2c028d8530acda4cc012202a2210e397db92145ef7ef62b89bd04a251824d39"
+    },
+    {
+      "path": "tests/database/run-document-permission-parent-schema.mjs",
+      "sha256": "6d0457a3996af9c4a162754d2d1438b77d713e240a98ca12407b44895e0855e1"
+    },
+    {
+      "path": ".github/workflows/document-permission-parent-review.yml",
+      "sha256": "33e55491f5f6e6f5795555d160d1edd118f7e7cf4745002c82ccee3bf50abfa1"
+    }
+  ],
+  "local_tests": 32,
+  "local_passed": 32,
+  "local_failed": 0,
+  "local_skipped": 0,
+  "local_log": "docs/production-readiness/evidence/document-permission-parent-local-2026-11-15.tap",
+  "local_log_sha256": "59a424cef6c9b1e370d32e19f12d15badabe580574d8b767b6af01505f58b7dd",
+  "reproductions": [
+    "Canonical INSERT policy accepts a foreign document with an editable supplied student; the original view predicate exposes that document to the grant recipient.",
+    "Canonical UPDATE can retarget an existing editable grant to an unrelated document."
+  ],
+  "correction": [
+    "Invoker trigger locks and verifies the actual parent document under caller RLS on INSERT/UPDATE. It refuses parent identity reassignment.",
+    "The existing view predicate additionally requires p.student_id=d.student_id; historical mismatches are retained but no longer confer authority.",
+    "Exact body replacement preserves view function OID/owner/ACL/mode/path/language/volatility; existing policies/table grants and data remain unchanged."
+  ],
+  "preserved_open_gates": [
+    "Correctly bound summary/edit/manage and audience grants keep their prior semantics; raw-file tier privacy and audience scoping remain release blockers.",
+    "Document grants surviving student-access removal/re-addition and the rights-transfer writer remain separate review gates.",
+    "Concurrent lock orderings, prepared statements and complete current-schema installation require the prepared native jobs.",
+    "No physical Storage/provider or hosted acceptance; existing bearer URLs are not revoked."
+  ],
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts_prepared": 2,
+  "canonical_or_ledger_promoted": false,
+  "native_verified": false,
+  "full_schema_verified": false,
+  "whole_workstream_complete": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "initial_native_attempt": {
+    "run_id": 43763373802,
+    "source_commit": "38e2b8668fdd86293f9cf92b36e1848dd1019019",
+    "passed": 40,
+    "failed": 1,
+    "skipped": 0,
+    "failed_case": "native prepared document read loses access through an old mismatched grant after installation",
+    "cause": "Test installation connection retained SET ROLE authenticated; reset to trusted disposable installer before DDL. SQL and cached-read assertions unchanged.",
+    "full_schema_job": "passed; final current-source proof remains pending",
+    "tap_sha256": "9ba51d804dd0083655be03bfd5a0a35c113e81f90dda4f3f627d3b33af22dabe"
+  }
+}

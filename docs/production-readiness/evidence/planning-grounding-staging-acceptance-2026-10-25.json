@@ -1,0 +1,222 @@
+{
+  "date": "2026-10-25 (America/New_York; hosted timestamps October 26 UTC)",
+  "authorization": "User authorized staging rollout and one bounded Pathway test plus one bounded PPT test; separate human GitHub staging approvals recorded.",
+  "application_commit": "b49880daffc199c41ce0dc8389334f695d1ec10a",
+  "isolated_lovable_commit": "95e8d710f59dbfc8a78f23c3cbd6dfbc50e8e87c",
+  "runtime_fingerprint": "2e4d4362b11d4982db68b8922262d0db952f5fad1e852af3116746472db56b7c",
+  "runtime_file_count": 1188,
+  "staging_health": {
+    "cloudflare": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "transitionforward-staging.caysi101.workers.dev",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": false,
+      "ai_runtime": "unconfigured",
+      "runtime_source_fingerprint": "2e4d4362b11d4982db68b8922262d0db952f5fad1e852af3116746472db56b7c",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1188,
+      "git_commit_sha": "b49880daffc199c41ce0dc8389334f695d1ec10a",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "lovable": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "2e4d4362b11d4982db68b8922262d0db952f5fad1e852af3116746472db56b7c",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1188,
+      "git_commit_sha": "95e8d710f59dbfc8a78f23c3cbd6dfbc50e8e87c",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    }
+  },
+  "release": {
+    "run": 40246591968,
+    "attempts": 2,
+    "result": "success",
+    "first_attempt": "Build passed; asset upload returned 401. Same-source retry succeeded without code/credential change.",
+    "sync": "Only 14 reviewed runtime paths changed; environment files, dependencies, generated types and Your Dashboard Widgets retained."
+  },
+  "ppt": {
+    "run_id": 40249782208,
+    "source_commit": "b49880daffc199c41ce0dc8389334f695d1ec10a",
+    "workflow": "success",
+    "test_retries": 0,
+    "roles": [
+      "Family",
+      "Educator"
+    ],
+    "outputs": {
+      "pdfs": 2,
+      "pdf_pages": 6
+    },
+    "functional_checks": [
+      "seven standing role sign-ins",
+      "both role generations",
+      "save and reopen",
+      "other role denied private access",
+      "PDF export"
+    ],
+    "sanitizer": "success before evidence download",
+    "independent_cleanup": {
+      "parent": {
+        "operator": "postgres",
+        "read_only": "on",
+        "prep_count": 0,
+        "run_marker": "QA PPT 40249782208-1 parent",
+        "observed_at": "2026-10-26T00:40:11.841609+00:00",
+        "share_count": 0,
+        "intake_count": 0,
+        "report_count": 0,
+        "version_count": 0
+      },
+      "educator": {
+        "operator": "postgres",
+        "read_only": "on",
+        "prep_count": 0,
+        "run_marker": "QA PPT 40249782208-1 educator",
+        "observed_at": "2026-10-26T00:40:34.968495+00:00",
+        "share_count": 0,
+        "intake_count": 0,
+        "report_count": 0,
+        "version_count": 0
+      }
+    },
+    "visual_review": {
+      "pages_reviewed": 6,
+      "findings": "Readable aligned sections, intact content, top-right watermark, no obvious clipping or overlap. Family scripts continue onto page 3; pagination polish is deferred."
+    },
+    "grounding_review": {
+      "improved": [
+        "exact supplied student quote",
+        "two-step baseline and four-step proposed target",
+        "records not supplied language in multiple questions/scripts",
+        "no claim of personally reviewed logs observed"
+      ],
+      "remaining_caveats": [
+        "Educator intro says demonstrated strengths where source is reported context.",
+        "Family agenda still says missing documentation, while other sections correctly say not supplied.",
+        "Family opening asks to confirm effective supports; effectiveness is not demonstrated by supplied fixture."
+      ]
+    },
+    "limitations": [
+      "Prompt rules do not guarantee every factual adjective.",
+      "Gateway attempts/billing unobserved.",
+      "No production readiness certification or all-role generation certification."
+    ]
+  },
+  "pathway": {
+    "run_id": 40249778304,
+    "source_commit": "b49880daffc199c41ce0dc8389334f695d1ec10a",
+    "status": "failed in Family initial generation; Educator skipped",
+    "test_retries": 0,
+    "seven_role_signins": "passed",
+    "diagnostics": {
+      "phase": "initial-generation",
+      "databaseErrorCode": null,
+      "operationPending": true,
+      "primaryFailurePreserved": true,
+      "reconciliationRequired": true
+    },
+    "completion": "No report saved as independently observed; model invocation completion and gateway billing unobserved. No automatic repeat.",
+    "scope": {
+      "ownerId": "fee1b881-8d46-4375-949a-db15487af9dc",
+      "studentId": "a008de29-d399-487e-8237-7bc28896b199",
+      "intakeId": "c23f16a7-4feb-4a67-a705-388e5ab0b06b",
+      "reportId": "",
+      "marker": "QA Pathway Creator 40249778304-1 parent",
+      "role": "parent",
+      "reconciled_discovery_at": "2026-10-26T00:45:00.459306+00:00"
+    },
+    "reconciliation": {
+      "before": {
+        "intakes": [
+          {
+            "id": "c23f16a7-4feb-4a67-a705-388e5ab0b06b",
+            "user_id": "fee1b881-8d46-4375-949a-db15487af9dc",
+            "created_at": "2026-10-26T00:39:08.794027+00:00",
+            "student_id": "a008de29-d399-487e-8237-7bc28896b199",
+            "submitter_role": "family",
+            "student_first_name": "QA Pathway Creator 40249778304-1 parent"
+          }
+        ],
+        "reports": [],
+        "student": {
+          "id": "a008de29-d399-487e-8237-7bc28896b199",
+          "notes": "QA Pathway Creator 40249778304-1 parent",
+          "is_demo": true,
+          "owner_id": "fee1b881-8d46-4375-949a-db15487af9dc",
+          "last_name": "Synthetic",
+          "created_at": "2026-10-26T00:39:00.27956+00:00",
+          "first_name": "QA Pathway Creator 40249778304-1 parent",
+          "student_user_id": null
+        },
+        "operator": "postgres",
+        "read_only": "on",
+        "observed_at": "2026-10-26T00:45:00.459306+00:00"
+      },
+      "action": "Guarded transaction removed only exact disposable intake and synthetic owned student. Exact identities locked; unexpected related rows abort. No report or history to delete.",
+      "after": {
+        "operator": "postgres",
+        "read_only": "on",
+        "edge_count": 0,
+        "run_marker": "QA Pathway Creator 40249778304-1 parent",
+        "goals_count": 0,
+        "observed_at": "2026-10-26T00:45:59.759599+00:00",
+        "share_count": 0,
+        "intake_count": 0,
+        "report_count": 0,
+        "student_count": 0,
+        "version_count": 0,
+        "documents_count": 0,
+        "action_items_count": 0,
+        "evidence_items_count": 0,
+        "readiness_scores_count": 0,
+        "ppt_meeting_preps_count": 0,
+        "student_guardians_count": 0,
+        "document_extractions_count": 0,
+        "student_team_members_count": 0,
+        "report_evidence_links_count": 0,
+        "student_collaborators_count": 0,
+        "student_relationships_count": 0,
+        "student_saved_partners_count": 0,
+        "student_voice_responses_count": 0,
+        "student_opportunity_matches_count": 0,
+        "student_resource_recommendations_count": 0
+      }
+    },
+    "pdfs": 0,
+    "screenshots": 0,
+    "remaining": "Original initial-generation failure is obscured by AggregateError rendering; diagnose safely before requesting another bounded run."
+  },
+  "limits": "Exactly one dispatch per bounded test; zero test retries. No regeneration/repeated generation or Educator Pathway generation reached in stopped Pathway run. No additional AI call made for diagnosis. Actual gateway requests/billing unobserved.",
+  "next": "Diagnose initial Pathway generation failure with safe diagnostics and offline regression before any separately authorized repeat. Keep remaining document/IEP and generator/applicable-role coverage open.",
+  "preserved": "Full TF-01\u2013TF-26 and six milestones; report length/cosmetic polish and Parent Pilot/Pathway Snapshot deferred. No production/original-main merge, migrations, new accounts/relationships/shares, payments or secret changes."
+}

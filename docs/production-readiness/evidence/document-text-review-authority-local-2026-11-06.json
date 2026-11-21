@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-06",
+  "workstream_action": "2.6",
+  "scope": "Editing-proof serialization for the reviewed atomic text-save RPC only; no general document or provider activation",
+  "source_base": "ef2770da",
+  "proposal": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+  "exact_helper_dependencies": {
+    "can_edit_student": "79b05b69377dd61a33938fe5ebb06fc7",
+    "can_access_student": "c2dcc71ecab9bc4b982d7f81793da2aa",
+    "is_partner_only": "47797991e8c4f44c7e8aa1bbcbc86b91",
+    "can_view_document": "c983d959c1fae6d3b0311e0e059bdca2"
+  },
+  "body_md5": {
+    "authority": "f437d1d92e80319c437aaba69590685e",
+    "role_change": "15b2fa145f63b5612ba71394d5b503dc",
+    "save": "e44e6dc8a4d7b27c89a72519f6473478"
+  },
+  "completed": [
+    "Exact canonical explicit-access helpers used in tests, not permissive fake permission functions",
+    "Save retains one actual ownership/self/editor/approved-relationship proof row under a shared transaction lock",
+    "Partner-only role transitions serialize through an actor-specific shared/exclusive advisory gate; all user_roles insert/update/delete rows use the trigger",
+    "Fresh permission commands after lock waits refuse revoked proofs; grant paths and Owner/admin explicit-access requirement preserved",
+    "New helper returns void and grants no raw table permissions; invoker save body changes only by the lock call",
+    "Installation requires exact prior save/access helper bodies, full trusted row visibility and paused control; no unpause or data rewrites"
+  ],
+  "local_verification": {
+    "database_cases": 39,
+    "passed": 17,
+    "failed": 0,
+    "native_only_skipped": 22,
+    "workflow_yaml_and_shell_blocks": 72,
+    "native_full_schema_verified": false,
+    "save_plus_authority_regression": {
+      "tests": 70,
+      "passed": 42,
+      "failed": 0,
+      "native_only_skipped": 28
+    },
+    "release_contract_cases": 44
+  },
+  "native_required": [
+    "For owner/self/editor/relationship/partner-only role transitions: save-first and removal-first, each COMMIT and ROLLBACK (20 cases)",
+    "Role-table TRUNCATE waits for the save transaction (two cases)"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+      "sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5"
+    },
+    {
+      "path": "tests/database/document-text-review-authority.test.mjs",
+      "sha256": "b2e786cadc1beca3d8e48b3225cc78ffbacdd6367f5e54b62802512e861217a1"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "7042e6208b04dbd18ee79a39f6cdfda4973585c1cd90a385cae726719cad2167"
+    }
+  ],
+  "remaining": [
+    "All39 native cases and full225+32 replay acceptance",
+    "Durable admission/capacity for document-attached pasted-text generation",
+    "Other Apply/summary/register/rescan workflows, raw/service writers and previously executing cached-old saves",
+    "Hosted worker/provider quiescence, canonical/ledger packaging and separately authorized rollout/acceptance"
+  ],
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

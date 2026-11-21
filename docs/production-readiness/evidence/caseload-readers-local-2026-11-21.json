@@ -1,0 +1,155 @@
+{
+  "schema": "transitionforward-caseload-readers-local-v1",
+  "date": "2026-11-21",
+  "source_commit": "23e782ac3d556668ead0656a517f4061248cfc7d",
+  "status": "Caseload completeness/capability, quick-action routing and student detail/capability reader component verified in source/local scope",
+  "workstreams": [
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "src/components/dashboard/LiveEducatorWorkspaceOverview.tsx",
+      "sha256": "a4cf7115385446e092b74b911f64d6c289e2a33c124697263ddb424d1fc96e4d"
+    },
+    {
+      "path": "src/components/students/CaseloadQuickTools.tsx",
+      "sha256": "aff207620c697600b62748726f147dab7d299f20b94849d23de29527c291015a"
+    },
+    {
+      "path": "src/hooks/use-caseload-read.ts",
+      "sha256": "9475e0071216676facee3befdee21b623d3b6523114932f2a93bd7f990853b1e"
+    },
+    {
+      "path": "src/lib/caseload-records.server.ts",
+      "sha256": "2854ac6adeaa586f240ed3ac043bc290572b5e31caa24e0de385d6561056e67c"
+    },
+    {
+      "path": "src/lib/caseload.functions.ts",
+      "sha256": "6d80409961b8f47942d037f8c80e77b47986c8ff7f5386ebf073e5b69b798b38"
+    },
+    {
+      "path": "src/lib/educator.functions.ts",
+      "sha256": "15b1ea212cd9fb0d10bf71cd9aacc5a1e3aee8229c3f3267472d86f187975cfc"
+    },
+    {
+      "path": "src/lib/students.functions.ts",
+      "sha256": "bfa1a105e11b45f51ce83134ef99b2fcc4eea58ab7d5497a05ab025143292982"
+    },
+    {
+      "path": "src/routes/_authenticated/caseload.tsx",
+      "sha256": "3754250d0ae28e54ff01f2eda0b2d5ce6956a06159fd7dbde079d412750f6962"
+    },
+    {
+      "path": "src/routes/_authenticated/educator.action-items.tsx",
+      "sha256": "833bb005d0f7799672ccd59586c7007411d3df1e3abf173e7c3c3b4171878b26"
+    },
+    {
+      "path": "src/routes/_authenticated/educator.notes.tsx",
+      "sha256": "a1a510368c8e31bcaf87bc68b8cb700a984ac27b54d3c08662f14bccbc733e80"
+    },
+    {
+      "path": "src/routes/_authenticated/educator.readiness-gaps.tsx",
+      "sha256": "ae8153f776214e171ed6633db6937c5f99467891a639acd9d378ef9abb23bcb1"
+    },
+    {
+      "path": "src/routes/_authenticated/students.$studentId.tsx",
+      "sha256": "4a0c72318aee67e92a539852e056ce52e6f72e66221d85a9f7a34be4c12a412f"
+    },
+    {
+      "path": "tests/unit/caseload-quick-tools.test.tsx",
+      "sha256": "882666bc650a495e1a970730ab2465cca0251b626c9716218497661c3a245c66"
+    },
+    {
+      "path": "tests/unit/caseload-read-boundaries.test.ts",
+      "sha256": "2913c94d57cf5ec7df822d401474b533146cdc06690b92f65b94c4d0b98bc380"
+    },
+    {
+      "path": "tests/unit/caseload-read-lifetime.test.tsx",
+      "sha256": "81b35fe2cd7d3afa5b7151263483eda3ea5e298ed9baf813017e822ffaa0d2a2"
+    },
+    {
+      "path": "tests/unit/caseload-write-api.test.ts",
+      "sha256": "5b28264d1f223c5bec5db9f050dcfba80dd218a5a69766ba011edbfa8582df92"
+    }
+  ],
+  "checks": {
+    "unit_tests": 6787,
+    "unit_files": 404,
+    "focused_tests": 132,
+    "typescript": "passed",
+    "readiness_navigation_inventory_checks": 112,
+    "release_security_checks": 72,
+    "isolated_environment_file_free_build": "passed",
+    "service_worker": "passed",
+    "isolated_copy_fingerprint_matches": true,
+    "runtime_source": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "3649b13c376ee8fb300e5a1e6d9274e9a37a559745265cc1ecda2a9a22f1daf7",
+      "fileCount": 1251
+    },
+    "logs": [
+      {
+        "name": "all-final",
+        "sha256": "be56a1c4ea71c56086f435a1d46e70a5814b8df687e372202c30f20cbec1683f"
+      },
+      {
+        "name": "focused-final",
+        "sha256": "f7fa901265b987bd2b47bf6bc9fc3c64d2d4fb487607fab30005db21b41d784f"
+      },
+      {
+        "name": "tsc",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "contracts",
+        "sha256": "414d915649d36ab9d6e8cd05b66714762cb2e361620b1dcc7e03f241a92f47f5"
+      },
+      {
+        "name": "release",
+        "sha256": "0de67aabfec1ffbfa86adc405ae1cb9039e01a089c36a183dbd794c0b18fcf6c"
+      },
+      {
+        "name": "isolated-build",
+        "sha256": "b1b7078a6e21855dd696a33050912bf42c26877385a99e98c17d8eeba689dbdd"
+      }
+    ]
+  },
+  "completed": [
+    "Caseload reads no longer accept pending invitations or mutate membership. Caller-visible students receive literal canonical reading/editing checks and Partner-only exclusion, including final capability rechecks.",
+    "Overview/actions/notes/readiness use every exact-count page, stable ordering and bounded100-student filters. Failed, duplicate, foreign or incomplete records never become false empty/zero success. Newest readiness scores use actual timestamps.",
+    "Quick actions use the existing held-authority planning creation RPC; legacy teacher maps to Educator. Unsupported Partner-category quick creation is rejected; existing rows remain unchanged.",
+    "Shared reader lifetimes hide old account data and reject departed/out-of-order responses. Read-only quick tools and action toggles honor loaded capability; uncertain saves require explicit refresh.",
+    "Student detail and edit-capability handlers validate exact account/student/current proof. The signed-in readiness page no longer displays default fictional heatmap rows.",
+    "Quick-note writes add current-edit precheck and exact actor/student/request/content receipts, with no retries. This does not close transaction-held note authority or contributor/private-note semantics."
+  ],
+  "reused_sql_proof": {
+    "evidence": "docs/production-readiness/evidence/planning-record-write-verified-2026-11-21.json",
+    "source_manifest_matches": true,
+    "native_cases_previously_verified": 185,
+    "native_rerun_claimed": false,
+    "separate_review_drafts": 13,
+    "new_sql_or_ledger_files": 0
+  },
+  "remaining": [
+    "Student creation/deletion/self-profile repair and remaining list/profile lifecycle review.",
+    "Other raw/trusted goal/action writers: extracted goals, meeting actions, channel-linked actions/status, recommendations, old dashboard status and privileged seed routines.",
+    "BridgeForward profile/options/fit/snapshot handlers and consumers.",
+    "P2 note/history privacy and atomicity, P3 membership/sharing and P4 drafts, plus broader Workstream5 privacy/product requirements.",
+    "Final release packaging, separately authorized coordinated staging and exact-release hosted acceptance."
+  ],
+  "caseload_completeness_capability_component_complete": true,
+  "quick_action_raw_insert_retired": true,
+  "student_detail_capability_reader_component_complete": true,
+  "atomic_note_authority_complete": false,
+  "all_student_profile_lifecycle_complete": false,
+  "whole_p1_complete": false,
+  "whole_workstream_complete": false,
+  "hosted_verified": false,
+  "hosted_actions": false,
+  "provider_or_ai_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

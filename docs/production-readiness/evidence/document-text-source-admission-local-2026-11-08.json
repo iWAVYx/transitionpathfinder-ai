@@ -1,0 +1,102 @@
+{
+  "schema": "document-text-source-admission-local-v1",
+  "date": "2026-11-08",
+  "source_base": "87d564bc",
+  "workstream_actions": [
+    "2.5",
+    "2.4",
+    "2.6",
+    "4"
+  ],
+  "scope": "Prepared service-only public begin/hold RPCs completing the attached-text source protocol; actual TypeScript consumer is exercised against synthetic disposable SQL with fictional callbacks only. Source/local proof is distinct from native/full-schema and hosted/provider acceptance.",
+  "completed_locally": [
+    "Only service_role can begin/hold; authenticated caller retains the separate invoker content save. No generic admission or raw bookkeeping privilege is opened",
+    "Admission verifies exact reviewed function bodies, modes, owners, settings, effective permissions, RLS, revision/authority/source/commit/capacity triggers and32/4/2 policy before creating any claim",
+    "One actual actor/student/document/extraction/revision/status/text-digest claim reserves one unit in the same shared pool; actor is explicit and request JWT is never changed by SQL",
+    "No capability lookup, source reattachment, expiry, provider dispatch or automatic uncertain release is introduced. Duplicate identities/source starts fail",
+    "Hold requires exact operation/actor/receipt, works while paused or after access removal, retains uncertainty and preserves already committed completion after a lost reply",
+    "All seven role categories use actual canonical editing/partner/document-access functions; roles alone do not grant private student access",
+    "Actual source consumer plus real disposable SQL verifies successful completion, lost admission reply without dispatch/replay, fictional callback error held without save, lost save reply preserving completion, and post-generation authority removal stopping the save",
+    "All returned private claim fields match the strict consumer; browser result contains only the16-field extraction and never its private receipt. Raw text is absent from metadata",
+    "Installation refuses unpaused/unfinished private work instead of adopting it; full-schema protocol installation is gated after bound-save verification"
+  ],
+  "local_results": {
+    "combined": {
+      "tests": 175,
+      "pass": 147,
+      "fail": 0,
+      "skipped": 28
+    },
+    "new_cases": 68,
+    "new_local_passed": 58,
+    "new_native_only_skipped": 10,
+    "real_consumer_sql_cases": 5,
+    "protocol_drift_cases": 18,
+    "local_log_sha256": "f694afbf015e18362ed75649473127cf3ae8e235c21369ff3e7b079de1894a8a",
+    "workflow_shell_blocks": 81,
+    "release_contracts_passed": 45,
+    "release_contracts_failed": 0
+  },
+  "required_native": [
+    "Source admissions competing for last shared unit, COMMIT/ROLLBACK",
+    "Pause change versus admission, COMMIT/ROLLBACK",
+    "Partner-only role transition versus admission, COMMIT/ROLLBACK",
+    "Ownership removal versus admission, COMMIT/ROLLBACK",
+    "Save completion versus uncertainty hold, COMMIT/ROLLBACK"
+  ],
+  "private_routine_hashes": [
+    {
+      "signature": "public.assert_internal_document_text_protocol()",
+      "body_md5": "20d204d51819ff0c89840ec8dda3fc29",
+      "definer": false,
+      "utc": false,
+      "service_exec": false
+    },
+    {
+      "signature": "public.begin_bound_document_text_extraction(uuid,uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,text)",
+      "body_md5": "74f01fc49f67aa1bbcd2533f50a794cc",
+      "definer": true,
+      "utc": true,
+      "service_exec": true
+    },
+    {
+      "signature": "public.hold_bound_document_text_extraction(uuid,uuid,uuid)",
+      "body_md5": "b32e726cb005106e9af8d0ef12a85c48",
+      "definer": true,
+      "utc": true,
+      "service_exec": true
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-source-admission.sql",
+      "sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba"
+    },
+    {
+      "path": "tests/database/document-text-source-admission.test.mjs",
+      "sha256": "0dc11aae615c68492a4bc1de3876b0125b74246d9a5262a4cb99bd075ca0b604"
+    },
+    {
+      "path": "src/lib/document-text-admission.server.ts",
+      "sha256": "d5cf8dff70d898ba82a94e0375c750f6782ed8b7881a2e48f4c16ff58fe6216d"
+    },
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "e1630ac709c0bb2da2150311d6b4f1358b2bc1867176899d7cac96f8bdc1bde8"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "22f40a961326f26b87f6d79b813ec7c6a586cc146a82ed09d0f63b49a4e83b1a"
+    }
+  ],
+  "test_dependency": "Existing pinned Zod4.6.7, installed only in temporary CI prefix; test resolver maps only the two actual TypeScript consumers. Repository dependency/lock files remain unchanged.",
+  "callback_provider_calls": 0,
+  "protocol_source_prepared": true,
+  "native_full_schema_verified": false,
+  "actual_provider_behavior_verified": false,
+  "hosted_applied": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

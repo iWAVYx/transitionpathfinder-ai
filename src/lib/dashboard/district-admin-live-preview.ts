@@ -188,7 +188,7 @@ export function buildDistrictAdminLivePreview(
         schoolsNeedingFollowup.length > 0
           ? schoolsNeedingFollowup.map((school) => ({
               primary: school.name,
-              secondary: `${school.open_actions} open action${school.open_actions === 1 ? "" : "s"} · ${school.pending_members} pending staff`,
+              secondary: `${school.open_actions} open action${school.open_actions === 1 ? "" : "s"} · ${school.pending_members} other memberships`,
               status: "warning" as const,
             }))
           : [

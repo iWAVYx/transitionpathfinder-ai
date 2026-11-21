@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-08",
+  "declared_entries_checked": 37,
+  "added_paths": [
+    "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+    "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
+  ],
+  "changed_paths": [
+    "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql"
+  ],
+  "older_integration_manifest_entries_reconciled_to_current_cutover_manifest": [
+    "src/lib/documents.functions.ts",
+    "src/lib/document-rescan-source.server.ts",
+    "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
+  ],
+  "all_declared_entries_hash_checked": true,
+  "complete_release_manifest": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

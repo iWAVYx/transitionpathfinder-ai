@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.5",
+  "scope": "Legacy summary queue-entry and job-type fence only; wider writer/source-access coverage remains open",
+  "run": 42122183523,
+  "head_source": "868afeb53ec1bd1099fbf9409f4d8ebf1379be2a",
+  "checkout_commit": "868afeb53ec1bd1099fbf9409f4d8ebf1379be2a",
+  "workflow": "success",
+  "native_cases": 1660,
+  "passed": 1660,
+  "failed": 0,
+  "skipped": 0,
+  "canonical_migrations": 225,
+  "control_drafts": 30,
+  "queue_entry_cases": 20,
+  "native_cached_writer_races": 2,
+  "all_raw_native_partitions_and_logs_independently_validated": true,
+  "native_proof": "docs/production-readiness/evidence/document-summary-queue-entry-native-proof-42122183523-2026-11-05.json",
+  "native_proof_sha256": "2b3936323ec9728f49a99b8c794ac58297de0a161469cac56784bd017239b595",
+  "schema_proof": "docs/production-readiness/evidence/document-summary-queue-entry-schema-proof-42122183523-2026-11-05.json",
+  "schema_proof_sha256": "e580a6aea88bbbb6b45fa16abf4c4e16fac4131acbaf79f28f187d2e9ba871df",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql",
+      "sha256": "52c55637dc94c51c3da305e613947830e2f4f83b8ae48825baa88764f6619247"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "ef000f16a5d544165361fff165e7a1becb0a98993d7d8164fded473d5312997b"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "9589cb12be82b1ba388c3ced59487079e95b84c02482680703a69531add29c0f"
+    },
+    {
+      "path": "tests/database/document-native-test-plan.json",
+      "sha256": "1520ce8bccb6f929329040425f1114f611b94ee39ca3edd3b4d90783b14e3776"
+    }
+  ],
+  "completed_parts": [
+    "Uncounted legacy queue insertions refused without adopting or deleting existing rows",
+    "Summary job-type conversion refused; unrelated AI types retained",
+    "Actual registration/rescan queue, claim, completion, pause, rollback and cached-writer installation races verified"
+  ],
+  "whole_action_complete": false,
+  "remaining": [
+    "Remaining Storage/service/scheduled writer inventory and source/access serialization",
+    "Older hosted versions/provider quiescence and separately authorized rollout"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "replay_log_sha256": "2a3bd449c532967006a24ceb2653578019bec385a21c45dc66b4a7c4b82c51de"
+}

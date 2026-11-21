@@ -1,3 +1,4 @@
+import { useCaseloadRead } from "@/hooks/use-caseload-read";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useState } from "react";
@@ -9,13 +10,8 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  listCaseloadReadiness,
-  type CaseloadReadinessRow,
-} from "@/lib/educator.functions";
+import { listCaseloadReadiness, type CaseloadReadinessRow } from "@/lib/educator.functions";
 import { ReadinessInterventionCell } from "@/components/pathway/ReadinessInterventionCell";
-import { ReadinessHeatmap } from "@/components/dashboard/ReadinessHeatmap";
-
 
 export const Route = createFileRoute("/_authenticated/educator/readiness-gaps")({
   head: () => ({
@@ -44,39 +40,36 @@ const PILLAR_LABEL: Record<string, string> = {
 
 function EducatorReadinessGapsPage() {
   const load = useServerFn(listCaseloadReadiness);
-  const [rows, setRows] = useState<CaseloadReadinessRow[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    load()
-      .then(({ rows }) => setRows(rows))
-      .finally(() => setLoading(false));
-  }, [load]);
+  const {
+    data: { rows },
+    loading,
+    error: loadError,
+    reload,
+  } = useCaseloadRead(load, { rows: [] as CaseloadReadinessRow[] });
 
   return (
     <SiteShell>
-      <main
-        data-testid="educator-readiness-gaps-page"
-        className="mx-auto max-w-6xl px-4 py-8"
-      >
+      <section data-testid="educator-readiness-gaps-page" className="mx-auto max-w-6xl px-4 py-8">
         <Breadcrumbs trail={[{ label: "Readiness Gaps" }]} />
-        <div className="mt-4">
-          <ReadinessHeatmap />
-        </div>
         <header className="mt-6 mb-6">
           <div className="flex items-center gap-3">
             <Gauge className="h-7 w-7 text-primary" />
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Readiness Gaps
-            </h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Readiness Gaps</h1>
           </div>
           <p className="mt-2 text-muted-foreground">
-            Caseload-wide view of the four transition pillars. Lowest overall
-            scores appear first — that's where to focus.
+            Caseload-wide view of the four transition pillars. Lowest overall scores appear first —
+            that's where to focus.
           </p>
         </header>
 
-        {loading ? (
+        {loadError ? (
+          <div role="alert" className="rounded-xl border p-4 text-sm">
+            Saved readiness could not be fully loaded.{" "}
+            <Button variant="outline" onClick={() => void reload()}>
+              Refresh
+            </Button>
+          </div>
+        ) : loading ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading readiness…
           </div>
@@ -139,13 +132,9 @@ function EducatorReadinessGapsPage() {
                       )}
                     </td>
                     <td className="p-3 align-top">
-                      <ReadinessInterventionCell
-                        pillar={r.gap_pillar}
-                        score={r.overall}
-                      />
+                      <ReadinessInterventionCell pillar={r.gap_pillar} score={r.overall} />
                     </td>
                   </tr>
-
                 ))}
               </tbody>
             </table>
@@ -154,19 +143,14 @@ function EducatorReadinessGapsPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }
 
 function ScoreCell({ value }: { value: number | null }) {
   if (value == null) return <span className="text-muted-foreground">—</span>;
-  const tone =
-    value >= 75
-      ? "text-emerald-600"
-      : value >= 50
-        ? "text-amber-600"
-        : "text-rose-600";
+  const tone = value >= 75 ? "text-emerald-600" : value >= 50 ? "text-amber-600" : "text-rose-600";
   return <span className={`font-medium ${tone}`}>{value}</span>;
 }
 

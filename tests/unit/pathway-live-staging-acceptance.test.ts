@@ -6,6 +6,7 @@ const spec = readFileSync(
   "tests/e2e/release-readiness/pathway-live-staging.signedin.spec.ts",
   "utf8",
 );
+const cleanup = readFileSync("tests/e2e/helpers/pathway-live-exact-cleanup.ts", "utf8");
 const pathwayRoute = readFileSync("src/routes/_authenticated/pathway.tsx", "utf8") + readFileSync("src/components/pathway/PathwayBuilderSteps.tsx", "utf8");
 const reportRoute = readFileSync("src/routes/_authenticated/reports.$reportId.tsx", "utf8");
 const rolePolicy = readFileSync("src/lib/role-policy.ts", "utf8");
@@ -59,7 +60,7 @@ describe("protected Pathway live-staging acceptance", () => {
       'page.goto("/pathway/student"',
       "page.waitForURL(/\\/partners-manage",
     ]) {
-      expect(spec).toContain(contract);
+      expect(spec + cleanup).toContain(contract);
     }
     expect(spec.match(/pathway-generate/g)).toHaveLength(1);
     expect(rolePolicy).toContain('"/pathway": ["family", "educator", "admin"]');
@@ -95,7 +96,7 @@ describe("protected Pathway live-staging acceptance", () => {
       '.from("pathway_reports")',
       '.from("student_intakes")',
     ]) {
-      expect(spec).toContain(contract);
+      expect(spec + cleanup).toContain(contract);
     }
   });
 
@@ -146,4 +147,14 @@ describe("protected Pathway live-staging acceptance", () => {
     expect(runbook).toContain("production Supabase identity");
     expect(runbook).toContain("live Stripe identity");
   });
+});
+
+it("live fixture setup refuses occupied markers without cleanup and never sweeps historical QA", () => {
+ expect(spec).toContain('if (!admin || !parentId || !fixtureSetupStarted) return;');
+ const before = spec.slice(spec.indexOf('test.beforeAll'), spec.indexOf('test.afterAll'));
+ expect(before).not.toContain('await deleteQaRows()');
+ expect(before.indexOf('already occupied; no fixtures started')).toBeLessThan(before.indexOf('fixtureSetupStarted = true'));
+ expect(spec).not.toContain('.like('); expect(cleanup).not.toContain('.like(');
+ expect(spec).toContain('mode: "serial", retries: 0');
+ expect(workflow).toContain("if: github.ref == 'refs/heads/main'");
 });

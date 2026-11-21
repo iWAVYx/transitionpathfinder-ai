@@ -18,6 +18,10 @@ const roots = process.argv.slice(2).length ? process.argv.slice(2) : DEFAULT_ROO
 
 const credentialPatterns = [
   {
+    label: "report-sharing bearer URL",
+    pattern: /https?:\/\/[^\s"'<>]+\/share\/[A-Za-z0-9_-]{8,}/i,
+  },
+  {
     label: "Supabase auth storage key",
     pattern: /sb-[a-z0-9]+-auth-token/i,
   },

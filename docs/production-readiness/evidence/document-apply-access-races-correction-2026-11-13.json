@@ -1,0 +1,26 @@
+{
+  "schema": "document-apply-access-races-correction-v1",
+  "date": "2026-11-13",
+  "source_base": "60830e8a4c3a1729aa8f76b941dabba10bfe5d89",
+  "run": 43486092074,
+  "job": 132094820634,
+  "result": {
+    "cases": 28,
+    "passed": 25,
+    "failed": 3,
+    "skipped": 0,
+    "accepted": false
+  },
+  "failure_location": "All three partner-transition failures were the final raw can_edit_student expectation on line67, after the real save/refusal/rollback/lock/capacity assertions had passed.",
+  "cause": "Canonical can_edit_student describes the retained ownership/editor/relationship grant and does not itself apply is_partner_only. Both actual Apply and its server wrapper check the separate partner-only gate.",
+  "correction": "Assert the raw editor grant remains true for this role-only mutation, assert partner-only status after committed role change, and assert the complete edit/access/non-partner/view conjunction is false after removal. Retain all existing actual request, SQL, lock, atomicity, exact-revision, lease and capacity assertions.",
+  "product_code_changed": false,
+  "sql_changed": false,
+  "new_runtime_defect_confirmed": false,
+  "native_repeat_pending": true,
+  "raw_job_log_sha256": "d1330965654ef4fb9aa1dd320e2994a91437064ffe52d22789769e2b9f6bfbc7",
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,432 @@
+TAP version 13
+# Subtest: eligible family can read/save current student voice
+ok 1 - eligible family can read/save current student voice
+  ---
+  duration_ms: 305.065022
+  type: 'test'
+  ...
+# Subtest: eligible student can read/save current student voice
+ok 2 - eligible student can read/save current student voice
+  ---
+  duration_ms: 225.464022
+  type: 'test'
+  ...
+# Subtest: eligible educator can read/save current student voice
+ok 3 - eligible educator can read/save current student voice
+  ---
+  duration_ms: 212.464427
+  type: 'test'
+  ...
+# Subtest: eligible school can read/save current student voice
+ok 4 - eligible school can read/save current student voice
+  ---
+  duration_ms: 225.726128
+  type: 'test'
+  ...
+# Subtest: eligible district can read/save current student voice
+ok 5 - eligible district can read/save current student voice
+  ---
+  duration_ms: 224.929157
+  type: 'test'
+  ...
+# Subtest: eligible owner can read/save current student voice
+ok 6 - eligible owner can read/save current student voice
+  ---
+  duration_ms: 219.241425
+  type: 'test'
+  ...
+# Subtest: ineligible family cannot save student voice
+ok 7 - ineligible family cannot save student voice
+  ---
+  duration_ms: 211.020024
+  type: 'test'
+  ...
+# Subtest: ineligible student cannot save student voice
+ok 8 - ineligible student cannot save student voice
+  ---
+  duration_ms: 214.89848
+  type: 'test'
+  ...
+# Subtest: ineligible educator cannot save student voice
+ok 9 - ineligible educator cannot save student voice
+  ---
+  duration_ms: 225.253941
+  type: 'test'
+  ...
+# Subtest: ineligible school cannot save student voice
+ok 10 - ineligible school cannot save student voice
+  ---
+  duration_ms: 211.223022
+  type: 'test'
+  ...
+# Subtest: ineligible district cannot save student voice
+ok 11 - ineligible district cannot save student voice
+  ---
+  duration_ms: 218.815073
+  type: 'test'
+  ...
+# Subtest: ineligible owner cannot save student voice
+ok 12 - ineligible owner cannot save student voice
+  ---
+  duration_ms: 223.480554
+  type: 'test'
+  ...
+# Subtest: ineligible partner cannot save student voice
+ok 13 - ineligible partner cannot save student voice
+  ---
+  duration_ms: 219.078675
+  type: 'test'
+  ...
+# Subtest: read-only relationships can read without saving or deleting shared answers
+ok 14 - read-only relationships can read without saving or deleting shared answers
+  ---
+  duration_ms: 216.546074
+  type: 'test'
+  ...
+# Subtest: an expected-absence save never overwrites another writer
+ok 15 - an expected-absence save never overwrites another writer
+  ---
+  duration_ms: 213.380979
+  type: 'test'
+  ...
+# Subtest: stale updates do not overwrite a newer answer and preserve the original author
+ok 16 - stale updates do not overwrite a newer answer and preserve the original author
+  ---
+  duration_ms: 226.771781
+  type: 'test'
+  ...
+# Subtest: intentional clearing keeps the same answer identity
+ok 17 - intentional clearing keeps the same answer identity
+  ---
+  duration_ms: 212.79882
+  type: 'test'
+  ...
+# Subtest: a wrong loaded row cannot redirect an answer update
+ok 18 - a wrong loaded row cannot redirect an answer update
+  ---
+  duration_ms: 218.449955
+  type: 'test'
+  ...
+# Subtest: all legacy/unknown prompt rows remain readable without coded UI labels
+ok 19 - all legacy/unknown prompt rows remain readable without coded UI labels
+  ---
+  duration_ms: 219.723015
+  type: 'test'
+  ...
+# Subtest: Partner-only raw reads and deletion are refused despite a relationship
+ok 20 - Partner-only raw reads and deletion are refused despite a relationship
+  ---
+  duration_ms: 222.774617
+  type: 'test'
+  ...
+# Subtest: removal hides retained answers and current-editor deletion remains available
+ok 21 - removal hides retained answers and current-editor deletion remains available
+  ---
+  duration_ms: 222.967142
+  type: 'test'
+  ...
+# Subtest: raw insert/update remain fenced despite future grants and permissive policies
+ok 22 - raw insert/update remain fenced despite future grants and permissive policies
+  ---
+  duration_ms: 210.401599
+  type: 'test'
+  ...
+# Subtest: trusted writes cannot reassign student/prompt/original author
+ok 23 - trusted writes cannot reassign student/prompt/original author
+  ---
+  duration_ms: 207.654025
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"key":"future-work","band":"middle"}
+ok 24 - invalid/inapplicable direct RPC intent {"key":"future-work","band":"middle"}
+  ---
+  duration_ms: 207.755462
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"key":"ms-strengths","band":"early-high"}
+ok 25 - invalid/inapplicable direct RPC intent {"key":"ms-strengths","band":"early-high"}
+  ---
+  duration_ms: 213.031319
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"key":"unknown-prompt"}
+ok 26 - invalid/inapplicable direct RPC intent {"key":"unknown-prompt"}
+  ---
+  duration_ms: 211.354389
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"text":"oversized"}
+ok 27 - invalid/inapplicable direct RPC intent {"text":"oversized"}
+  ---
+  duration_ms: 212.52634
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"band":"middle_school"}
+ok 28 - invalid/inapplicable direct RPC intent {"band":"middle_school"}
+  ---
+  duration_ms: 207.981576
+  type: 'test'
+  ...
+# Subtest: invalid/inapplicable direct RPC intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 29 - invalid/inapplicable direct RPC intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 224.827959
+  type: 'test'
+  ...
+# Subtest: student voice TRUNCATE is not a client capability
+ok 30 - student voice TRUNCATE is not a client capability
+  ---
+  duration_ms: 215.001878
+  type: 'test'
+  ...
+# Subtest: repeated installation stops before partial catalog changes
+ok 31 - repeated installation stops before partial catalog changes
+  ---
+  duration_ms: 205.814315
+  type: 'test'
+  ...
+# Subtest: installation rollback preserves old rows and permissions
+ok 32 - installation rollback preserves old rows and permissions
+  ---
+  duration_ms: 206.776314
+  type: 'test'
+  ...
+# (node:3122) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: every actual current prompt/reading-level pair saves through the database API
+ok 33 - every actual current prompt/reading-level pair saves through the database API
+  ---
+  duration_ms: 364.37178
+  type: 'test'
+  ...
+# Subtest: complete legacy reads exceed the ordinary REST row limit without inventing empty results
+ok 34 - complete legacy reads exceed the ordinary REST row limit without inventing empty results
+  ---
+  duration_ms: 229.251328
+  type: 'test'
+  ...
+# Subtest: native voice family save-first through COMMIT
+ok 35 - native voice family save-first through COMMIT
+  ---
+  duration_ms: 247.382299
+  type: 'test'
+  ...
+# Subtest: native voice family removal-first through COMMIT
+ok 36 - native voice family removal-first through COMMIT
+  ---
+  duration_ms: 252.924317
+  type: 'test'
+  ...
+# Subtest: native voice family save-first through ROLLBACK
+ok 37 - native voice family save-first through ROLLBACK
+  ---
+  duration_ms: 242.432804
+  type: 'test'
+  ...
+# Subtest: native voice family removal-first through ROLLBACK
+ok 38 - native voice family removal-first through ROLLBACK
+  ---
+  duration_ms: 245.359832
+  type: 'test'
+  ...
+# Subtest: native voice student save-first through COMMIT
+ok 39 - native voice student save-first through COMMIT
+  ---
+  duration_ms: 252.070081
+  type: 'test'
+  ...
+# Subtest: native voice student removal-first through COMMIT
+ok 40 - native voice student removal-first through COMMIT
+  ---
+  duration_ms: 251.219446
+  type: 'test'
+  ...
+# Subtest: native voice student save-first through ROLLBACK
+ok 41 - native voice student save-first through ROLLBACK
+  ---
+  duration_ms: 252.303994
+  type: 'test'
+  ...
+# Subtest: native voice student removal-first through ROLLBACK
+ok 42 - native voice student removal-first through ROLLBACK
+  ---
+  duration_ms: 248.366302
+  type: 'test'
+  ...
+# Subtest: native voice educator save-first through COMMIT
+ok 43 - native voice educator save-first through COMMIT
+  ---
+  duration_ms: 255.641272
+  type: 'test'
+  ...
+# Subtest: native voice educator removal-first through COMMIT
+ok 44 - native voice educator removal-first through COMMIT
+  ---
+  duration_ms: 240.933119
+  type: 'test'
+  ...
+# Subtest: native voice educator save-first through ROLLBACK
+ok 45 - native voice educator save-first through ROLLBACK
+  ---
+  duration_ms: 253.236084
+  type: 'test'
+  ...
+# Subtest: native voice educator removal-first through ROLLBACK
+ok 46 - native voice educator removal-first through ROLLBACK
+  ---
+  duration_ms: 240.340595
+  type: 'test'
+  ...
+# Subtest: native voice school save-first through COMMIT
+ok 47 - native voice school save-first through COMMIT
+  ---
+  duration_ms: 249.20285
+  type: 'test'
+  ...
+# Subtest: native voice school removal-first through COMMIT
+ok 48 - native voice school removal-first through COMMIT
+  ---
+  duration_ms: 238.883347
+  type: 'test'
+  ...
+# Subtest: native voice school save-first through ROLLBACK
+ok 49 - native voice school save-first through ROLLBACK
+  ---
+  duration_ms: 249.607644
+  type: 'test'
+  ...
+# Subtest: native voice school removal-first through ROLLBACK
+ok 50 - native voice school removal-first through ROLLBACK
+  ---
+  duration_ms: 246.655963
+  type: 'test'
+  ...
+# Subtest: native voice district save-first through COMMIT
+ok 51 - native voice district save-first through COMMIT
+  ---
+  duration_ms: 251.89623
+  type: 'test'
+  ...
+# Subtest: native voice district removal-first through COMMIT
+ok 52 - native voice district removal-first through COMMIT
+  ---
+  duration_ms: 246.970638
+  type: 'test'
+  ...
+# Subtest: native voice district save-first through ROLLBACK
+ok 53 - native voice district save-first through ROLLBACK
+  ---
+  duration_ms: 251.933169
+  type: 'test'
+  ...
+# Subtest: native voice district removal-first through ROLLBACK
+ok 54 - native voice district removal-first through ROLLBACK
+  ---
+  duration_ms: 248.553048
+  type: 'test'
+  ...
+# Subtest: native voice owner save-first through COMMIT
+ok 55 - native voice owner save-first through COMMIT
+  ---
+  duration_ms: 249.090627
+  type: 'test'
+  ...
+# Subtest: native voice owner removal-first through COMMIT
+ok 56 - native voice owner removal-first through COMMIT
+  ---
+  duration_ms: 247.272398
+  type: 'test'
+  ...
+# Subtest: native voice owner save-first through ROLLBACK
+ok 57 - native voice owner save-first through ROLLBACK
+  ---
+  duration_ms: 255.662974
+  type: 'test'
+  ...
+# Subtest: native voice owner removal-first through ROLLBACK
+ok 58 - native voice owner removal-first through ROLLBACK
+  ---
+  duration_ms: 247.510724
+  type: 'test'
+  ...
+# Subtest: native voice partner-transition save-first through COMMIT
+ok 59 - native voice partner-transition save-first through COMMIT
+  ---
+  duration_ms: 237.570264
+  type: 'test'
+  ...
+# Subtest: native voice partner-transition removal-first through COMMIT
+ok 60 - native voice partner-transition removal-first through COMMIT
+  ---
+  duration_ms: 254.620855
+  type: 'test'
+  ...
+# Subtest: native voice partner-transition save-first through ROLLBACK
+ok 61 - native voice partner-transition save-first through ROLLBACK
+  ---
+  duration_ms: 256.744965
+  type: 'test'
+  ...
+# Subtest: native voice partner-transition removal-first through ROLLBACK
+ok 62 - native voice partner-transition removal-first through ROLLBACK
+  ---
+  duration_ms: 243.126649
+  type: 'test'
+  ...
+# Subtest: native competing voice creation through COMMIT
+ok 63 - native competing voice creation through COMMIT
+  ---
+  duration_ms: 242.018273
+  type: 'test'
+  ...
+# Subtest: native competing voice update through COMMIT
+ok 64 - native competing voice update through COMMIT
+  ---
+  duration_ms: 239.310342
+  type: 'test'
+  ...
+# Subtest: native competing voice creation through ROLLBACK
+ok 65 - native competing voice creation through ROLLBACK
+  ---
+  duration_ms: 237.320425
+  type: 'test'
+  ...
+# Subtest: native competing voice update through ROLLBACK
+ok 66 - native competing voice update through ROLLBACK
+  ---
+  duration_ms: 265.615576
+  type: 'test'
+  ...
+# Subtest: native cached raw writer is retired by installation
+ok 67 - native cached raw writer is retired by installation
+  ---
+  duration_ms: 213.826063
+  type: 'test'
+  ...
+# Subtest: native cached voice read rechecks removed access
+ok 68 - native cached voice read rechecks removed access
+  ---
+  duration_ms: 224.727114
+  type: 'test'
+  ...
+# Subtest: native current-editor deletion holds authority through COMMIT
+ok 69 - native current-editor deletion holds authority through COMMIT
+  ---
+  duration_ms: 251.831732
+  type: 'test'
+  ...
+# Subtest: native current-editor deletion holds authority through ROLLBACK
+ok 70 - native current-editor deletion holds authority through ROLLBACK
+  ---
+  duration_ms: 256.50605
+  type: 'test'
+  ...
+1..70
+# tests 70
+# suites 0
+# pass 70
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16581.943602

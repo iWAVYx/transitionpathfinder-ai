@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-27",
+  "status": "proposal verified locally and in disposable native/full-schema CI; not canonical or hosted",
+  "base_commit": "123c6121e372110c5ddbd2fa415f4f782f494b72",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-storage-write-boundary.sql",
+    "sha256": "571286dfb7433d4aae1e5cac878afbfd4738acaf160c491b7ea6f843aa18eb85",
+    "canonical_migrations_unchanged": 210
+  },
+  "behavior": [
+    "Add restrictive UPDATE USING/WITH CHECK and DELETE USING boundaries for anon/authenticated student-document storage, so broad permissive policies cannot reopen replacement/deletion.",
+    "Preserve current upload/read policies and their access/partner restrictions. Block moving objects both out of and into the protected bucket. Other buckets retain their own permissions.",
+    "Preserve trusted BYPASSRLS service maintenance; no Storage API call, real file operation or direct metadata cleanup is executed.",
+    "Missing canonical upload policy or disabled RLS aborts installation atomically. No stored row is modified."
+  ],
+  "validation": {
+    "local_database_cases_passed": 89,
+    "native_only_cases_skipped": 2,
+    "fixture_correction": "Canonical storage read helper must be installed before storage policies; initial setup failures corrected before passing run."
+  },
+  "sources": [
+    {
+      "url": "https://supabase.com/docs/guides/storage/security/access-control",
+      "use": "Supabase documents that upsert needs SELECT and UPDATE permissions."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/storage/security/ownership",
+      "use": "Storage owner metadata is not ownership enforcement by itself. No ownership claim is made here."
+    }
+  ],
+  "limits": [
+    "Minimal storage metadata fixture is not a running Storage API or object store; actual upsert/move/delete HTTP behavior remains untested.",
+    "No actual uploader ownership proof or immutable trusted-service byte version; current read exceptions remain separately open.",
+    "No durable attempt/content reservation, hard-delete tombstone or exact orphan cleanup.",
+    "No guarantee that a service-generated scan result corresponds to immutable reviewed bytes."
+  ],
+  "authorization": {
+    "canonical_migration_added": false,
+    "hosted_database_changed": false,
+    "deployed": false,
+    "published": false,
+    "provider_calls": 0,
+    "production_touched": false
+  },
+  "ci_validation": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40525444065",
+    "source_commit": "94d61846c766161473beca38550651b0925edd07",
+    "attempt": 1,
+    "result": "success",
+    "native_database_cases_passed": 91,
+    "native_database_cases_skipped": 0,
+    "full_schema": "All 210 canonical migrations replayed; existing grants/RLS/security checks passed before applying all three proposals and verifying restrictive storage policy commands/roles alongside document indexes/triggers.",
+    "not_hosted_acceptance": true
+  },
+  "automatic_checks": {
+    "source_commit": "94d61846c766161473beca38550651b0925edd07",
+    "all_eight_applicable_passed": true,
+    "both_builds_passed_first_attempt": true,
+    "unit_tests_passed": 5118,
+    "unit_files_passed": 344,
+    "protected_skipped_jobs": "unperformed; not hosted acceptance"
+  }
+}

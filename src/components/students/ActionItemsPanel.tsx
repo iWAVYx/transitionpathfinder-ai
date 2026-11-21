@@ -1,3 +1,5 @@
+import {useAuth} from "@/hooks/use-auth";
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -41,7 +43,16 @@ const CATEGORY_LABELS: Record<string, string> = {
   team: "Team",
 };
 
-export function ActionItemsPanel({ studentId }: { studentId: string }) {
+export function ActionItemsPanel({studentId}:{studentId:string}){
+ const {user,loading}=useAuth();
+ if(loading)return <p>Loading action items…</p>;
+ if(!user)return <p>Sign in to view action items.</p>;
+ return <ActionItemsPanelSession key={`${user.id}:${studentId}`} studentId={studentId}/>;
+}
+function ActionItemsPanelSession({ studentId }: { studentId: string }) {
+  const scope=usePlanningLifetime(studentId);
+  const [loadError,setLoadError]=useState(false);
+  const [canEdit,setCanEdit]=useState(false);
   const list = useServerFn(listStudentActionItems);
   const create = useServerFn(createStudentActionItem);
   const update = useServerFn(updateStudentActionItem);
@@ -56,56 +67,66 @@ export function ActionItemsPanel({ studentId }: { studentId: string }) {
   const [saving, setSaving] = useState(false);
 
   async function reload() {
-    const r = await list({ data: { student_id: studentId } });
-    setItems(r.items);
+    const read=scope.nextRead();
+    const r = await list({ data: { student_id: studentId,expected_viewer_id:scope.viewerId } });
+    if(!scope.currentRead(read))return;setItems(r.items);setCanEdit(r.canEdit);setLoadError(false);scope.confirmRead();
   }
 
   useEffect(() => {
-    reload().catch(() => setItems([]));
+    setItems(null);setLoadError(false);reload().catch(() => {if(scope.current())setLoadError(true);});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studentId]);
+  }, [studentId,scope.viewerId]);
 
   async function onAdd() {
-    if (!draftTitle.trim()) return;
+    if (!canEdit||!draftTitle.trim()||!scope.begin()) return;
     setSaving(true);
     try {
       await create({
         data: {
-          student_id: studentId,
+          student_id: studentId,expected_viewer_id:scope.viewerId,
           title: draftTitle.trim(),
           category: draftCategory as never,
           priority: draftPriority as never,
           due_date: draftDue || undefined,
         },
       });
+      if(!scope.current())return;
       setDraftTitle("");
       setDraftDue("");
       setAdding(false);
+      if(!scope.current())return;
       await reload();
     } catch (err) {
+      if(!scope.current())return;scope.markUncertain();
       toast.error(err instanceof Error ? err.message : "Could not save.");
     } finally {
+      scope.finish();
       setSaving(false);
     }
   }
 
   async function onStatusChange(id: string, status: string) {
+    const row=items?.find(item=>item.id===id);if(!row||(!canEdit&&row.assigned_to_user_id!==scope.viewerId)||!scope.begin())return;
+    setSaving(true);
     try {
-      await update({ data: { id, status: status as never } });
+      await update({ data: { id,student_id:studentId,expected_updated_at:row.updated_at,expected_viewer_id:scope.viewerId,status:status as never } });
+      if(!scope.current())return;
       await reload();
     } catch {
-      toast.error("Could not update.");
-    }
+      if(!scope.current())return;scope.markUncertain();toast.error("Could not update.");
+    }finally{scope.finish();if(scope.current())setSaving(false);}
   }
 
   async function onDelete(id: string) {
-    if (!confirm("Delete this action item?")) return;
+    const row=items?.find(item=>item.id===id);if(!canEdit||!row||!confirm("Delete this action item?")||!scope.begin())return;
+    setSaving(true);
     try {
-      await remove({ data: { id } });
+      await remove({ data: { id,student_id:studentId,expected_updated_at:row.updated_at,expected_viewer_id:scope.viewerId } });
+      if(!scope.current())return;
       await reload();
     } catch {
-      toast.error("Could not delete.");
-    }
+      if(!scope.current())return;scope.markUncertain();toast.error("Could not delete.");
+    }finally{scope.finish();if(scope.current())setSaving(false);}
   }
 
   const completed = (items ?? []).filter((i) => i.status === "completed").length;
@@ -126,22 +147,24 @@ export function ActionItemsPanel({ studentId }: { studentId: string }) {
           </p>
         </div>
         <div className="text-right">
-          <p className="font-display text-2xl">{pct}%</p>
+          <p className="font-display text-2xl">{items!==null&&!loadError?`${pct}%`:"—"}</p>
           <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            {completed} of {total} done
+            {items!==null&&!loadError?`${completed} of ${total} done`:"Saved progress unavailable"}
           </p>
         </div>
       </div>
 
       {total > 0 && (
         <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${!loadError?pct:0}%` }} />
         </div>
       )}
 
+      {(loadError||scope.uncertain)&&<p role="status" className="mt-4 text-sm">Refresh saved action items before making changes. <Button size="sm" variant="outline" onClick={()=>void reload().catch(()=>setLoadError(true))}>Refresh Saved Action Items</Button></p>}
+      <fieldset disabled={loadError||scope.uncertain||items===null||saving} className="contents">
       <div className="mt-5">
         {!adding ? (
-          <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
+          <Button size="sm" variant="outline" disabled={!canEdit} onClick={() => setAdding(true)}>
             <Plus className="h-3.5 w-3.5" /> Add action item
           </Button>
         ) : (
@@ -181,11 +204,11 @@ export function ActionItemsPanel({ studentId }: { studentId: string }) {
         )}
       </div>
 
-      <PartnerSuggestedActions studentId={studentId} onAdded={() => void reload()} />
+      {canEdit&&<PartnerSuggestedActions studentId={studentId} onAdded={() => void reload().catch(()=>setLoadError(true))} />}
 
       {items === null && <p className="mt-6 text-sm text-muted-foreground">Loading…</p>}
 
-      {items !== null && items.length === 0 && (
+      {!loadError&&items !== null && items.length === 0 && (
         <p className="mt-6 text-sm text-muted-foreground">
           No action items yet. Add the first concrete next step above.
         </p>
@@ -232,7 +255,7 @@ export function ActionItemsPanel({ studentId }: { studentId: string }) {
                     <select
                       aria-label="Status"
                       value={a.status}
-                      onChange={(e) => onStatusChange(a.id, e.target.value)}
+                      disabled={!canEdit&&a.assigned_to_user_id!==scope.viewerId} onChange={(e) => onStatusChange(a.id, e.target.value)}
                       className="rounded-full border bg-card px-2 py-1 text-[11px]"
                     >
                       {Object.entries(STATUS_LABELS).map(([k, v]) => (
@@ -241,7 +264,7 @@ export function ActionItemsPanel({ studentId }: { studentId: string }) {
                         </option>
                       ))}
                     </select>
-                    <Button size="sm" variant="ghost" onClick={() => onDelete(a.id)}>
+                    <Button size="sm" variant="ghost" disabled={!canEdit} onClick={() => onDelete(a.id)}>
                       <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                     </Button>
                   </div>
@@ -251,6 +274,7 @@ export function ActionItemsPanel({ studentId }: { studentId: string }) {
           })}
         </ul>
       )}
+      </fieldset>
     </div>
   );
 }

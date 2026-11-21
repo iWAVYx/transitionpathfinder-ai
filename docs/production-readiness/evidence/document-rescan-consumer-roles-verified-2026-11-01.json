@@ -1,0 +1,36 @@
+{
+  "schema": "document-rescan-consumer-roles-verified-v1",
+  "date": "2026-11-01",
+  "verified_source": "f8b15c44f8e9638aab8c949964796832710bdbed",
+  "runs": [
+    {
+      "run": 41364101206,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41364101206",
+      "native_tests": 1244,
+      "passed": 1244,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 12,
+      "consumer_role_cases": 10,
+      "artifact": "docs/production-readiness/evidence/document-rescan-consumer-roles-proof-41364101206-2026-11-01.json",
+      "artifact_sha256": "3b77487e0ea6e1600ccef991b538996853777298c60a8f7ea1ec12299da55283",
+      "log_sha256": "3f881321649bb1ac7c190221dbe4e54bc76ea7f7484ce9a70e8ec96cd7046822"
+    },
+    {
+      "run": 41364098281,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41364098281",
+      "native_tests": 1244,
+      "passed": 1244,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 12,
+      "consumer_role_cases": 10,
+      "artifact": "docs/production-readiness/evidence/document-rescan-consumer-roles-proof-41364098281-2026-11-01.json",
+      "artifact_sha256": "3b77487e0ea6e1600ccef991b538996853777298c60a8f7ea1ec12299da55283",
+      "log_sha256": "b7462db1db90b34f7339f0daa3e4a78b510c2bf7f829518b14e0ed4da46d9004"
+    }
+  ],
+  "scope": "Exact ten database consumer cases for all six explicitly permitted roles and Partner refusal, complete1244 native suites and225+12 replay. Private attachment remains an owner-internal test call; no automatic worker hook, Deno/provider/file transport or producer settlement is claimed for this earlier stage.",
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

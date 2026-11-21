@@ -82,6 +82,7 @@ test("sanitizer removes traces and token-bearing files but keeps safe evidence",
       JSON.stringify({ refresh_token: "synthetic-refresh-value" }),
     );
 
+    await writeFile(path.join(nested, "share-error.md"), "Navigation failed at https://staging.example/share/synthetic-bearer-only-for-test");
     const result = spawnSync(process.execPath, [script, root], {
       cwd: repoRoot,
       encoding: "utf8",
@@ -90,6 +91,7 @@ test("sanitizer removes traces and token-bearing files but keeps safe evidence",
     await access(path.join(nested, "error-context.md"));
     await assert.rejects(access(path.join(nested, "trace.zip")));
     await assert.rejects(access(path.join(nested, "session.json")));
+    await assert.rejects(access(path.join(nested, "share-error.md")));
     assert.match(result.stdout, /upload is safe/);
   } finally {
     await rm(root, { recursive: true, force: true });

@@ -64,3 +64,18 @@ export const STUDENT_VOICE_PROMPTS: StudentVoicePrompt[] = [
     ageBands: ["middle", "early-high", "late-high", "post-secondary"],
   },
 ];
+
+
+export const MIDDLE_SCHOOL_VOICE_PROMPTS = [
+  { key: "ms-strengths", question: "What are you good at — at school or outside school?" },
+  { key: "ms-enjoy", question: "What do you love doing in your free time?" },
+  { key: "ms-hard", question: "What feels hard right now? It's okay to be honest." },
+  { key: "ms-support", question: "What kind of help works best for you when something is tough?" },
+  { key: "ms-hs-hopes", question: "When you think about high school, what are you hoping for?" },
+  { key: "ms-hs-worries", question: "What are you a little worried about for high school?" },
+  { key: "voice-meeting", question: "What do you want your team to know at your next meeting?" },
+] as const;
+
+export function studentVoiceQuestion(key: string) {
+  return STUDENT_VOICE_PROMPTS.find(prompt => prompt.key === key)?.question ?? MIDDLE_SCHOOL_VOICE_PROMPTS.find(prompt => prompt.key === key)?.question ?? "A Note From the Student";
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "document-text-bound-save-native-stage-observed-v1",
+  "date": "2026-11-08",
+  "workstream_actions": [
+    "2.5"
+  ],
+  "run": 42556388449,
+  "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/42556388449",
+  "observation": {
+    "conclusion": "",
+    "headSha": "feba52ec3ca2b45aa3f7565521c4c4c9283e4c94",
+    "replay": [
+      {
+        "conclusion": "",
+        "databaseId": 128962950589,
+        "status": "in_progress",
+        "steps": [
+          {
+            "completedAt": "2026-11-09T03:28:06Z",
+            "conclusion": "success",
+            "name": "Test bound text save completion in disposable PostgreSQL",
+            "number": 24,
+            "startedAt": "2026-11-09T03:27:59Z",
+            "status": "completed"
+          }
+        ]
+      }
+    ],
+    "status": "queued"
+  },
+  "native_counts_enforced_by_successful_step": {
+    "tests": 48,
+    "passed": 48,
+    "failed": 0,
+    "skipped": 0,
+    "cross_session_cases": 10
+  },
+  "independent_raw_artifact_validation_complete": false,
+  "full_schema_replay_complete": false,
+  "whole_workstream_complete": false,
+  "public_begin_hold_implemented": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,59 @@
+{
+  "schema": "document-registration-capacity-settlement-verified-v1",
+  "date": "2026-10-31",
+  "verified_source": "c9eeb3d378e4345a0fd976412882c6a18ea97308",
+  "status": "Both native1054/1054 zero-skip suites and full225+all-nine disposable replays pass; policy/owner blockers closed for this prepared registration stage.",
+  "runs": [
+    {
+      "run": 41229731209,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41229731209",
+      "native_tests": 1054,
+      "passed": 1054,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 9,
+      "log_sha256": "aea88c41c2080e16e201a2aa54fcbf3d7e5fd820f43759fd16de9e52f0d93bc5",
+      "artifact": "docs/production-readiness/evidence/document-registration-capacity-settlement-proof-41229731209-2026-10-31.json",
+      "artifact_sha256": "e2098d264bd7cd05e286e8d9cffa4ec3c402b32d1a8c02fadba38a95239116a8",
+      "admission_owner": "supabase_admin"
+    },
+    {
+      "run": 41229725871,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41229725871",
+      "native_tests": 1054,
+      "passed": 1054,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 9,
+      "log_sha256": "fb70f5ae0358134319434615ff5b5e9a3b73f722b45d6ad2783da4ca647525e8",
+      "artifact": "docs/production-readiness/evidence/document-registration-capacity-settlement-proof-41229725871-2026-10-31.json",
+      "artifact_sha256": "e2098d264bd7cd05e286e8d9cffa4ec3c402b32d1a8c02fadba38a95239116a8",
+      "admission_owner": "supabase_admin"
+    }
+  ],
+  "automatic_checks": {
+    "successful": 9,
+    "scope": "Includes the duplicate push build/replay and PR checks; protected skipped checks remain unperformed."
+  },
+  "verified": [
+    "Exact eight function hashes and fixed paths",
+    "Existing finish owner supabase_admin preserved; new private routines owner postgres",
+    "Restricted executor restored after commit",
+    "Rollback-only service completion crosses trusted owners successfully",
+    "Private table/RLS/grant guards asserted by replay",
+    "Paused admission, unset numeric policy, empty permanent receipt/settlement tables",
+    "Clean producer releases one unit; confirmed no-summary quarantine releases two"
+  ],
+  "not_verified": [
+    "Hosted migration or application/provider acceptance",
+    "Rescan/Apply source-bound completion",
+    "Source-bound all-kind admission/queue/worker capacity integration",
+    "General application limits or selected numeric ceilings",
+    "Trusted held-work reconciliation and legacy/direct/scheduled writer fencing"
+  ],
+  "hosted_actions": false,
+  "production_actions": false,
+  "main_merge": false,
+  "merge_packages_closed": 0,
+  "ready_for_cutover": false
+}

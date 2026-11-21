@@ -1,0 +1,27 @@
+{
+  "schema": "document-grant-lifecycle-prepared-v1",
+  "date": "2026-11-15",
+  "status": "prepared-local-verified-native-pending",
+  "source_base": "ddc85ef237e181db3f7a5a006486e95931112a11",
+  "local_cases": 27,
+  "local_pass": 27,
+  "local_skipped": 0,
+  "native_verified": false,
+  "full_schema_verified": false,
+  "current_manifests": [
+    {
+      "path": "docs/production-readiness/proposals/document-upload-cutover-plan.json",
+      "entries": 93
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-operation-integration-plan.json",
+      "entries": 87
+    }
+  ],
+  "legacy_impact": "All unbound historical grants are retained and retired; target impact review required before hosted authorization.",
+  "runtime_changed": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

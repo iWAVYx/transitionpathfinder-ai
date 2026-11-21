@@ -1,0 +1,72 @@
+{
+  "schema": "transitionforward-document-metadata-writers-local-v1",
+  "date": "2026-11-15",
+  "source_base": "3e088926d51d7043f11a563cb314d2d4bbd2d31d",
+  "status": "source/local component complete; whole 2.6 remains open",
+  "workstream": "2.6",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-metadata-contract.ts",
+      "sha256": "16a89648d83b5a02a8d07e34faad858b7f76654cc114aa6a240df921865b7519"
+    },
+    {
+      "path": "src/lib/document-metadata.server.ts",
+      "sha256": "2359f15ec283bc356751e03d5d4ba345a04254163e378ab8e4c7b31f99b201cf"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "f6d5eccede15253a0543c405256dd562dbc7e8c1ee9fffb13a448463df30dea9"
+    },
+    {
+      "path": "src/components/documents/DocumentClassificationCard.tsx",
+      "sha256": "0079e46aa2f3f71efdcb7981ca3e4ab5dde6a03210bb631a026c3f281b45dc83"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
+      "sha256": "ce0418a807897e662298e4cb4d091cc87b42a7a5cdaf2e941f8e876f326a5799"
+    },
+    {
+      "path": "tests/unit/document-metadata-action.test.ts",
+      "sha256": "db360a2c6fc14e43c38d86d4c49807f4553605b0e756c216fdd3b2e67c9a1cc7"
+    },
+    {
+      "path": "tests/unit/document-metadata-lifetime.test.tsx",
+      "sha256": "69cf286eb744bd9a1d0a8c13402b9d0bbb558e552fc3608f039b01d4391ec2dd"
+    }
+  ],
+  "behavior": [
+    "Read and mutation inputs bind the loaded viewer; mutations bind exact document/student/revision.",
+    "Canonical caller-scoped student/document/editing and partner-only checks fail closed on unavailable or malformed replies.",
+    "Classification and reviewed metadata update only under exact document/student/revision and unarchived/undeleted predicates; returned full metadata must match requested outcome.",
+    "No zero-row/lost/malformed/audit-failed update reports success or replays automatically. An uncertain update may already have committed; successful explicit reload is required before another edit.",
+    "Shared UI prevents same-session duplicate/cross-action submissions, ignores departed account/document replies and disables controls during known parent processing/save or read-only access.",
+    "Read failures expose safe refresh wording rather than silently removing the card. Existing document types use readable labels."
+  ],
+  "verification": {
+    "focused_tests": 63,
+    "focused_files": 4,
+    "unit_tests": 6066,
+    "unit_files": 375,
+    "typescript": "passed",
+    "isolated_build": "passed; constrained staging copy with no environment files; service worker generated",
+    "runtime_source_fingerprint": "b7b0cc5e5f118063150b7205878f7a995afe327796be38e5d03c1e14847c0632",
+    "runtime_source_file_count": 1225,
+    "isolated_copy_fingerprint_matches": true,
+    "inventory_navigation_contracts": 103,
+    "release_security_contracts": 72,
+    "diff_check": "passed"
+  },
+  "limitations": [
+    "Caller preflight and conditional UPDATE are separate requests: no transaction-held access/removal serialization proof.",
+    "No SQL, grant, permission-sharing or Storage policy changes; no hosted/native acceptance of this application component.",
+    "Known parent processing is blocked in this UI; this is not cross-tab/global operation serialization.",
+    "Audit insert is separate from metadata UPDATE; audit failure leaves an uncertain result and requires reload.",
+    "Document permission dialog/grant/revoke and tier-to-raw-document/Storage privacy findings remain under existing 5.2/5.3 gates."
+  ],
+  "whole_workstream_complete": false,
+  "hosted_verified": false,
+  "ready_for_cutover": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false
+}

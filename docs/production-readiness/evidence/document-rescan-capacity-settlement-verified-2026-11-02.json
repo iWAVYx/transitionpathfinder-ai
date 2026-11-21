@@ -1,0 +1,51 @@
+{
+  "schema": "document-rescan-capacity-settlement-verified-v1",
+  "date": "2026-11-02",
+  "verified_source": "1d9fc55399094ab23429ae51df1318f8122e2da4",
+  "runs": [
+    {
+      "run": 41454894715,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454894715",
+      "event": "pull_request",
+      "head_source": "1d9fc55399094ab23429ae51df1318f8122e2da4",
+      "checkout_commit": "66103164d03db2b7e42ec580fb59667d99adec8d",
+      "native_tests": 1296,
+      "passed": 1296,
+      "skipped": 0,
+      "early_tests": 251,
+      "early_passed": 251,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 13,
+      "artifact": "docs/production-readiness/evidence/document-rescan-capacity-settlement-proof-41454894715-2026-11-02.json",
+      "artifact_sha256": "e689de6359d98541e7e3bcd0394dd65f09a8edea8e47999b8385a3b521ec71f4",
+      "log_sha256": "95393cc7683c35a48823671f102c1f39d37be615e3caef4eb35e3dd4c48adb48"
+    },
+    {
+      "run": 41454884591,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454884591",
+      "event": "push",
+      "head_source": "1d9fc55399094ab23429ae51df1318f8122e2da4",
+      "checkout_commit": "1d9fc55399094ab23429ae51df1318f8122e2da4",
+      "native_tests": 1296,
+      "passed": 1296,
+      "skipped": 0,
+      "early_tests": 251,
+      "early_passed": 251,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 13,
+      "artifact": "docs/production-readiness/evidence/document-rescan-capacity-settlement-proof-41454884591-2026-11-02.json",
+      "artifact_sha256": "e689de6359d98541e7e3bcd0394dd65f09a8edea8e47999b8385a3b521ec71f4",
+      "log_sha256": "0c6962b17681c4fabadb0b32e462d94de2113c42e90962993e73f9d8d5c197b1"
+    }
+  ],
+  "scope": "Both complete1296 native zero-skip suites, corrected251-case early stages, full225+thirteen proposal replay and exact nine-routine owner/grant/pause proof. PR merge-ref checkout distinguished from exact push checkout. No automatic endpoint/capacity settlement/worker hook, physical/provider or hosted proof.",
+  "prior_failed_runs_retained": [
+    41392222821,
+    41392220982
+  ],
+  "private_completion_settlement_verified": true,
+  "automatic_worker_capacity_hook_installed": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

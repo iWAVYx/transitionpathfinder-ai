@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-06",
+  "declared_entries_checked": 32,
+  "added_paths": [
+    "docs/production-readiness/proposals/document-text-review-authority-lock.sql"
+  ],
+  "all_declared_entries_hash_checked": true,
+  "complete_release_manifest": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

@@ -1,3 +1,6 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
@@ -9,6 +12,8 @@ import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
 export const Route = createFileRoute("/_authenticated/hubs/district")({
+  ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/hubs/district"),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [
@@ -24,18 +29,24 @@ export const Route = createFileRoute("/_authenticated/hubs/district")({
 });
 
 function HubPage() {
-  const { data, loading, districtId } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
 
   return (
     <SiteShell>
       <HubShell hub={getHub("district-strategy")!} hideSpokes hideRelatedLinks>
         <WorkspaceZone>
-          <DistrictAdminOverviewGrid
-            liveData={data}
-            selectedDistrictId={districtId}
-            loading={loading}
-          />
-          <DashboardWidgetBoard role="district_admin" />
+          {!loading && !data ? (
+            <OrganizationLoadError onRetry={() => void reload()} onRecoverSelection={recoverSelection} />
+          ) : (
+            <>
+              <DistrictAdminOverviewGrid
+                liveData={data}
+                selectedDistrictId={districtId}
+                loading={loading}
+              />
+              <DashboardWidgetBoard role="district_admin" organizationId={loading ? undefined : districtId} />
+            </>
+          )}
         </WorkspaceZone>
       </HubShell>
     </SiteShell>

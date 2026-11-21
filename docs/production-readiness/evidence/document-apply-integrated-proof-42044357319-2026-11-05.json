@@ -1,0 +1,129 @@
+{
+  "phase": "after-nineteen-proposals-and-atomic-four-draft-Apply-chain",
+  "paused": true,
+  "schema": "document-apply-integrated-proof-v1",
+  "bindings": 0,
+  "routines": [
+    {
+      "name": "apply_reviewed_document_extraction",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "169bbd1099b39afe9411d5e5497ac645",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "assert_bound_document_apply",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "105e3e1c77801ad75384526521e336c3",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "begin_bound_document_apply",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "6f601210e16ce169478e8277e9263228",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "check_bound_apply_commit",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "40d11672ec4e4fc0bb32cf2913996f0b",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "guard_apply_completion_receipt",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "def06c94f15e6a9fb88f4b725d3a6717",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "guard_bound_apply_finish",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "4b278d8f5b55c1df038038577fa8acb9",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "guard_document_capacity_reservation",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "43fdfb570c91ead44f38c4c5c9b02350",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "record_bound_document_apply_completion",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "77f019118e9a7f1276841360752c791e",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "release_completed_apply_at_commit",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "b269be59cb29f5892e79bc40bf6d3d7e",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "validate_bound_document_apply_completion",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "23829fc200c827fec51a3dd33db457c0",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    }
+  ],
+  "settlements": 0,
+  "apply_drafts": 4,
+  "policy_unset": true,
+  "hosted_applied": false,
+  "canonical_count": 225,
+  "ready_for_cutover": false,
+  "completion_receipts": 0,
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+      "sha256": "4e8326170df60b10c9d44176c6a6e1bfdc346727e0b77aa644a1bd5f3c1ab110"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+      "sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
+      "sha256": "195cec8efe3ec370dd795127d4162483985a199ea32a179ae776f9dd0db717c2"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-capacity-release.sql",
+      "sha256": "8c5d5e61d975cc820d1edaf139ebe1a4b5f5079723b1d7f3a4c268003b7abeae"
+    }
+  ]
+}
