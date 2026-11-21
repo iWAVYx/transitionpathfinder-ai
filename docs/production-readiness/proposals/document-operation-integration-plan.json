@@ -587,7 +587,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "6e87e9fc1996b7ffa38dd63c434027d282941015091a8e19896d717b1114e396"
+      "sha256": "e3346de91621b30cff5fdd1beaa5f514ba45a1282bc76d942468348c01f5e3df"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -907,11 +907,11 @@
     },
     {
       "path": "src/lib/student-lifecycle.server.ts",
-      "sha256": "dae219a3009b62a229384419e446f30772a4ceff9f5136080ca340b841377fcd"
+      "sha256": "cda0d80cba8eefcf7118d747f5756ed2c72537f7e022cdae699d16d69d53c39c"
     },
     {
       "path": "tests/unit/student-lifecycle-receipts.test.ts",
-      "sha256": "ea70b357513afce2302a568415aace14e3b9987d5555abf1620a26ff6e29e040"
+      "sha256": "86ec4dacce9de96eb77f4a5f2d59afdbb62b963bb6d172a88703a26f9e407eea"
     },
     {
       "path": "tests/unit/remaining-planning-save-paths.test.ts",
@@ -1000,6 +1000,22 @@
     {
       "path": "tests/unit/meeting-document-context.test.tsx",
       "sha256": "c8accb75769a4b5e6bfc97847e0f0a150bb1ca80a67a7cccc8ccbdd42b4b6636"
+    },
+    {
+      "path": "docs/database-proposals/student-lifecycle-recovery/student-lifecycle.review.sql",
+      "sha256": "c15c4da38a9f345533dd0778c53ea7532d87e65be772a6ff00c99d077e11ea94"
+    },
+    {
+      "path": "tests/database/student-lifecycle-recovery.test.mjs",
+      "sha256": "2bff334ed3cc0c7766e1853e6feb2ba94733e01cc0c19d954d704a724830b400"
+    },
+    {
+      "path": "tests/database/run-student-lifecycle-recovery-schema.mjs",
+      "sha256": "4b364cb7d9b199578a40f247ead32bf7556fd11ed14059f02951e31755e426af"
+    },
+    {
+      "path": "docs/production-readiness/proposals/student-lifecycle-recovery-review.md",
+      "sha256": "ad65c5977700ef5f06e8519b458d67d5e0a285ff0fbf061e95a22c11289012e2"
     }
   ],
   "adapter_contract": {
@@ -1908,7 +1924,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 249,
+    "declared_entries_checked": 253,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

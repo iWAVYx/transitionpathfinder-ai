@@ -265,4 +265,4 @@ for (const fn of [createStudentWithReceipt, ensureSelfProfile, deleteStudentWith
     expect(s.client.rpc).not.toHaveBeenCalled();
   });
 
-it('explains restrictive deletion references without exposing database details',async()=>{const s=setup();s.results.students={data:null,error:{code:'23503',message:'private_constraint_internal_name'}};await expect(deleteStudentWithReceipt(s.client,actor,{id:record,expected_viewer_id:actor,expected_updated_at:stamp})).rejects.toThrow('linked records or document work');expect(s.client.from).toHaveBeenCalledOnce();});
+it.each(['23503','23001'])('explains restrictive deletion reference %s without exposing database details',async(code)=>{const s=setup();s.results.students={data:null,error:{code,message:'private_constraint_internal_name'}};await expect(deleteStudentWithReceipt(s.client,actor,{id:record,expected_viewer_id:actor,expected_updated_at:stamp})).rejects.toThrow('linked records or document work');expect(s.client.from).toHaveBeenCalledOnce();});

@@ -178,7 +178,7 @@ export async function deleteStudentWithReceipt(
       .eq("updated_at", input.expected_updated_at)
       .select("id, owner_id, updated_at")
       .single();
-    if(result.error && typeof result.error === "object" && "code" in result.error && result.error.code === "23503")throw new StudentRemovalBlocked(STUDENT_REMOVAL_BLOCKED);
+    if(result.error && typeof result.error === "object" && "code" in result.error && (result.error.code === "23503" || result.error.code === "23001"))throw new StudentRemovalBlocked(STUDENT_REMOVAL_BLOCKED);
     if (
       result.error !== null ||
       !result.data ||

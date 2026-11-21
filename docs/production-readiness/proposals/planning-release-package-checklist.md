@@ -98,3 +98,14 @@ The first-nine routine catalogue remains scoped historical evidence. The fresh t
 - [ ] Run final combined package regression and the authorized coordinated staging release/acceptance before considering production.
 
 Hosted/provider acceptance remains under Workstreams 3/7. Staging rollout and main/production remain under 6/8 and separate authorization. The previous broader regression results are retained historical evidence; the package catalog run does not claim to rerun all earlier native regression cases.
+
+## Separate Draft 16 — Creation Recovery and Deletion Safeguards
+
+- [x] Prepared minimal lifecycle receipts, owner-bound status read, deletion tombstones and immutable student IDs.
+- [x] Prepared restrictive document/meeting deletion boundaries; existing files and notes are preserved.
+- [x] Local database and application receipt checks pass.
+- [ ] Native/full-schema replay verification.
+- [ ] Browser/onboarding recovery integration and safe external cleanup.
+- [ ] Canonical packaging and separately authorized hosted rollout/acceptance.
+
+See [component checklist](student-lifecycle-recovery-review.md). The preceding fifteen drafts retain their own historical proofs; this sixteenth draft is not yet included in a passing full-schema proof.
