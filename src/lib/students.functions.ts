@@ -1,5 +1,6 @@
 import{deletePlanningRecordAtomically}from"./planning-record-delete.server";
-import {readPlanningRecords,createPlanningRecord,mutatePlanningRecord} from "./planning-records.server";
+import {readPlanningRecords} from "./planning-records.server";
+import {createPlanningRecordAtomically,updateGoalStatusAtomically} from "./planning-record-write.server";
 import {viewerIntentSchema} from "./viewer-intent";
 import { revokeOwnedShareToken } from "./revoke-share-token.server";
 import { readOrganizationPages } from "@/lib/organization-query-pages";
@@ -240,11 +241,11 @@ export const listGoals=createServerFn({method:"POST"}).middleware([requireSupaba
  .validator((input:unknown)=>z.object({student_id:z.string().uuid(),...viewerIntentSchema.shape}).parse(input))
  .handler(async({data,context})=>{const result=await readPlanningRecords(context.supabase,context.userId,'goals',data);return{goals:result.records as unknown as Goal[],canEdit:result.canEdit};});
 export const createGoal=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).validator((input:unknown)=>GoalInput.parse(input))
- .handler(async({data,context})=>createPlanningRecord(context.supabase,context.userId,'goals',{...data,description:data.description??null,target_date:data.target_date??null,measurable_criteria:data.measurable_criteria??null}) as unknown as Promise<Goal>);
+ .handler(async({data,context})=>createPlanningRecordAtomically(context.supabase,context.userId,'goals',{...data,description:data.description??null,target_date:data.target_date??null,measurable_criteria:data.measurable_criteria??null}) as unknown as Promise<Goal>);
 const GoalMutation=z.object({id:z.string().uuid(),student_id:z.string().uuid(),expected_updated_at:z.string().datetime({offset:true}),...viewerIntentSchema.shape});
 export const updateGoalStatus=createServerFn({method:"POST"}).middleware([requireSupabaseAuth])
  .validator((input:unknown)=>GoalMutation.extend({status:z.enum(["not-started","in-progress","met","paused"])}).parse(input))
- .handler(async({data,context})=>{const result=await mutatePlanningRecord(context.supabase,context.userId,'goals',data,{status:data.status});return{ok:true as const,goal:result.row as unknown as Goal};});
+ .handler(async({data,context})=>{const goal=await updateGoalStatusAtomically(context.supabase,context.userId,data);return{ok:true as const,goal:goal as unknown as Goal};});
 export const deleteGoal=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).validator((input:unknown)=>GoalMutation.extend({student_id:z.string().uuid(),expected_updated_at:z.string().datetime({offset:true})}).parse(input))
  .handler(async({data,context})=>{return deletePlanningRecordAtomically(context.supabase,context.userId,'goals',data);});
 

@@ -608,11 +608,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "957098855a7beb09a0bf109a925a6047c61cad2717dcc7bb5ffac775808eddfc"
+      "sha256": "1d8ef2d60c15d769bb89da7de471b149a201381d25f320f7b22bc7ee2846435c"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "01d0148299a9e9c8c6bd37d56b6ace33b32cff54f5219edf6a604ac1c8fadc5e"
+      "sha256": "3d7f581f6528d5ccae3990d805e032acdb1016e02ddb65cdc2c906fff2c8a25d"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -656,7 +656,7 @@
     },
     {
       "path": "src/lib/action-items.functions.ts",
-      "sha256": "73959d6067f54f9b7acd3fb7afbeb761669fa5963657986a5495ca13256aee1f"
+      "sha256": "a18d0571453053b6a4b4fad66db7bd7928bcac37b77dba5bb3fc43d4611117b0"
     },
     {
       "path": "src/lib/analytics.functions.ts",
@@ -692,7 +692,7 @@
     },
     {
       "path": "src/lib/students.functions.ts",
-      "sha256": "9eab99c5062301e1c99943a74f4fa4eb632699c3e7ca7c02032534b22b567846"
+      "sha256": "979858ecd0913d03ecf7dc11d351539671941b98b3bbef0d14972f96049c3b85"
     },
     {
       "path": "src/routes/_authenticated/action-items.tsx",
@@ -852,7 +852,35 @@
     },
     {
       "path": "tests/unit/planning-goal-status-intent.test.ts",
-      "sha256": "599c93d552487a5202f04f79708b155439a72be076c264eb6161eb92cd4c59d0"
+      "sha256": "6b5484fe293acedcf9d0b4f423d290af27b95a52736fe3150dd37c31d055bda5"
+    },
+    {
+      "path": "src/lib/planning-record-write.server.ts",
+      "sha256": "d32ccd1d9d6444f252087c77ee081560343dcf3196778717973642d6b1d6e6aa"
+    },
+    {
+      "path": "tests/unit/planning-write-receipts.test.ts",
+      "sha256": "54dd65dd9217dda01af391518fcc861e4c125892d52b4ed646c75fe39f9c8715"
+    },
+    {
+      "path": "tests/unit/planning-create-api.test.ts",
+      "sha256": "7c3159a0467131846c8c17d8a4d579595dee641f3492a3ca221a5e4eaca4c82c"
+    },
+    {
+      "path": "tests/database/planning-record-write.test.mjs",
+      "sha256": "3636311783e710eaff9831aad3193843923e234c93ee9e01e93efadccdf9a97a"
+    },
+    {
+      "path": "tests/database/run-planning-record-write-schema.mjs",
+      "sha256": "8f339e4d3d18126a3b1b98753a74b9b301c9a0fd83bd31152035c39ae5ffef07"
+    },
+    {
+      "path": "docs/database-proposals/planning-record-write/atomic-planning-write.review.sql",
+      "sha256": "c3dec341fbf59d3ce6e3526ef7f476849ea7f44762c248371ae8bafbbc89d2a7"
+    },
+    {
+      "path": "docs/database-proposals/planning-record-write/README.md",
+      "sha256": "c4e2fcc48e28a1153297de21fb5172493e12fdfba88b17b6a9859f9697130db0"
     }
   ],
   "batch": {
@@ -1457,7 +1485,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 212,
+    "declared_entries_checked": 219,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

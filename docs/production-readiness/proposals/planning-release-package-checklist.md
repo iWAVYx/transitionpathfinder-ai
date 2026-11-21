@@ -20,18 +20,19 @@ Known findings are attached to their source families in [the machine-readable in
 - [x] Guard the student action panel and family/general/educator action-page replies against departed contexts; preserve read-only controls where current capability is available. Uncertain writes require saved-record refresh.
 - [x] Recognize both legacy `complete` and current `completed` values in affected role counters; display legacy teacher actions as Educator without rewriting stored records.
 - [x] Prepare the additive tenth review draft for existing/current action values. All 44 local and 44 native constraint cases pass; the full 225 + 41 + ten-draft schema and 35 authenticated value combinations pass. [Scoped evidence](../evidence/planning-goals-actions-verified-2026-11-19.json).
-- [ ] Finish transaction-held access and competing/cached/trusted-writer review for remaining action CRUD/goals and other planning paths. Their application prechecks/conditional REST writes remain separate requests; the normal action-update RPC is the bounded verified exception below.
+- [ ] Finish transaction-held access and competing/cached/trusted-writer review for remaining action CRUD/goals and other planning paths. The normal RPC components are listed below; raw/trusted paths and broader planning handlers remain separate review scopes.
 - [x] Verify the normal-update atomic action/activity/report-marker RPC, current proof held through commit, loaded revisions and access-removal/competing-write races. Separate eleventh draft:39 local/74 native cases,32 observed removal races, two competing updates and a cached recheck pass; full225+41+eleven-draft schema and real linked-report smoke pass. Raw completion writers remain outside this bounded component. [Scoped evidence](../evidence/action-completion-atomicity-verified-2026-11-20.json).
-- [x] Require the student and loaded revision on every normal goal-status request, including direct API callers (2026-11-21). Transaction-held status/creation authority remains open; this closes only the omitted-context validation gap.
+- [x] Require the student and loaded revision on every normal goal-status request, including direct API callers (2026-11-21). This closes the omitted-context validation gap; transaction-held status/creation verification is tracked below.
 - [x] Guard the remaining normal action-creation screens: report recommendations, partner suggestions, resources and PPT prep. They share actor/request/student-bound receipts, duplicate-click fencing, departed-reply suppression and uncertainty controls. Resource/partner load failures remain visible; the resource picker uses plain saved-status language. [Scoped source/local evidence](../evidence/planning-action-creators-verified-2026-11-19.json).
 - [x] Verify normal goal/action deletion through current-proof, loaded-version, exact deleted-row receipts and commit/rollback removal/competing races. Separate twelfth draft:40 local/106 native cases,56 removal races,eight competing cases,two cached rechecks and full225+41+twelve-draft real-schema verification pass. Existing raw/trusted deletion remains separately open. [Scoped evidence](../evidence/planning-record-delete-verified-2026-11-20.json).
+- [ ] Verify the thirteenth draft for normal goal/action creation and goal-status saves: held editing proof, exact receipts, linked-report binding, duplicate/stale rejection, removal/competing/cached races and full-schema integration. Source is prepared; verification is in progress.
 - [ ] Finish educator caseload completeness/capability, raw/trusted writers, student/profile handlers and BridgeForward review.
 
 The eight goal/action endpoint entries remain **review-required** until those database and remaining-consumer gates close. P1 as a whole remains open. The tenth draft changes only two CHECK constraints, not RLS, routine grants or existing records. It is separate from the nine-draft routine catalogue below and is not a canonical migration or a hosted change.
 
 ## Verified Review-Draft Order
 
-The 225 canonical migrations and 41 prior control drafts remain separate from these twelve drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
+The 225 canonical migrations and 41 prior control drafts remain separate from these thirteen drafts (the thirteenth is still under verification). The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
 
 1. Retire the legacy admin document override — `document-admin-grant-retirement/retire-admin-document-grants.review.sql`.
 2. Bind document grants to their actual parent — `document-permission-parent/bind-document-permission-parent.review.sql`.
@@ -63,3 +64,5 @@ The first-nine routine catalogue remains scoped historical evidence. The fresh t
 - [ ] Run final combined package regression and the authorized coordinated staging release/acceptance before considering production.
 
 Hosted/provider acceptance remains under Workstreams 3/7. Staging rollout and main/production remain under 6/8 and separate authorization. The previous broader regression results are retained historical evidence; the package catalog run does not claim to rerun all earlier native regression cases.
+
+13. Normal goal/action creation and goal-status saves — `planning-record-write/atomic-planning-write.review.sql` (prepared, verification in progress; two authenticated RPCs and a private goal revision helper/trigger).
