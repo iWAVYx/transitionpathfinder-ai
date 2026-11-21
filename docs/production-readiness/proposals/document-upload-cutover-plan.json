@@ -612,7 +612,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "e62cc25ec1de8a0a240a074914e40a0e8c0dd4e17e937c82092ff04d361af3c4"
+      "sha256": "98755154fbb6c46f23f1405e5b9709dc40dbf479b45ae8fd2d6ad90513e60a3e"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -928,7 +928,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/caseload-reader-review.md",
-      "sha256": "26b81ad7d96a1f1c3eb97f695ddcb6110618baf8c7c55ce17afe0376a7e7921c"
+      "sha256": "3b2c3601f5272056d11f69ab134c7cf5d24f421f0e4f5c142f18c04a33012cf2"
     }
   ],
   "batch": {
