@@ -1,0 +1,42 @@
+{
+  "schema": "document-legacy-privacy-full-schema-v1",
+  "source_commit": "d390ce30a2eb4e07a366bbef523f3a0f1a79d7c0",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 6,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "unrelated_routines_and_patched_metadata_preserved": true,
+  "existing_policies_preserved": true,
+  "new_restrictive_policies": 4,
+  "new_routines": 4,
+  "new_triggers": 2,
+  "document_client_delete_privilege_revoked": true,
+  "all_other_table_privileges_preserved": true,
+  "unrelated_triggers_indexes_and_all_document_data_preserved": true,
+  "existing_labels_unchanged": true,
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_lifecycle_proof_sha256": "f7f4dc9ccbc74438e86374a0f5e74024e3f0f671d1e5fe81f5ef33089b8d6403",
+  "before_catalog_sha256": "bba8e4ea5298eead58fbb5f08550cabb5aac7447676348a038ce8f14beac12d8",
+  "after_catalog_sha256": "1ada5fa6fbe4d454b5bfc5743fa3e0792d1d8c58f29b23d9c8435597b26bdfca",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-legacy-privacy/restrict-legacy-document-visibility.review.sql",
+      "sha256": "523dfb4db8f475fa2e496ddad23be650591f23b27308f9b7d37fe53d1b7bba9a"
+    },
+    {
+      "path": "tests/database/document-legacy-privacy.test.mjs",
+      "sha256": "c2c0738c07c3222ca7b0d0ddcefee6cfb6dc79132c0aff6e299cab024d9fdeda"
+    },
+    {
+      "path": "tests/database/run-document-legacy-privacy-schema.mjs",
+      "sha256": "0740d096ad93f2d48bda987ee186f867dc421148b9d7f22832f562739ed868cb"
+    },
+    {
+      "path": ".github/workflows/document-legacy-privacy-review.yml",
+      "sha256": "2ee77a86f33a06d0ff8f0ea07ddf6b3208a17912282140a465ac0b6b62e57dd7"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

@@ -13,7 +13,7 @@ The selected review covers **52 endpoints in 12 named modules**. Ten have scoped
 
 Known findings are attached to their source families in [the machine-readable inventory](student-planning-endpoint-inventory.json). Entries requiring review do not all represent newly confirmed vulnerabilities. Existing document/storage/worker/rights/report/PPT, organization, directory, channel, licensing/billing and provider work remains in the full roadmap and its own evidence; this selected inventory does not silently close those scopes.
 
-## P1 Goals and Actions — November 19 Component
+## P1 Goals and Actions — November 21 Components
 
 - [x] Confirm exact creation/update/deletion replies, actor/student identities and supplied loaded revisions before reporting success; no service fallback or write retries.
 - [x] Read all goal/action pages with exact counts; expose unavailable data and current edit capability instead of false empty success.
@@ -25,14 +25,14 @@ Known findings are attached to their source families in [the machine-readable in
 - [x] Require the student and loaded revision on every normal goal-status request, including direct API callers (2026-11-21). This closes the omitted-context validation gap; transaction-held status/creation verification is tracked below.
 - [x] Guard the remaining normal action-creation screens: report recommendations, partner suggestions, resources and PPT prep. They share actor/request/student-bound receipts, duplicate-click fencing, departed-reply suppression and uncertainty controls. Resource/partner load failures remain visible; the resource picker uses plain saved-status language. [Scoped source/local evidence](../evidence/planning-action-creators-verified-2026-11-19.json).
 - [x] Verify normal goal/action deletion through current-proof, loaded-version, exact deleted-row receipts and commit/rollback removal/competing races. Separate twelfth draft:40 local/106 native cases,56 removal races,eight competing cases,two cached rechecks and full225+41+twelve-draft real-schema verification pass. Existing raw/trusted deletion remains separately open. [Scoped evidence](../evidence/planning-record-delete-verified-2026-11-20.json).
-- [ ] Verify the thirteenth draft for normal goal/action creation and goal-status saves: held editing proof, exact receipts, linked-report binding, duplicate/stale rejection, removal/competing/cached races and full-schema integration. Source is prepared; verification is in progress.
+- [x] Verify the thirteenth draft for normal goal/action creation and goal-status saves: held editing proof, exact receipts, linked-report binding, duplicate/stale rejection and full-schema integration. All88 local/185 native cases pass, including84 removal races, six competing writes, three cached rechecks and four report-binding races. Full225+41+thirteen-draft installation passes. [Scoped evidence](../evidence/planning-record-write-verified-2026-11-21.json).
 - [ ] Finish educator caseload completeness/capability, raw/trusted writers, student/profile handlers and BridgeForward review.
 
 The eight goal/action endpoint entries remain **review-required** until those database and remaining-consumer gates close. P1 as a whole remains open. The tenth draft changes only two CHECK constraints, not RLS, routine grants or existing records. It is separate from the nine-draft routine catalogue below and is not a canonical migration or a hosted change.
 
 ## Verified Review-Draft Order
 
-The 225 canonical migrations and 41 prior control drafts remain separate from these thirteen drafts (the thirteenth is still under verification). The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
+The 225 canonical migrations and 41 prior control drafts remain separate from these thirteen source/disposable-verified drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
 
 1. Retire the legacy admin document override — `document-admin-grant-retirement/retire-admin-document-grants.review.sql`.
 2. Bind document grants to their actual parent — `document-permission-parent/bind-document-permission-parent.review.sql`.
@@ -46,10 +46,11 @@ The 225 canonical migrations and 41 prior control drafts remain separate from th
 10. Preserve existing and current action values — `action-item-value-compatibility/allow-current-action-values.review.sql` (two CHECK constraints only; no new or modified routines).
 11. Atomic normal action updates — `action-completion-atomicity/atomic-action-update.review.sql` (verified source/disposable component; one authenticated-only RPC and one private timestamp trigger helper).
 12. Current-proof normal goal/action deletion — `planning-record-delete/atomic-planning-delete.review.sql` (source/disposable verified; one authenticated-only RPC, no new triggers or changed table grants).
+13. Normal goal/action creation and goal-status saves — `planning-record-write/atomic-planning-write.review.sql` (source/disposable verified; two authenticated RPCs and a private goal revision helper/trigger).
 
 Paths above are relative to `docs/database-proposals/`. Their tested order and hashes are collected from the fresh disposable installation. The packaging collector snapshots the routine catalog **after the 225 + 41 baseline and before the first separate draft**, preserves all 56 original installer/catalog stage scripts, runs all existing separate-draft verifiers, then captures the final catalog.
 
-The first-nine routine catalogue remains scoped historical evidence. The fresh tenth-draft full-schema verifier confirms an unchanged before/after routine/policy/grant/catalog snapshot; the eleventh draft separately verifies its two new routines, one new trigger and unchanged existing catalogue. Final combined canonical packaging remains open.
+The first-nine routine catalogue remains scoped historical evidence. The fresh tenth-draft full-schema verifier confirms an unchanged before/after routine/policy/grant/catalog snapshot; the eleventh draft separately verifies its two new routines, one new trigger and unchanged existing catalogue. The twelfth draft adds one deletion RPC without changing existing routines/triggers. The thirteenth adds two creation/status RPCs and one private goal-revision helper/trigger while preserving all existing routines/policies/grants/data. Final combined canonical packaging remains open.
 
 ## Workstream 4.1 Packaging Gates
 
@@ -64,5 +65,3 @@ The first-nine routine catalogue remains scoped historical evidence. The fresh t
 - [ ] Run final combined package regression and the authorized coordinated staging release/acceptance before considering production.
 
 Hosted/provider acceptance remains under Workstreams 3/7. Staging rollout and main/production remain under 6/8 and separate authorization. The previous broader regression results are retained historical evidence; the package catalog run does not claim to rerun all earlier native regression cases.
-
-13. Normal goal/action creation and goal-status saves — `planning-record-write/atomic-planning-write.review.sql` (prepared, verification in progress; two authenticated RPCs and a private goal revision helper/trigger).

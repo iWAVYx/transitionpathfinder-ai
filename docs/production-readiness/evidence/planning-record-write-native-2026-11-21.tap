@@ -1,0 +1,1120 @@
+TAP version 13
+# Subtest: create-goal accepts current family editing proof
+ok 1 - create-goal accepts current family editing proof
+  ---
+  duration_ms: 215.944856
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current student editing proof
+ok 2 - create-goal accepts current student editing proof
+  ---
+  duration_ms: 137.752372
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current educator editing proof
+ok 3 - create-goal accepts current educator editing proof
+  ---
+  duration_ms: 125.068605
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current school editing proof
+ok 4 - create-goal accepts current school editing proof
+  ---
+  duration_ms: 125.336209
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current district editing proof
+ok 5 - create-goal accepts current district editing proof
+  ---
+  duration_ms: 126.359194
+  type: 'test'
+  ...
+# Subtest: create-goal accepts current owner editing proof
+ok 6 - create-goal accepts current owner editing proof
+  ---
+  duration_ms: 131.018533
+  type: 'test'
+  ...
+# Subtest: create-goal rejects unlinked or partner-only owner
+ok 7 - create-goal rejects unlinked or partner-only owner
+  ---
+  duration_ms: 123.900593
+  type: 'test'
+  ...
+# Subtest: create-goal rejects unlinked or partner-only partner
+ok 8 - create-goal rejects unlinked or partner-only partner
+  ---
+  duration_ms: 124.713834
+  type: 'test'
+  ...
+# Subtest: create-goal rejects unlinked or partner-only outsider
+ok 9 - create-goal rejects unlinked or partner-only outsider
+  ---
+  duration_ms: 122.80192
+  type: 'test'
+  ...
+# Subtest: create-goal rejects read-only assignee authority
+ok 10 - create-goal rejects read-only assignee authority
+  ---
+  duration_ms: 124.095568
+  type: 'test'
+  ...
+# Subtest: create-goal rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 11 - create-goal rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 124.303861
+  type: 'test'
+  ...
+# Subtest: create-goal rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 12 - create-goal rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 121.139076
+  type: 'test'
+  ...
+# Subtest: create-goal refuses suppressed write without false success
+ok 13 - create-goal refuses suppressed write without false success
+  ---
+  duration_ms: 126.052147
+  type: 'test'
+  ...
+# Subtest: create-goal rolls back contradictory returned content
+ok 14 - create-goal rolls back contradictory returned content
+  ---
+  duration_ms: 126.039327
+  type: 'test'
+  ...
+# Subtest: create-goal RPC is unavailable to anon
+ok 15 - create-goal RPC is unavailable to anon
+  ---
+  duration_ms: 129.526913
+  type: 'test'
+  ...
+# Subtest: create-goal RPC is unavailable to service_role
+ok 16 - create-goal RPC is unavailable to service_role
+  ---
+  duration_ms: 119.727753
+  type: 'test'
+  ...
+# Subtest: create-action accepts current family editing proof
+ok 17 - create-action accepts current family editing proof
+  ---
+  duration_ms: 124.48326
+  type: 'test'
+  ...
+# Subtest: create-action accepts current student editing proof
+ok 18 - create-action accepts current student editing proof
+  ---
+  duration_ms: 126.277581
+  type: 'test'
+  ...
+# Subtest: create-action accepts current educator editing proof
+ok 19 - create-action accepts current educator editing proof
+  ---
+  duration_ms: 125.48457
+  type: 'test'
+  ...
+# Subtest: create-action accepts current school editing proof
+ok 20 - create-action accepts current school editing proof
+  ---
+  duration_ms: 123.730319
+  type: 'test'
+  ...
+# Subtest: create-action accepts current district editing proof
+ok 21 - create-action accepts current district editing proof
+  ---
+  duration_ms: 125.236489
+  type: 'test'
+  ...
+# Subtest: create-action accepts current owner editing proof
+ok 22 - create-action accepts current owner editing proof
+  ---
+  duration_ms: 126.312317
+  type: 'test'
+  ...
+# Subtest: create-action rejects unlinked or partner-only owner
+ok 23 - create-action rejects unlinked or partner-only owner
+  ---
+  duration_ms: 127.320533
+  type: 'test'
+  ...
+# Subtest: create-action rejects unlinked or partner-only partner
+ok 24 - create-action rejects unlinked or partner-only partner
+  ---
+  duration_ms: 127.782316
+  type: 'test'
+  ...
+# Subtest: create-action rejects unlinked or partner-only outsider
+ok 25 - create-action rejects unlinked or partner-only outsider
+  ---
+  duration_ms: 126.234818
+  type: 'test'
+  ...
+# Subtest: create-action rejects read-only assignee authority
+ok 26 - create-action rejects read-only assignee authority
+  ---
+  duration_ms: 128.346484
+  type: 'test'
+  ...
+# Subtest: create-action rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 27 - create-action rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 124.066257
+  type: 'test'
+  ...
+# Subtest: create-action rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 28 - create-action rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 126.113766
+  type: 'test'
+  ...
+# Subtest: create-action refuses suppressed write without false success
+ok 29 - create-action refuses suppressed write without false success
+  ---
+  duration_ms: 125.870872
+  type: 'test'
+  ...
+# Subtest: create-action rolls back contradictory returned content
+ok 30 - create-action rolls back contradictory returned content
+  ---
+  duration_ms: 123.917299
+  type: 'test'
+  ...
+# Subtest: create-action RPC is unavailable to anon
+ok 31 - create-action RPC is unavailable to anon
+  ---
+  duration_ms: 122.270739
+  type: 'test'
+  ...
+# Subtest: create-action RPC is unavailable to service_role
+ok 32 - create-action RPC is unavailable to service_role
+  ---
+  duration_ms: 118.035219
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current family editing proof
+ok 33 - goal-status accepts current family editing proof
+  ---
+  duration_ms: 121.028006
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current student editing proof
+ok 34 - goal-status accepts current student editing proof
+  ---
+  duration_ms: 122.086301
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current educator editing proof
+ok 35 - goal-status accepts current educator editing proof
+  ---
+  duration_ms: 123.814328
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current school editing proof
+ok 36 - goal-status accepts current school editing proof
+  ---
+  duration_ms: 123.520667
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current district editing proof
+ok 37 - goal-status accepts current district editing proof
+  ---
+  duration_ms: 125.384312
+  type: 'test'
+  ...
+# Subtest: goal-status accepts current owner editing proof
+ok 38 - goal-status accepts current owner editing proof
+  ---
+  duration_ms: 123.827588
+  type: 'test'
+  ...
+# Subtest: goal-status rejects unlinked or partner-only owner
+ok 39 - goal-status rejects unlinked or partner-only owner
+  ---
+  duration_ms: 122.615735
+  type: 'test'
+  ...
+# Subtest: goal-status rejects unlinked or partner-only partner
+ok 40 - goal-status rejects unlinked or partner-only partner
+  ---
+  duration_ms: 122.096553
+  type: 'test'
+  ...
+# Subtest: goal-status rejects unlinked or partner-only outsider
+ok 41 - goal-status rejects unlinked or partner-only outsider
+  ---
+  duration_ms: 121.226329
+  type: 'test'
+  ...
+# Subtest: goal-status rejects read-only assignee authority
+ok 42 - goal-status rejects read-only assignee authority
+  ---
+  duration_ms: 128.889677
+  type: 'test'
+  ...
+# Subtest: goal-status rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 43 - goal-status rejects foreign context {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 121.571972
+  type: 'test'
+  ...
+# Subtest: goal-status rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 44 - goal-status rejects foreign context {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 119.566353
+  type: 'test'
+  ...
+# Subtest: goal-status refuses suppressed write without false success
+ok 45 - goal-status refuses suppressed write without false success
+  ---
+  duration_ms: 126.471602
+  type: 'test'
+  ...
+# Subtest: goal-status rolls back contradictory returned content
+ok 46 - goal-status rolls back contradictory returned content
+  ---
+  duration_ms: 124.800199
+  type: 'test'
+  ...
+# Subtest: goal-status RPC is unavailable to anon
+ok 47 - goal-status RPC is unavailable to anon
+  ---
+  duration_ms: 123.61188
+  type: 'test'
+  ...
+# Subtest: goal-status RPC is unavailable to service_role
+ok 48 - goal-status RPC is unavailable to service_role
+  ---
+  duration_ms: 118.440264
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"created_by":"00000000-0000-4000-8000-000000000008"}
+ok 49 - create-goal refuses invalid or spoofed fields {"created_by":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 125.496572
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"created_by_user_id":"00000000-0000-4000-8000-000000000008"}
+ok 50 - create-goal refuses invalid or spoofed fields {"created_by_user_id":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 121.820851
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"assigned_to_user_id":"00000000-0000-4000-8000-000000000008"}
+ok 51 - create-goal refuses invalid or spoofed fields {"assigned_to_user_id":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 122.543169
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"updated_at":"2099-01-01"}
+ok 52 - create-goal refuses invalid or spoofed fields {"updated_at":"2099-01-01"}
+  ---
+  duration_ms: 125.625363
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"student_id":"00000000-0000-4000-8000-000000000021"}
+ok 53 - create-goal refuses invalid or spoofed fields {"student_id":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 121.229449
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"title":""}
+ok 54 - create-goal refuses invalid or spoofed fields {"title":""}
+  ---
+  duration_ms: 119.787897
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"title":null}
+ok 55 - create-goal refuses invalid or spoofed fields {"title":null}
+  ---
+  duration_ms: 118.661102
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"title":7}
+ok 56 - create-goal refuses invalid or spoofed fields {"title":7}
+  ---
+  duration_ms: 120.231012
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ok 57 - create-goal refuses invalid or spoofed fields {"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ---
+  duration_ms: 119.977815
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"description":{}}
+ok 58 - create-goal refuses invalid or spoofed fields {"description":{}}
+  ---
+  duration_ms: 120.034635
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"category":null}
+ok 59 - create-goal refuses invalid or spoofed fields {"category":null}
+  ---
+  duration_ms: 121.195101
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"status":null}
+ok 60 - create-goal refuses invalid or spoofed fields {"status":null}
+  ---
+  duration_ms: 121.395162
+  type: 'test'
+  ...
+# Subtest: create-goal refuses invalid or spoofed fields {"unexpected":true}
+ok 61 - create-goal refuses invalid or spoofed fields {"unexpected":true}
+  ---
+  duration_ms: 120.279597
+  type: 'test'
+  ...
+# Subtest: create-goal duplicate UUID never creates or reports another row
+ok 62 - create-goal duplicate UUID never creates or reports another row
+  ---
+  duration_ms: 127.575838
+  type: 'test'
+  ...
+# Subtest: create-goal accepts explicit nullable optional fields and dates
+ok 63 - create-goal accepts explicit nullable optional fields and dates
+  ---
+  duration_ms: 121.220556
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"created_by":"00000000-0000-4000-8000-000000000008"}
+ok 64 - create-action refuses invalid or spoofed fields {"created_by":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 121.92689
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"created_by_user_id":"00000000-0000-4000-8000-000000000008"}
+ok 65 - create-action refuses invalid or spoofed fields {"created_by_user_id":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 125.088445
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"assigned_to_user_id":"00000000-0000-4000-8000-000000000008"}
+ok 66 - create-action refuses invalid or spoofed fields {"assigned_to_user_id":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 131.579088
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"updated_at":"2099-01-01"}
+ok 67 - create-action refuses invalid or spoofed fields {"updated_at":"2099-01-01"}
+  ---
+  duration_ms: 120.28311
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"student_id":"00000000-0000-4000-8000-000000000021"}
+ok 68 - create-action refuses invalid or spoofed fields {"student_id":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 118.343606
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"title":""}
+ok 69 - create-action refuses invalid or spoofed fields {"title":""}
+  ---
+  duration_ms: 121.794212
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"title":null}
+ok 70 - create-action refuses invalid or spoofed fields {"title":null}
+  ---
+  duration_ms: 125.853335
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"title":7}
+ok 71 - create-action refuses invalid or spoofed fields {"title":7}
+  ---
+  duration_ms: 126.61328
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ok 72 - create-action refuses invalid or spoofed fields {"title":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ---
+  duration_ms: 120.935693
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"description":{}}
+ok 73 - create-action refuses invalid or spoofed fields {"description":{}}
+  ---
+  duration_ms: 120.827544
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"category":null}
+ok 74 - create-action refuses invalid or spoofed fields {"category":null}
+  ---
+  duration_ms: 128.492891
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"status":null}
+ok 75 - create-action refuses invalid or spoofed fields {"status":null}
+  ---
+  duration_ms: 122.027909
+  type: 'test'
+  ...
+# Subtest: create-action refuses invalid or spoofed fields {"unexpected":true}
+ok 76 - create-action refuses invalid or spoofed fields {"unexpected":true}
+  ---
+  duration_ms: 117.495632
+  type: 'test'
+  ...
+# Subtest: create-action duplicate UUID never creates or reports another row
+ok 77 - create-action duplicate UUID never creates or reports another row
+  ---
+  duration_ms: 120.816286
+  type: 'test'
+  ...
+# Subtest: create-action accepts explicit nullable optional fields and dates
+ok 78 - create-action accepts explicit nullable optional fields and dates
+  ---
+  duration_ms: 119.113005
+  type: 'test'
+  ...
+# Subtest: action creation refuses missing and foreign linked reports
+ok 79 - action creation refuses missing and foreign linked reports
+  ---
+  duration_ms: 120.731191
+  type: 'test'
+  ...
+# Subtest: action creation cannot bypass completion side effects
+ok 80 - action creation cannot bypass completion side effects
+  ---
+  duration_ms: 117.701145
+  type: 'test'
+  ...
+# Subtest: goal status not-started preserves content and advances only changed revisions
+ok 81 - goal status not-started preserves content and advances only changed revisions
+  ---
+  duration_ms: 128.421361
+  type: 'test'
+  ...
+# Subtest: goal status in-progress preserves content and advances only changed revisions
+ok 82 - goal status in-progress preserves content and advances only changed revisions
+  ---
+  duration_ms: 120.264238
+  type: 'test'
+  ...
+# Subtest: goal status met preserves content and advances only changed revisions
+ok 83 - goal status met preserves content and advances only changed revisions
+  ---
+  duration_ms: 131.586757
+  type: 'test'
+  ...
+# Subtest: goal status paused preserves content and advances only changed revisions
+ok 84 - goal status paused preserves content and advances only changed revisions
+  ---
+  duration_ms: 121.114121
+  type: 'test'
+  ...
+# Subtest: goal status rejects stale/missing record and invalid status
+ok 85 - goal status rejects stale/missing record and invalid status
+  ---
+  duration_ms: 126.40563
+  type: 'test'
+  ...
+# Subtest: two status changes in one transaction advance revision and fence the old version
+ok 86 - two status changes in one transaction advance revision and fence the old version
+  ---
+  duration_ms: 131.107765
+  type: 'test'
+  ...
+# Subtest: install preserves existing routines/policies/data and adds only two RPCs/private revision trigger
+ok 87 - install preserves existing routines/policies/data and adds only two RPCs/private revision trigger
+  ---
+  duration_ms: 124.977339
+  type: 'test'
+  ...
+# Subtest: repeated installation stops; rollback removes the entire new boundary
+ok 88 - repeated installation stops; rollback removes the entire new boundary
+  ---
+  duration_ms: 123.175309
+  type: 'test'
+  ...
+# Subtest: native create-goal family write-first COMMIT
+ok 89 - native create-goal family write-first COMMIT
+  ---
+  duration_ms: 165.597818
+  type: 'test'
+  ...
+# Subtest: native create-goal family removal-first COMMIT
+ok 90 - native create-goal family removal-first COMMIT
+  ---
+  duration_ms: 157.089409
+  type: 'test'
+  ...
+# Subtest: native create-goal family write-first ROLLBACK
+ok 91 - native create-goal family write-first ROLLBACK
+  ---
+  duration_ms: 160.03375
+  type: 'test'
+  ...
+# Subtest: native create-goal family removal-first ROLLBACK
+ok 92 - native create-goal family removal-first ROLLBACK
+  ---
+  duration_ms: 163.07391
+  type: 'test'
+  ...
+# Subtest: native create-goal student write-first COMMIT
+ok 93 - native create-goal student write-first COMMIT
+  ---
+  duration_ms: 160.165343
+  type: 'test'
+  ...
+# Subtest: native create-goal student removal-first COMMIT
+ok 94 - native create-goal student removal-first COMMIT
+  ---
+  duration_ms: 150.482742
+  type: 'test'
+  ...
+# Subtest: native create-goal student write-first ROLLBACK
+ok 95 - native create-goal student write-first ROLLBACK
+  ---
+  duration_ms: 163.562235
+  type: 'test'
+  ...
+# Subtest: native create-goal student removal-first ROLLBACK
+ok 96 - native create-goal student removal-first ROLLBACK
+  ---
+  duration_ms: 161.176469
+  type: 'test'
+  ...
+# Subtest: native create-goal educator write-first COMMIT
+ok 97 - native create-goal educator write-first COMMIT
+  ---
+  duration_ms: 161.868515
+  type: 'test'
+  ...
+# Subtest: native create-goal educator removal-first COMMIT
+ok 98 - native create-goal educator removal-first COMMIT
+  ---
+  duration_ms: 154.299144
+  type: 'test'
+  ...
+# Subtest: native create-goal educator write-first ROLLBACK
+ok 99 - native create-goal educator write-first ROLLBACK
+  ---
+  duration_ms: 155.349504
+  type: 'test'
+  ...
+# Subtest: native create-goal educator removal-first ROLLBACK
+ok 100 - native create-goal educator removal-first ROLLBACK
+  ---
+  duration_ms: 152.293888
+  type: 'test'
+  ...
+# Subtest: native create-goal school write-first COMMIT
+ok 101 - native create-goal school write-first COMMIT
+  ---
+  duration_ms: 157.022944
+  type: 'test'
+  ...
+# Subtest: native create-goal school removal-first COMMIT
+ok 102 - native create-goal school removal-first COMMIT
+  ---
+  duration_ms: 149.871523
+  type: 'test'
+  ...
+# Subtest: native create-goal school write-first ROLLBACK
+ok 103 - native create-goal school write-first ROLLBACK
+  ---
+  duration_ms: 155.986494
+  type: 'test'
+  ...
+# Subtest: native create-goal school removal-first ROLLBACK
+ok 104 - native create-goal school removal-first ROLLBACK
+  ---
+  duration_ms: 151.635002
+  type: 'test'
+  ...
+# Subtest: native create-goal district write-first COMMIT
+ok 105 - native create-goal district write-first COMMIT
+  ---
+  duration_ms: 156.694199
+  type: 'test'
+  ...
+# Subtest: native create-goal district removal-first COMMIT
+ok 106 - native create-goal district removal-first COMMIT
+  ---
+  duration_ms: 155.729924
+  type: 'test'
+  ...
+# Subtest: native create-goal district write-first ROLLBACK
+ok 107 - native create-goal district write-first ROLLBACK
+  ---
+  duration_ms: 157.484911
+  type: 'test'
+  ...
+# Subtest: native create-goal district removal-first ROLLBACK
+ok 108 - native create-goal district removal-first ROLLBACK
+  ---
+  duration_ms: 153.569668
+  type: 'test'
+  ...
+# Subtest: native create-goal owner write-first COMMIT
+ok 109 - native create-goal owner write-first COMMIT
+  ---
+  duration_ms: 158.332372
+  type: 'test'
+  ...
+# Subtest: native create-goal owner removal-first COMMIT
+ok 110 - native create-goal owner removal-first COMMIT
+  ---
+  duration_ms: 160.725819
+  type: 'test'
+  ...
+# Subtest: native create-goal owner write-first ROLLBACK
+ok 111 - native create-goal owner write-first ROLLBACK
+  ---
+  duration_ms: 156.184085
+  type: 'test'
+  ...
+# Subtest: native create-goal owner removal-first ROLLBACK
+ok 112 - native create-goal owner removal-first ROLLBACK
+  ---
+  duration_ms: 155.141233
+  type: 'test'
+  ...
+# Subtest: native create-goal partner-transition write-first COMMIT
+ok 113 - native create-goal partner-transition write-first COMMIT
+  ---
+  duration_ms: 156.527998
+  type: 'test'
+  ...
+# Subtest: native create-goal partner-transition removal-first COMMIT
+ok 114 - native create-goal partner-transition removal-first COMMIT
+  ---
+  duration_ms: 155.966532
+  type: 'test'
+  ...
+# Subtest: native create-goal partner-transition write-first ROLLBACK
+ok 115 - native create-goal partner-transition write-first ROLLBACK
+  ---
+  duration_ms: 162.202027
+  type: 'test'
+  ...
+# Subtest: native create-goal partner-transition removal-first ROLLBACK
+ok 116 - native create-goal partner-transition removal-first ROLLBACK
+  ---
+  duration_ms: 161.112693
+  type: 'test'
+  ...
+# Subtest: native create-goal competing same intent COMMIT
+ok 117 - native create-goal competing same intent COMMIT
+  ---
+  duration_ms: 162.82793
+  type: 'test'
+  ...
+# Subtest: native create-goal competing same intent ROLLBACK
+ok 118 - native create-goal competing same intent ROLLBACK
+  ---
+  duration_ms: 156.121819
+  type: 'test'
+  ...
+# Subtest: native cached create-goal rechecks removed editing proof
+ok 119 - native cached create-goal rechecks removed editing proof
+  ---
+  duration_ms: 130.461393
+  type: 'test'
+  ...
+# Subtest: native create-action family write-first COMMIT
+ok 120 - native create-action family write-first COMMIT
+  ---
+  duration_ms: 156.667412
+  type: 'test'
+  ...
+# Subtest: native create-action family removal-first COMMIT
+ok 121 - native create-action family removal-first COMMIT
+  ---
+  duration_ms: 154.313353
+  type: 'test'
+  ...
+# Subtest: native create-action family write-first ROLLBACK
+ok 122 - native create-action family write-first ROLLBACK
+  ---
+  duration_ms: 161.68793
+  type: 'test'
+  ...
+# Subtest: native create-action family removal-first ROLLBACK
+ok 123 - native create-action family removal-first ROLLBACK
+  ---
+  duration_ms: 155.75308
+  type: 'test'
+  ...
+# Subtest: native create-action student write-first COMMIT
+ok 124 - native create-action student write-first COMMIT
+  ---
+  duration_ms: 157.335849
+  type: 'test'
+  ...
+# Subtest: native create-action student removal-first COMMIT
+ok 125 - native create-action student removal-first COMMIT
+  ---
+  duration_ms: 152.440492
+  type: 'test'
+  ...
+# Subtest: native create-action student write-first ROLLBACK
+ok 126 - native create-action student write-first ROLLBACK
+  ---
+  duration_ms: 157.886181
+  type: 'test'
+  ...
+# Subtest: native create-action student removal-first ROLLBACK
+ok 127 - native create-action student removal-first ROLLBACK
+  ---
+  duration_ms: 154.419405
+  type: 'test'
+  ...
+# Subtest: native create-action educator write-first COMMIT
+ok 128 - native create-action educator write-first COMMIT
+  ---
+  duration_ms: 156.423623
+  type: 'test'
+  ...
+# Subtest: native create-action educator removal-first COMMIT
+ok 129 - native create-action educator removal-first COMMIT
+  ---
+  duration_ms: 162.79265
+  type: 'test'
+  ...
+# Subtest: native create-action educator write-first ROLLBACK
+ok 130 - native create-action educator write-first ROLLBACK
+  ---
+  duration_ms: 157.284806
+  type: 'test'
+  ...
+# Subtest: native create-action educator removal-first ROLLBACK
+ok 131 - native create-action educator removal-first ROLLBACK
+  ---
+  duration_ms: 160.050202
+  type: 'test'
+  ...
+# Subtest: native create-action school write-first COMMIT
+ok 132 - native create-action school write-first COMMIT
+  ---
+  duration_ms: 158.54868
+  type: 'test'
+  ...
+# Subtest: native create-action school removal-first COMMIT
+ok 133 - native create-action school removal-first COMMIT
+  ---
+  duration_ms: 168.345665
+  type: 'test'
+  ...
+# Subtest: native create-action school write-first ROLLBACK
+ok 134 - native create-action school write-first ROLLBACK
+  ---
+  duration_ms: 159.610243
+  type: 'test'
+  ...
+# Subtest: native create-action school removal-first ROLLBACK
+ok 135 - native create-action school removal-first ROLLBACK
+  ---
+  duration_ms: 151.786875
+  type: 'test'
+  ...
+# Subtest: native create-action district write-first COMMIT
+ok 136 - native create-action district write-first COMMIT
+  ---
+  duration_ms: 159.276935
+  type: 'test'
+  ...
+# Subtest: native create-action district removal-first COMMIT
+ok 137 - native create-action district removal-first COMMIT
+  ---
+  duration_ms: 154.60163
+  type: 'test'
+  ...
+# Subtest: native create-action district write-first ROLLBACK
+ok 138 - native create-action district write-first ROLLBACK
+  ---
+  duration_ms: 155.240418
+  type: 'test'
+  ...
+# Subtest: native create-action district removal-first ROLLBACK
+ok 139 - native create-action district removal-first ROLLBACK
+  ---
+  duration_ms: 154.655504
+  type: 'test'
+  ...
+# Subtest: native create-action owner write-first COMMIT
+ok 140 - native create-action owner write-first COMMIT
+  ---
+  duration_ms: 159.661576
+  type: 'test'
+  ...
+# Subtest: native create-action owner removal-first COMMIT
+ok 141 - native create-action owner removal-first COMMIT
+  ---
+  duration_ms: 151.757936
+  type: 'test'
+  ...
+# Subtest: native create-action owner write-first ROLLBACK
+ok 142 - native create-action owner write-first ROLLBACK
+  ---
+  duration_ms: 159.642009
+  type: 'test'
+  ...
+# Subtest: native create-action owner removal-first ROLLBACK
+ok 143 - native create-action owner removal-first ROLLBACK
+  ---
+  duration_ms: 153.842193
+  type: 'test'
+  ...
+# Subtest: native create-action partner-transition write-first COMMIT
+ok 144 - native create-action partner-transition write-first COMMIT
+  ---
+  duration_ms: 159.536161
+  type: 'test'
+  ...
+# Subtest: native create-action partner-transition removal-first COMMIT
+ok 145 - native create-action partner-transition removal-first COMMIT
+  ---
+  duration_ms: 155.489165
+  type: 'test'
+  ...
+# Subtest: native create-action partner-transition write-first ROLLBACK
+ok 146 - native create-action partner-transition write-first ROLLBACK
+  ---
+  duration_ms: 157.436725
+  type: 'test'
+  ...
+# Subtest: native create-action partner-transition removal-first ROLLBACK
+ok 147 - native create-action partner-transition removal-first ROLLBACK
+  ---
+  duration_ms: 154.683287
+  type: 'test'
+  ...
+# Subtest: native create-action competing same intent COMMIT
+ok 148 - native create-action competing same intent COMMIT
+  ---
+  duration_ms: 160.463596
+  type: 'test'
+  ...
+# Subtest: native create-action competing same intent ROLLBACK
+ok 149 - native create-action competing same intent ROLLBACK
+  ---
+  duration_ms: 161.096718
+  type: 'test'
+  ...
+# Subtest: native cached create-action rechecks removed editing proof
+ok 150 - native cached create-action rechecks removed editing proof
+  ---
+  duration_ms: 132.044152
+  type: 'test'
+  ...
+# Subtest: native goal-status family write-first COMMIT
+ok 151 - native goal-status family write-first COMMIT
+  ---
+  duration_ms: 158.908134
+  type: 'test'
+  ...
+# Subtest: native goal-status family removal-first COMMIT
+ok 152 - native goal-status family removal-first COMMIT
+  ---
+  duration_ms: 152.942835
+  type: 'test'
+  ...
+# Subtest: native goal-status family write-first ROLLBACK
+ok 153 - native goal-status family write-first ROLLBACK
+  ---
+  duration_ms: 161.773842
+  type: 'test'
+  ...
+# Subtest: native goal-status family removal-first ROLLBACK
+ok 154 - native goal-status family removal-first ROLLBACK
+  ---
+  duration_ms: 158.071022
+  type: 'test'
+  ...
+# Subtest: native goal-status student write-first COMMIT
+ok 155 - native goal-status student write-first COMMIT
+  ---
+  duration_ms: 160.003675
+  type: 'test'
+  ...
+# Subtest: native goal-status student removal-first COMMIT
+ok 156 - native goal-status student removal-first COMMIT
+  ---
+  duration_ms: 160.012742
+  type: 'test'
+  ...
+# Subtest: native goal-status student write-first ROLLBACK
+ok 157 - native goal-status student write-first ROLLBACK
+  ---
+  duration_ms: 156.306434
+  type: 'test'
+  ...
+# Subtest: native goal-status student removal-first ROLLBACK
+ok 158 - native goal-status student removal-first ROLLBACK
+  ---
+  duration_ms: 155.113761
+  type: 'test'
+  ...
+# Subtest: native goal-status educator write-first COMMIT
+ok 159 - native goal-status educator write-first COMMIT
+  ---
+  duration_ms: 165.006882
+  type: 'test'
+  ...
+# Subtest: native goal-status educator removal-first COMMIT
+ok 160 - native goal-status educator removal-first COMMIT
+  ---
+  duration_ms: 156.754849
+  type: 'test'
+  ...
+# Subtest: native goal-status educator write-first ROLLBACK
+ok 161 - native goal-status educator write-first ROLLBACK
+  ---
+  duration_ms: 161.312813
+  type: 'test'
+  ...
+# Subtest: native goal-status educator removal-first ROLLBACK
+ok 162 - native goal-status educator removal-first ROLLBACK
+  ---
+  duration_ms: 157.265545
+  type: 'test'
+  ...
+# Subtest: native goal-status school write-first COMMIT
+ok 163 - native goal-status school write-first COMMIT
+  ---
+  duration_ms: 162.482948
+  type: 'test'
+  ...
+# Subtest: native goal-status school removal-first COMMIT
+ok 164 - native goal-status school removal-first COMMIT
+  ---
+  duration_ms: 160.656097
+  type: 'test'
+  ...
+# Subtest: native goal-status school write-first ROLLBACK
+ok 165 - native goal-status school write-first ROLLBACK
+  ---
+  duration_ms: 164.671725
+  type: 'test'
+  ...
+# Subtest: native goal-status school removal-first ROLLBACK
+ok 166 - native goal-status school removal-first ROLLBACK
+  ---
+  duration_ms: 157.352014
+  type: 'test'
+  ...
+# Subtest: native goal-status district write-first COMMIT
+ok 167 - native goal-status district write-first COMMIT
+  ---
+  duration_ms: 156.63027
+  type: 'test'
+  ...
+# Subtest: native goal-status district removal-first COMMIT
+ok 168 - native goal-status district removal-first COMMIT
+  ---
+  duration_ms: 153.747406
+  type: 'test'
+  ...
+# Subtest: native goal-status district write-first ROLLBACK
+ok 169 - native goal-status district write-first ROLLBACK
+  ---
+  duration_ms: 158.542639
+  type: 'test'
+  ...
+# Subtest: native goal-status district removal-first ROLLBACK
+ok 170 - native goal-status district removal-first ROLLBACK
+  ---
+  duration_ms: 152.171131
+  type: 'test'
+  ...
+# Subtest: native goal-status owner write-first COMMIT
+ok 171 - native goal-status owner write-first COMMIT
+  ---
+  duration_ms: 155.145579
+  type: 'test'
+  ...
+# Subtest: native goal-status owner removal-first COMMIT
+ok 172 - native goal-status owner removal-first COMMIT
+  ---
+  duration_ms: 151.17887
+  type: 'test'
+  ...
+# Subtest: native goal-status owner write-first ROLLBACK
+ok 173 - native goal-status owner write-first ROLLBACK
+  ---
+  duration_ms: 158.367619
+  type: 'test'
+  ...
+# Subtest: native goal-status owner removal-first ROLLBACK
+ok 174 - native goal-status owner removal-first ROLLBACK
+  ---
+  duration_ms: 158.024351
+  type: 'test'
+  ...
+# Subtest: native goal-status partner-transition write-first COMMIT
+ok 175 - native goal-status partner-transition write-first COMMIT
+  ---
+  duration_ms: 157.716048
+  type: 'test'
+  ...
+# Subtest: native goal-status partner-transition removal-first COMMIT
+ok 176 - native goal-status partner-transition removal-first COMMIT
+  ---
+  duration_ms: 152.421479
+  type: 'test'
+  ...
+# Subtest: native goal-status partner-transition write-first ROLLBACK
+ok 177 - native goal-status partner-transition write-first ROLLBACK
+  ---
+  duration_ms: 154.453083
+  type: 'test'
+  ...
+# Subtest: native goal-status partner-transition removal-first ROLLBACK
+ok 178 - native goal-status partner-transition removal-first ROLLBACK
+  ---
+  duration_ms: 156.089097
+  type: 'test'
+  ...
+# Subtest: native goal-status competing same intent COMMIT
+ok 179 - native goal-status competing same intent COMMIT
+  ---
+  duration_ms: 156.892277
+  type: 'test'
+  ...
+# Subtest: native goal-status competing same intent ROLLBACK
+ok 180 - native goal-status competing same intent ROLLBACK
+  ---
+  duration_ms: 159.4678
+  type: 'test'
+  ...
+# Subtest: native cached goal-status rechecks removed editing proof
+ok 181 - native cached goal-status rechecks removed editing proof
+  ---
+  duration_ms: 132.391811
+  type: 'test'
+  ...
+# Subtest: native linked report binding create-first COMMIT
+ok 182 - native linked report binding create-first COMMIT
+  ---
+  duration_ms: 157.358949
+  type: 'test'
+  ...
+# Subtest: native linked report binding relink-first COMMIT
+ok 183 - native linked report binding relink-first COMMIT
+  ---
+  duration_ms: 150.380763
+  type: 'test'
+  ...
+# Subtest: native linked report binding create-first ROLLBACK
+ok 184 - native linked report binding create-first ROLLBACK
+  ---
+  duration_ms: 159.622549
+  type: 'test'
+  ...
+# Subtest: native linked report binding relink-first ROLLBACK
+ok 185 - native linked report binding relink-first ROLLBACK
+  ---
+  duration_ms: 172.183872
+  type: 'test'
+  ...
+1..185
+# tests 185
+# suites 0
+# pass 185
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 26305.874184

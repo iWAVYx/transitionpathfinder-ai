@@ -1,0 +1,49 @@
+{
+  "schema": "planning-record-write-full-schema-v1",
+  "source_commit": "d390ce30a2eb4e07a366bbef523f3a0f1a79d7c0",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 13,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "new_routines": 3,
+  "new_private_revision_helpers": 1,
+  "new_authenticated_only_rpcs": 2,
+  "new_triggers": 1,
+  "all_existing_public_routines_preserved": true,
+  "all_existing_policies_preserved": true,
+  "all_existing_triggers_preserved": true,
+  "all_existing_columns_indexes_constraints_and_table_privileges_preserved": true,
+  "all_existing_action_data_preserved": true,
+  "real_schema_smoke": {
+    "real_auth_student_intake_report_goal_action_feed_tables": true,
+    "authenticated_creation_goal_status_and_prior_action_completion_deletion": true,
+    "fictional_transaction_rolled_back": true
+  },
+  "raw_writer_retirement_claimed": false,
+  "whole_p1_complete": false,
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_deletion_proof_sha256": "a225705e6d9718db723f27c687bf70b3c7aaa71252572218022443a57d2db1ba",
+  "before_catalog_sha256": "17c250ce241c87197a2b287c1f9236bc1cc9b8c7b05b7805e5bbabf2ae87059f",
+  "after_catalog_sha256": "57f2d31f13083027b96d3c4e9cee50176038696f52031dd9fe03e7ee62383df3",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/planning-record-write/atomic-planning-write.review.sql",
+      "sha256": "c3dec341fbf59d3ce6e3526ef7f476849ea7f44762c248371ae8bafbbc89d2a7"
+    },
+    {
+      "path": "tests/database/planning-record-write.test.mjs",
+      "sha256": "3636311783e710eaff9831aad3193843923e234c93ee9e01e93efadccdf9a97a"
+    },
+    {
+      "path": "tests/database/run-planning-record-write-schema.mjs",
+      "sha256": "8f339e4d3d18126a3b1b98753a74b9b301c9a0fd83bd31152035c39ae5ffef07"
+    },
+    {
+      "path": ".github/workflows/planning-record-write-review.yml",
+      "sha256": "d600e6f4898dfc1204a2fa7e4b5137f3bfa23d0fcabe76e28237d8fd77d53fb9"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}
