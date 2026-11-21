@@ -13,6 +13,18 @@ The selected review covers **52 endpoints in 12 named modules**. Ten have scoped
 
 Known findings are attached to their source families in [the machine-readable inventory](student-planning-endpoint-inventory.json). Entries requiring review do not all represent newly confirmed vulnerabilities. Existing document/storage/worker/rights/report/PPT, organization, directory, channel, licensing/billing and provider work remains in the full roadmap and its own evidence; this selected inventory does not silently close those scopes.
 
+## P1 Student Lifecycle and Remaining Saves — November 21 Components
+
+- [x] Route recommendation action creation and legacy action status through the existing receipt-checked planning transactions.
+- [x] Reject mismatched self-profile replies and unavailable creator accounts; confirm student, relationship and optional license responses before reporting setup success.
+- [x] Require owner, loaded revision and an actual deleted student receipt; reject zero-row success.
+- [x] Guard student-list/onboarding submissions against departed contexts and uncertain repeated writes; expose list-load failure.
+- [ ] Make non-self student creation/relationship/license setup atomic and reconcile partial or uncertain outcomes across reloads.
+- [ ] Finish deletion cascade/storage/provider and competing dependent-write review.
+- [ ] Review composed meeting/channel saves, extracted-goal bulk saves and trusted writers; finish recommendation calendar/prep receipts.
+
+[Scope and limitations](student-lifecycle-save-path-review.md). These checked application components do not close the lifecycle transaction work, whole P1, or hosted acceptance.
+
 ## P1 Goals and Actions — November 21 Components
 
 - [x] Confirm exact creation/update/deletion replies, actor/student identities and supplied loaded revisions before reporting success; no service fallback or write retries.
@@ -29,7 +41,7 @@ Known findings are attached to their source families in [the machine-readable in
 - [x] Complete the named caseload reader/capability component: read-only overview, all exact-count pages, current explicit student access, accurate current readiness, explicit errors, departed-account fencing and read-only controls. No implicit invitation acceptance or fictional live heatmap. [Scoped evidence](../evidence/caseload-readers-local-2026-11-21.json).
 - [x] Retire the quick-action raw insert: use the verified creation RPC and preserve request/actor/student receipts and uncertainty handling. Existing stored category values remain unchanged.
 - [x] Validate exact student detail and edit-capability reads against current account/student proof; Owner/admin is not implicit editing access. These reader fixes do not close student creation/deletion/self-profile lifecycle.
-- [ ] Finish remaining raw/trusted planning writers (extracted goals, meeting actions, channel linkage/status, recommendations, old dashboard status and privileged seed routines), student creation/deletion/self-profile/list lifecycle, and BridgeForward review.
+- [ ] Finish remaining raw/trusted planning writers (extracted goals, meeting actions, channel linkage/status, recommendation calendar/meeting prep and privileged seed routines), student creation/deletion/self-profile/list lifecycle, and BridgeForward review.
 - [ ] Finish P2 note/history authority and privacy. Quick-note prechecks/receipts/lifetimes are strengthened, but transaction-held note authority and contributor/private-note semantics remain open.
 
 The eight goal/action endpoint entries remain **review-required** until those database and remaining-consumer gates close. P1 as a whole remains open. The tenth draft changes only two CHECK constraints, not RLS, routine grants or existing records. It is separate from the nine-draft routine catalogue below and is not a canonical migration or a hosted change.

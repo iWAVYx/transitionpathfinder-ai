@@ -119,12 +119,14 @@ it.each([
 });
 it("matching Student reconnect uses the existing authenticated RPC without an owner argument", async () => {
   const db = database();
-  db.supabase.rpc.mockResolvedValue({ data: { id: "self" }, error: null });
+  const actor="00000000-0000-4000-8000-000000000001";
+  const row={id:"00000000-0000-4000-8000-000000000002",owner_id:actor,student_user_id:actor,first_name:"Sample",last_name:null,grade_band:null,school:null,date_of_birth:null,photo_url:null,notes:null,created_at:"2026-11-21T10:00:00Z",updated_at:"2026-11-21T10:00:00Z"};
+  db.supabase.rpc.mockResolvedValue({ data: row, error: null });
   await expect(
     ensureOwnStudentProfile({
-      data: { expected_viewer_id: "caller" },
-      context: { userId: "caller", supabase: db.supabase },
+      data: { expected_viewer_id: actor },
+      context: { userId: actor, supabase: db.supabase },
     } as any),
-  ).resolves.toEqual({ id: "self" });
+  ).resolves.toEqual(row);
   expect(db.supabase.rpc).toHaveBeenCalledWith("ensure_student_self_profile");
 });

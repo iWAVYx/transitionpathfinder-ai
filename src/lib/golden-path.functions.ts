@@ -1,3 +1,5 @@
+import {updateActionAtomically} from "./atomic-action-update.server";
+import {viewerIntentSchema} from "./viewer-intent";
 import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { readOrganizationPages, organizationReadError } from "@/lib/organization-query-pages";
 import { createServerFn } from "@tanstack/react-start";
@@ -313,25 +315,10 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
 
 
 
-export const setActionItemStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z
-      .object({
-        id: z.string().uuid(),
-        status: z.enum(["not_started", "in_progress", "complete", "blocked"]),
-      })
-      .parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
-      .from("action_items")
-      .update({ status: data.status })
-      .eq("id", data.id);
-    if (error) throw new Error("Could not update action item.");
-    return { ok: true };
-  });
+export const setActionItemStatus = createServerFn({method:"POST"})
+ .middleware([requireSupabaseAuth])
+ .validator((i:unknown)=>z.object({id:z.string().uuid(),student_id:z.string().uuid(),expected_updated_at:z.string().datetime({offset:true}),...viewerIntentSchema.shape,status:z.enum(["not_started","in_progress","complete","completed","blocked"])}).parse(i))
+ .handler(async({data,context})=>{const item=await updateActionAtomically(context.supabase,context.userId,data,{status:data.status==="complete"?"completed":data.status});return{ok:true as const,item};});
 
 /* ---------- Meeting prep persistence ---------- */
 

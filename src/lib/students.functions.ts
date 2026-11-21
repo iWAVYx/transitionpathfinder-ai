@@ -1,3 +1,4 @@
+import {ensureSelfProfile,createStudentWithReceipt,deleteStudentWithReceipt} from "./student-lifecycle.server";
 import {readStudentProfile,studentCapability,CASELOAD_UNAVAILABLE} from "./caseload-records.server";
 import{deletePlanningRecordAtomically}from"./planning-record-delete.server";
 import {readPlanningRecords} from "./planning-records.server";
@@ -14,6 +15,8 @@ import { requireFeatureEntitlement } from "./entitlement-guard";
 /* ---------- STUDENTS ---------- */
 
 const StudentInput = z.object({
+  ...viewerIntentSchema.shape,
+  request_id: z.string().uuid().optional(),
   first_name: z.string().trim().min(1).max(80),
   last_name: z.string().trim().max(80).optional(),
   grade_band: z.enum(["6-8", "9-10", "11-12", "post-secondary", "not-applicable"]).optional(),
@@ -46,15 +49,7 @@ export const ensureOwnStudentProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(optionalViewerIntent)
   .handler(async ({ data, context }) => {
-    assertExpectedViewer(data, context.userId);
-    const { data: row, error } = await context.supabase.rpc(
-      "ensure_student_self_profile" as never,
-    );
-    if (error || !row) {
-      console.error("ensureOwnStudentProfile failed", error);
-      throw new Error("Could not connect your student profile.");
-    }
-    return row as unknown as Student;
+    return ensureSelfProfile(context.supabase, context.userId, data);
   });
 
 export const listStudents = createServerFn({ method: "GET" })
@@ -86,102 +81,12 @@ export const canEditStudent=createServerFn({method:"POST"}).middleware([requireS
 export const createStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => StudentInput.parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("primary_role, email, organization_id")
-      .eq("id", userId)
-      .maybeSingle();
-
-    // A student account represents itself. Reuse the canonical self-profile
-    // instead of allowing the account to create a second student or requiring
-    // it to be invited as a collaborator on its own plan.
-    if (profile?.primary_role === "student") {
-      const { data: ownStudent, error: ownStudentError } = await supabase.rpc(
-        "ensure_student_self_profile" as never,
-      );
-      if (ownStudentError || !ownStudent) {
-        console.error("createStudent self-profile failed", ownStudentError);
-        throw new Error("Could not create your student profile.");
-      }
-      return ownStudent as unknown as Student;
-    }
-
-    const { data: row, error } = await supabase
-      .from("students")
-      .insert({
-        owner_id: userId,
-        first_name: data.first_name,
-        last_name: data.last_name ?? null,
-        grade_band: data.grade_band ?? null,
-        school: data.school ?? null,
-        date_of_birth: data.date_of_birth ?? null,
-        notes: data.notes ?? null,
-        organization_id: profile?.organization_id ?? null,
-      })
-      .select("*")
-      .single();
-    if (error || !row) {
-      console.error("createStudent failed", error);
-      throw new Error("Could not create student.");
-    }
-
-    // Auto-record the creator's relationship to this student based on their role.
-    const role = profile?.primary_role ?? "parent";
-    const email = profile?.email ?? "";
-
-    const guardianRoles = new Set(["parent", "guardian"]);
-    const teamRoles = new Set(["educator", "teacher", "case_manager", "administrator", "school_admin", "admin"]);
-
-    if (guardianRoles.has(role)) {
-      const { error: licenseError } = await supabase.rpc(
-        "attach_my_pathway_license_to_student" as never,
-        { _student_id: row.id } as never,
-      );
-      if (licenseError) {
-        console.error("createStudent: sponsored pathway attachment failed", licenseError);
-      }
-    }
-
-    try {
-      if (guardianRoles.has(role)) {
-        await supabase.from("student_guardians").insert({
-          student_id: row.id,
-          guardian_user_id: userId,
-          guardian_email: email || "unknown@local",
-          relationship: role,
-          is_primary: true,
-          verified: true,
-        });
-      } else if (teamRoles.has(role)) {
-        await supabase.from("student_team_members").insert({
-          student_id: row.id,
-          member_user_id: userId,
-          member_email: email || "unknown@local",
-          role_on_team: role === "administrator" ? "school_admin" : role,
-          organization_id: profile?.organization_id ?? null,
-          status: "active",
-        });
-      }
-    } catch (relErr) {
-      console.error("createStudent: relationship row failed (non-fatal)", relErr);
-    }
-
-    return row as Student;
-  });
-
+  .handler(async ({data,context}) => createStudentWithReceipt(context.supabase,context.userId,data));
 
 export const deleteStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase.from("students").delete().eq("id", data.id);
-    if (error) throw new Error("Could not delete student.");
-    return { ok: true };
-  });
+  .validator((i: unknown) => z.object({id:z.string().uuid(),expected_updated_at:z.string().datetime({offset:true}),...viewerIntentSchema.shape}).parse(i))
+  .handler(async ({data,context}) => deleteStudentWithReceipt(context.supabase,context.userId,data));
 
 /* ---------- GOALS ---------- */
 

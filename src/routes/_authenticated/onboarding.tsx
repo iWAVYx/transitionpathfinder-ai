@@ -1,3 +1,4 @@
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -80,6 +81,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 });
 
 function OnboardingPage() {
+  const lifetime=usePlanningLifetime("onboarding");
   const navigate = useNavigate();
   const loadProfile = useServerFn(getProfile);
   const loadActivatedLicenseRole = useServerFn(getMyActivatedLicenseRole);
@@ -245,6 +247,7 @@ function OnboardingPage() {
       return;
     }
     if (needsStudent && !studentFirst.trim()) return;
+    if(!lifetime.begin())return;
     setSubmitting(true);
     try {
       // 1) Persist name + primary_role FIRST (without flipping onboarding_completed).
@@ -264,9 +267,12 @@ function OnboardingPage() {
       //    If this fails, the user stays here with onboarding_completed=false so
       //    a refresh resumes the wizard instead of stranding them on /dashboard
       //    with no student.
+      if(!lifetime.current())return;
       if (needsStudent) {
         await addStudent({
           data: {
+            expected_viewer_id:lifetime.viewerId,
+            request_id:crypto.randomUUID(),
             first_name: studentFirst.trim(),
             last_name: studentLast.trim() || undefined,
             grade_band: (studentGrade || undefined) as never,
@@ -276,9 +282,10 @@ function OnboardingPage() {
       } else if (role === "student") {
         // Student accounts are the subject of their own plan. This creates or
         // repairs that direct identity link; no self-collaborator is involved.
-        await ensureStudentProfile();
+        await ensureStudentProfile({data:{expected_viewer_id:lifetime.viewerId}});
       }
 
+      if(!lifetime.current())return;
       // 3) Now flip onboarding_completed and assign user_roles.
       await saveProfile({
         data: {
@@ -289,6 +296,7 @@ function OnboardingPage() {
         },
       });
 
+      if(!lifetime.current())return;
       if (needsStudent) {
         toast.success(`${studentFirst.trim()} is on the dashboard. Let's keep going.`);
       } else {
@@ -306,13 +314,16 @@ function OnboardingPage() {
             : fallbackPathFor([role]);
       navigate({ to: target, replace: true });
     } catch (err) {
+      if(!lifetime.current())return;
+      lifetime.markUncertain();
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       console.error("onboarding finish failed", err);
       toast.error(msg, {
-        description: "Your progress is saved — try again or come back later.",
+        description: "Check your student list before repeating setup. Some information may already be saved.",
       });
     } finally {
-      setSubmitting(false);
+      lifetime.finish();
+      if(lifetime.current())setSubmitting(false);
     }
   }
 
@@ -547,7 +558,7 @@ function OnboardingPage() {
                 Continue <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" disabled={!canAdvance || submitting}>
+              <Button type="submit" disabled={!canAdvance || submitting || lifetime.uncertain || !lifetime.available}>
                 {submitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" /> Saving…

@@ -1,0 +1,24 @@
+// @vitest-environment jsdom
+import React from 'react';
+import {render,screen,fireEvent,cleanup,waitFor,act} from '@testing-library/react';
+import {it,expect,vi,beforeEach,afterEach} from 'vitest';
+const api=vi.hoisted(()=>({viewer:'00000000-0000-4000-8000-000000000001',list:vi.fn(),create:vi.fn(),remove:vi.fn(),success:vi.fn(),error:vi.fn()}));
+vi.mock('@/hooks/use-auth',()=>({useAuth:()=>({user:{id:api.viewer},loading:false})}));
+vi.mock('@tanstack/react-start',()=>({useServerFn:(fn:any)=>fn}));
+vi.mock('@tanstack/react-router',()=>({createFileRoute:()=> (options:any)=>options,Link:({children,...props}:any)=><a>{children}</a>}));
+vi.mock('@/components/RoleGuard',()=>({RoleGuard:({children}:any)=>children}));
+vi.mock('@/components/site/SiteShell',()=>({SiteShell:({children}:any)=>children}));
+vi.mock('@/components/site/Breadcrumbs',()=>({Breadcrumbs:()=>null}));
+vi.mock('@/components/empty/IllustratedEmptyState',()=>({IllustratedEmptyState:({title}:any)=><p>{title}</p>}));
+vi.mock('@/lib/students.functions',()=>({listStudents:api.list,createStudent:api.create,deleteStudent:api.remove}));
+vi.mock('sonner',()=>({toast:{success:api.success,error:api.error}}));
+import {Route} from '../../src/routes/_authenticated/students.index';
+const Page=(Route as any).component;
+const row={id:'00000000-0000-4000-8000-000000000002',owner_id:api.viewer,first_name:'Sample',last_name:null,updated_at:'2026-11-21T10:00:00.123456Z'};
+beforeEach(()=>{vi.clearAllMocks();api.viewer=row.owner_id;api.list.mockResolvedValue({students:[row],loadFailed:false});api.remove.mockResolvedValue({ok:true,deleted_id:row.id});vi.stubGlobal('confirm',vi.fn(()=>true));});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();});
+it('passes exact loaded student revision and account to deletion',async()=>{render(<Page/>);fireEvent.click(await screen.findByLabelText('Delete Sample'));await waitFor(()=>expect(api.remove).toHaveBeenCalledExactlyOnceWith({data:{id:row.id,expected_updated_at:row.updated_at,expected_viewer_id:row.owner_id}}));});
+it('does not offer enabled deletion to another owner',async()=>{api.list.mockResolvedValue({students:[{...row,owner_id:'other'}],loadFailed:false});render(<Page/>);expect((await screen.findByLabelText('Delete Sample') as HTMLButtonElement).disabled).toBe(true);});
+it('failed list is not presented as no students',async()=>{api.list.mockResolvedValue({students:[],loadFailed:true});render(<Page/>);expect((await screen.findByRole('alert')).textContent).toContain("couldn't load");expect(screen.queryByText('No Students Yet')).toBeNull();expect(screen.getByText('Student information is unavailable.')).toBeTruthy();});
+it('blocks repeat deletion after an uncertain result',async()=>{api.remove.mockRejectedValue(Error('Removal unconfirmed'));render(<Page/>);const button=await screen.findByLabelText('Delete Sample');fireEvent.click(button);await screen.findByText('Removal unconfirmed');fireEvent.click(button);expect(api.remove).toHaveBeenCalledOnce();expect((button as HTMLButtonElement).disabled).toBe(true);});
+it('ignores an old deletion reply after account departure',async()=>{let finish:(x:any)=>void=()=>{};api.remove.mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));const view=render(<Page/>);fireEvent.click(await screen.findByLabelText('Delete Sample'));api.viewer='00000000-0000-4000-8000-000000000009';api.list.mockResolvedValue({students:[],loadFailed:false});view.rerender(<Page/>);await screen.findByText('No Students Yet');const calls=api.list.mock.calls.length;await act(async()=>finish({ok:true}));expect(api.list).toHaveBeenCalledTimes(calls);expect(api.success).not.toHaveBeenCalled();});

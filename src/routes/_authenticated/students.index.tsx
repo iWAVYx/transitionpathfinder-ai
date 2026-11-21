@@ -1,3 +1,4 @@
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
 import { formatGradeBand } from "@/lib/grade-band-label";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/_authenticated/students/")({
 });
 
 function StudentsPage() {
+  const lifetime = usePlanningLifetime("student-list");
   const list = useServerFn(listStudents);
   const create = useServerFn(createStudent);
   const remove = useServerFn(deleteStudent);
@@ -34,18 +36,19 @@ function StudentsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const reload = () =>
-    list()
-      .then((r) => setStudents(r.students))
-      .catch(() => setStudents([]));
-
-  useEffect(() => {
-    reload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const reload = async () => {
+    const sequence=lifetime.nextRead();
+    try {const r=await list({data:{expected_viewer_id:lifetime.viewerId}});
+      if(!lifetime.currentRead(sequence))return;
+      if(r.loadFailed)throw Error("We couldn't load your students. Please refresh.");
+      setStudents(r.students);
+    }catch{if(lifetime.currentRead(sequence)){setStudents(null);setError("We couldn't load your students. Please refresh.");}}
+  };
+  useEffect(()=>{setStudents(null);setSubmitting(false);setShowForm(false);setError(null);if(lifetime.available)void reload();},[lifetime.viewerId,lifetime.available]);
 
   async function handleCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if(!lifetime.begin())return;
     setError(null);
     setSubmitting(true);
     const form = e.currentTarget;
@@ -54,31 +57,41 @@ function StudentsPage() {
     try {
       await create({
         data: {
+          expected_viewer_id:lifetime.viewerId,
+          request_id:crypto.randomUUID(),
           first_name: firstName,
           last_name: String(fd.get("last_name") || "").trim() || undefined,
           grade_band: (String(fd.get("grade_band") || "") || undefined) as never,
           school: String(fd.get("school") || "").trim() || undefined,
         },
       });
+      if(!lifetime.current())return;
       form.reset();
       setShowForm(false);
       await reload();
+      if(!lifetime.current())return;
       toast.success(`${firstName} added to your dashboard.`);
     } catch (err) {
+      if(!lifetime.current())return;
+      lifetime.markUncertain();
       const msg = err instanceof Error ? err.message : "Student could not be added. Please check the required fields or try again.";
       console.error("createStudent failed", err);
       setError(msg);
       toast.error(msg);
     } finally {
-      setSubmitting(false);
+      lifetime.finish();
+      if(lifetime.current())setSubmitting(false);
     }
   }
 
 
-  async function handleDelete(id: string) {
-    if (!confirm("Remove this student and all linked goals/progress? This cannot be undone.")) return;
-    await remove({ data: { id } });
-    await reload();
+  async function handleDelete(student: Student) {
+    if (!confirm("Remove this student and linked records? This cannot be undone.")) return;
+    if(!lifetime.begin())return;
+    setSubmitting(true);
+    try{await remove({data:{id:student.id,expected_updated_at:student.updated_at,expected_viewer_id:lifetime.viewerId}});if(lifetime.current())await reload();}
+    catch(err){if(lifetime.current()){lifetime.markUncertain();setError(err instanceof Error?err.message:"Removal could not be confirmed. Refresh your student list.");}}
+    finally{lifetime.finish();if(lifetime.current())setSubmitting(false);}
   }
 
   return (
@@ -96,7 +109,7 @@ function StudentsPage() {
               keep their plan in one place — and to share securely with educators when ready.
             </p>
           </div>
-          <Button onClick={() => setShowForm((s) => !s)}>
+          <Button disabled={submitting||lifetime.uncertain||!lifetime.available} onClick={() => setShowForm((s) => !s)}>
             <Plus className="h-4 w-4" />
             {showForm ? "Close" : "Add student"}
           </Button>
@@ -144,16 +157,17 @@ function StudentsPage() {
             </label>
             {error && <p className="sm:col-span-2 text-sm text-destructive">{error}</p>}
             <div className="sm:col-span-2 flex justify-end">
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting||lifetime.uncertain||!lifetime.available}>
                 {submitting ? "Saving…" : "Save student"}
               </Button>
             </div>
           </form>
         )}
 
+        {error && !showForm && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {students === null ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <p className="text-sm text-muted-foreground">{error ? "Student information is unavailable." : "Loading…"}</p>
           ) : students.length === 0 ? (
             <div className="sm:col-span-2 lg:col-span-3">
               <IllustratedEmptyState
@@ -182,7 +196,8 @@ function StudentsPage() {
                     </p>
                   </Link>
                   <button
-                    onClick={() => handleDelete(s.id)}
+                    disabled={submitting||lifetime.uncertain||s.owner_id!==lifetime.viewerId}
+                    onClick={() => handleDelete(s)}
                     aria-label={`Delete ${s.first_name}`}
                     className="opacity-0 transition-opacity group-hover:opacity-100"
                   >

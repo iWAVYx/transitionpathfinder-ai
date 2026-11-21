@@ -1,0 +1,72 @@
+{
+  "schema": "student-lifecycle-save-path-local-v1",
+  "date": "2026-11-21",
+  "source_parent": "ddce5f87c66b5d26c8f95a8fbe3578615f6b27f9",
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "74835f0c4201d29636263cc9adcb1abffde79fdcf177618a4d173b724be549bb",
+    "fileCount": 1252
+  },
+  "validation": {
+    "full_unit_suite": {
+      "files": 406,
+      "passed": 6833,
+      "failed": 0
+    },
+    "focused_final": {
+      "files": 5,
+      "passed": 72,
+      "failed": 0,
+      "note": "Includes five newly added Student-page cases beyond full-suite collection."
+    },
+    "readiness_inventory_role_contracts": {
+      "passed": 51,
+      "failed": 0
+    },
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed",
+    "source_copy_fingerprint": "exact match",
+    "native_sql": "not run; no SQL changed"
+  },
+  "completed": [
+    "Recommendation action creation uses existing atomic planning receipt",
+    "Legacy status endpoint requires student/version and existing atomic completion receipt",
+    "Self-profile identity validation",
+    "Creator account/student/relationship/license response checks",
+    "Owner/version-bound student deletion with exact returned row",
+    "Student-page and onboarding uncertain/departed submission guards"
+  ],
+  "still_open": [
+    "Non-self student creation/relationship/license atomicity and persistent recovery",
+    "Deletion cascade/storage/provider cleanup and competing dependent writes",
+    "Meeting/channel composed writers, bulk extracted goals and trusted seeds",
+    "Recommendation calendar/meeting-prep exact receipts and authority",
+    "Student list capabilities, onboarding recovery, BridgeForward and other P1/P2/P3/P4 scope"
+  ],
+  "hosted_changes": false,
+  "production_changes": false,
+  "provider_calls": 0,
+  "logs": [
+    {
+      "local_path": "/private/tmp/tf-lifecycle-all-final.log",
+      "sha256": "166b5bda37ed0dd9948c80a1db2d9fe3c5f78bcbbe660198280a6b9aedecd94d"
+    },
+    {
+      "local_path": "/private/tmp/tf-lifecycle-focused-final.log",
+      "sha256": "03a3a98468c5078fb24aeafe1a82fe81cd239362d977988d7716c47c22fcfef9"
+    },
+    {
+      "local_path": "/private/tmp/tf-lifecycle-contract-final.log",
+      "sha256": "9d4d79a45b4c1169779d324124a97b77339e5146e5a825c8ee1f4bad439dae42"
+    },
+    {
+      "local_path": "/private/tmp/tf-lifecycle-tsc-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "local_path": "/private/tmp/tf-lifecycle-isolated-build.log",
+      "sha256": "9d1db4604c7341e0c155a88a8bdfb84faea6b559144f12bb47cc5f1d2055375d"
+    }
+  ]
+}

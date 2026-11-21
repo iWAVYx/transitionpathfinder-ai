@@ -1,3 +1,5 @@
+import {createPlanningRecordAtomically} from "./planning-record-write.server";
+import {assertExpectedViewer,viewerIntentSchema} from "./viewer-intent";
 import {ACTION_OPEN_FILTER} from "./action-item-values";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -14,6 +16,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 
 const inputBase = z.object({
+  ...viewerIntentSchema.shape,
+  request_id: z.string().uuid().optional(),
   student_id: z.string().uuid(),
   source_kind: z.enum(["resource", "partner"]),
   source_id: z.string().min(1),
@@ -27,6 +31,7 @@ export const addRecommendationToActionItems = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => inputBase.parse(i))
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data,context.userId);
     const { supabase, userId } = context;
     const description = [
       data.source_kind === "resource" ? "From recommended resource." : "From recommended partner.",
@@ -36,20 +41,12 @@ export const addRecommendationToActionItems = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n\n");
 
-    const { error } = await supabase
-      .from("action_items")
-      .insert({
-        student_id: data.student_id,
-        title: data.source_kind === "resource" ? `Review: ${data.title}` : `Follow up with: ${data.title}`,
-        description,
-        category: "family",
-        priority: "medium",
-        related_goal_area: data.related_goal_area ?? null,
-        created_by_user_id: userId,
-        status: "not_started",
-      });
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    const item = await createPlanningRecordAtomically(supabase,userId,"action_items",{
+      student_id:data.student_id,expected_viewer_id:data.expected_viewer_id,request_id:data.request_id,
+      title:data.source_kind === "resource" ? `Review: ${data.title}` : `Follow up with: ${data.title}`,
+      description,category:"family",priority:"medium",related_goal_area:data.related_goal_area??null,status:"not_started",
+    });
+    return {ok:true as const,item};
   });
 
 export const addRecommendationToCalendar = createServerFn({ method: "POST" })
@@ -61,6 +58,7 @@ export const addRecommendationToCalendar = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data,context.userId);
     const { supabase, userId } = context;
     const eventDate =
       data.event_date ??
@@ -99,6 +97,7 @@ export const addRecommendationToNextMeetingPrep = createServerFn({ method: "POST
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => inputBase.parse(i))
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data,context.userId);
     const { supabase } = context;
 
     // Find the next upcoming meeting for this student

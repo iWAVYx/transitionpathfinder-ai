@@ -100,8 +100,7 @@ describe("school and district license activation contract", () => {
 
   it("carries the licensed organization into newly created student records", () => {
     expect(migration).toContain("v_profile.organization_id");
-    expect(studentFunctions).toContain(
-      "organization_id: profile?.organization_id ?? null",
-    );
+    expect(source("src/lib/student-lifecycle.server.ts")).toContain("organization_id: profile.organization_id");
+    expect(studentFunctions).toContain("createStudentWithReceipt");
   });
 });

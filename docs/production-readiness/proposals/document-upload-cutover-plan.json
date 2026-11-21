@@ -212,7 +212,7 @@
     },
     {
       "path": "src/lib/golden-path.functions.ts",
-      "sha256": "55287cb4f59ffd164c7e81bda1b8e68f4c9782ccce1a30713b667d711607da47"
+      "sha256": "f1793cdf7bc12e8254b13952717bd5f570ac377bf73a4ca49be6cb2f1a4ab5f1"
     },
     {
       "path": "src/routes/_authenticated/dashboard.tsx",
@@ -608,11 +608,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "763a37810a4a07699e9e9d6cb3131c04b5ab1600568cc1b5dc4937337a154d1f"
+      "sha256": "c958a4501431c51c1a70d00a202a00845ada59a5c806d8532081a0c8a260beb9"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "98755154fbb6c46f23f1405e5b9709dc40dbf479b45ae8fd2d6ad90513e60a3e"
+      "sha256": "e47091ff9d0d0b914aa9058280d29ae42f2809b75bd499baae6ccd637722b564"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -684,7 +684,7 @@
     },
     {
       "path": "src/lib/recommendation-actions.functions.ts",
-      "sha256": "b4e8b368a33f789785fb32399808a441512414f28294987f1a3db21dffb6c7c7"
+      "sha256": "1831e0b82b0e33260da6d32b1d23e0e1cd503d1aa29b2e2a9ca76b415c8c9d60"
     },
     {
       "path": "src/lib/school-admin.functions.ts",
@@ -692,7 +692,7 @@
     },
     {
       "path": "src/lib/students.functions.ts",
-      "sha256": "bfa1a105e11b45f51ce83134ef99b2fcc4eea58ab7d5497a05ab025143292982"
+      "sha256": "4040a1a21e6cf6a59909891c348c312fb6af07acbbc6909c124f7b8f3525e95d"
     },
     {
       "path": "src/routes/_authenticated/action-items.tsx",
@@ -929,6 +929,50 @@
     {
       "path": "docs/production-readiness/proposals/caseload-reader-review.md",
       "sha256": "3b2c3601f5272056d11f69ab134c7cf5d24f421f0e4f5c142f18c04a33012cf2"
+    },
+    {
+      "path": "src/lib/student-lifecycle.server.ts",
+      "sha256": "511209362c264b4c873685046e579da046e597114b3dde313d1ad40979975df8"
+    },
+    {
+      "path": "tests/unit/student-lifecycle-receipts.test.ts",
+      "sha256": "f4229317706d2e4e23b2c0ef8c99ef35aeab63e6f5b8ffe880d6c95019667cef"
+    },
+    {
+      "path": "tests/unit/remaining-planning-save-paths.test.ts",
+      "sha256": "c263d59432c0a0eaec2d58775af16e62885ed6a10ae8bd796b72b154212a6925"
+    },
+    {
+      "path": "docs/production-readiness/proposals/student-lifecycle-save-path-review.md",
+      "sha256": "c41cc3f3c2383d6a9527130ff0bc084722d5f4250be90f1daeb136c415206140"
+    },
+    {
+      "path": "tests/unit/student-lifecycle-page.test.tsx",
+      "sha256": "02f73c30ba1088ff49b1b6cf5b39eb157bdd5f20281a1a25bae688c5c2f59f62"
+    },
+    {
+      "path": "src/components/students/RecommendedPartnersPanel.tsx",
+      "sha256": "2f97be2569642fa6e479a6d5b46bdb251ae2515df0277dad83589704bb69d163"
+    },
+    {
+      "path": "src/components/students/RecommendedResourcesPanel.tsx",
+      "sha256": "5076cdcd506bf2c8e1c5990b740320a6316acb56521bba66e32f1f6b42559d69"
+    },
+    {
+      "path": "src/routes/_authenticated/onboarding.tsx",
+      "sha256": "14b27c3ce9875958952c2daaa61293de1d5e12bc80521266680323d86867f612"
+    },
+    {
+      "path": "src/routes/_authenticated/students.index.tsx",
+      "sha256": "a3a4282a7035f018fe43fb5d4c5c2db4e9db2505bf564f72d054c7817ec9be8c"
+    },
+    {
+      "path": "tests/unit/license-activation-contract.test.ts",
+      "sha256": "a64ed627a9f2e2b1dcd05528dbfe2d1afcaf84f732362a72630cf029fb7b1ca8"
+    },
+    {
+      "path": "tests/unit/student-list-completeness.test.ts",
+      "sha256": "b6eba84165d45621452204fe1ea1c9366e83ab34a29f5134f716c88337113eed"
     }
   ],
   "batch": {
@@ -1533,7 +1577,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 231,
+    "declared_entries_checked": 242,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,
