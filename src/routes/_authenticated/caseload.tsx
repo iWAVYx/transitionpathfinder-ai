@@ -1,14 +1,14 @@
+import { CaseloadQuickTools as Expanded } from "@/components/students/CaseloadQuickTools";
+import { useAuth } from "@/hooks/use-auth";
+import { useCaseloadRead } from "@/hooks/use-caseload-read";
 import { formatGradeBand } from "@/lib/grade-band-label";
 import { z } from "zod";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
 import {
   Users,
   Search,
-  Target,
-  StickyNote,
   Plus,
   Loader2,
   FileText,
@@ -23,8 +23,6 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -32,13 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  getCaseload,
-  addCaseManagerNote,
-  quickAssignActionItem,
-  listStudentNotes,
-  type CaseloadStudent,
-} from "@/lib/caseload.functions";
+import { getCaseload, type CaseloadStudent } from "@/lib/caseload.functions";
 
 import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -72,9 +64,6 @@ function endOfThisWeek(): Date {
   d.setDate(d.getDate() + 6);
   return d;
 }
-function uniqueStudents(students: CaseloadStudent[]): CaseloadStudent[] {
-  return Array.from(new Map(students.map((student) => [student.id, student])).values());
-}
 function formatMeetingChip(iso: string): string {
   const d = new Date(iso);
   const today = startOfToday();
@@ -92,30 +81,23 @@ function formatMeetingChip(iso: string): string {
 }
 
 function CaseloadPage() {
+  const { user, loading } = useAuth();
+  if (loading) return <p>Loading caseload…</p>;
+  if (!user) return <p>Sign in to view your caseload.</p>;
+  return <CaseloadPageSession key={user.id} />;
+}
+function CaseloadPageSession() {
   const { view } = Route.useSearch();
   const fetchCaseload = useServerFn(getCaseload);
-  const [rows, setRows] = useState<CaseloadStudent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: { students: rows },
+    loading,
+    error: loadError,
+    reload,
+  } = useCaseloadRead(fetchCaseload, { students: [] as CaseloadStudent[] });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  async function reload() {
-    setLoading(true);
-    try {
-      const { students } = await fetchCaseload();
-      setRows(uniqueStudents(students));
-    } catch {
-      toast.error("Could not load caseload.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    reload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -163,7 +145,14 @@ function CaseloadPage() {
               <RoleValueStrip role="educator" className="mt-4" />
 
               <div className="mt-4 space-y-6 sm:space-y-8">
-                {view !== "students" ? (
+                {loadError ? (
+                  <div role="alert" className="rounded-xl border p-4 text-sm">
+                    Your caseload could not be fully loaded.{" "}
+                    <Button variant="outline" onClick={() => void reload()}>
+                      Refresh Caseload
+                    </Button>
+                  </div>
+                ) : view !== "students" ? (
                   <>
                     <LiveEducatorWorkspaceOverview students={rows} loading={loading} />
                     <DashboardWidgetBoard role="educator" />
@@ -313,7 +302,9 @@ function CaseloadRow({
             )}
           </div>
           <p className="mt-0.5 text-xs text-foreground/75">
-            {[row.grade_band ? formatGradeBand(row.grade_band) : null, row.school].filter(Boolean).join(" · ") || "No school on file"}
+            {[row.grade_band ? formatGradeBand(row.grade_band) : null, row.school]
+              .filter(Boolean)
+              .join(" · ") || "No school on file"}
           </p>
         </div>
         <div className="flex items-center gap-4 text-sm">
@@ -364,7 +355,9 @@ function CaseloadRow({
         )}
       </div>
 
-      {expanded && <Expanded row={row} onChanged={onChanged} />}
+      {expanded && (
+        <Expanded key={row.id + ":" + row.relationship} row={row} onChanged={onChanged} />
+      )}
     </li>
   );
 }
@@ -378,147 +371,6 @@ function Stat({ label, value, tone }: { label: string; value: React.ReactNode; t
         {value}
       </p>
       <p className="text-[10px] uppercase tracking-wider text-foreground/75">{label}</p>
-    </div>
-  );
-}
-
-function Expanded({
-  row,
-  onChanged,
-}: {
-  row: CaseloadStudent;
-  onChanged: () => void | Promise<void>;
-}) {
-  const addNote = useServerFn(addCaseManagerNote);
-  const addAction = useServerFn(quickAssignActionItem);
-  const fetchNotes = useServerFn(listStudentNotes);
-
-  const [note, setNote] = useState("");
-  const [savingNote, setSavingNote] = useState(false);
-  const [actionTitle, setActionTitle] = useState("");
-  const [actionPriority, setActionPriority] = useState<"low" | "medium" | "high">("medium");
-  const [savingAction, setSavingAction] = useState(false);
-  const [notes, setNotes] = useState<
-    Array<{ id: string; content: string; created_at: string; note_type: string }>
-  >([]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const { notes } = await fetchNotes({ data: { student_id: row.id } });
-        setNotes(notes);
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not load notes.");
-        setNotes([]);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [row.id]);
-
-  async function handleSaveNote(e: React.FormEvent) {
-    e.preventDefault();
-    if (!note.trim()) return;
-    setSavingNote(true);
-    try {
-      await addNote({ data: { student_id: row.id, content: note.trim(), visibility: "team" } });
-      setNote("");
-      toast.success("Note saved.");
-      const { notes } = await fetchNotes({ data: { student_id: row.id } });
-      setNotes(notes);
-      onChanged();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not save note.");
-    } finally {
-      setSavingNote(false);
-    }
-  }
-
-  async function handleAssignAction(e: React.FormEvent) {
-    e.preventDefault();
-    if (!actionTitle.trim()) return;
-    setSavingAction(true);
-    try {
-      await addAction({
-        data: {
-          student_id: row.id,
-          title: actionTitle.trim(),
-          category: "teacher",
-          priority: actionPriority,
-        },
-      });
-      setActionTitle("");
-      toast.success("Action item created.");
-      onChanged();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not create action.");
-    } finally {
-      setSavingAction(false);
-    }
-  }
-
-  return (
-    <div className="mt-4 grid gap-4 border-t border-border/60 pt-4 md:grid-cols-2">
-      {/* Quick note */}
-      <form onSubmit={handleSaveNote} className="space-y-2">
-        <Label className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
-          <StickyNote className="h-3.5 w-3.5" /> Add Case Manager Note
-        </Label>
-        <Textarea
-          rows={3}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="What changed this week? Observations, follow-ups, family updates…"
-          maxLength={4000}
-        />
-        <div className="flex justify-end">
-          <Button type="submit" size="sm" disabled={savingNote || !note.trim()}>
-            {savingNote ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save Note
-          </Button>
-        </div>
-        {notes.length > 0 && (
-          <ul className="mt-2 max-h-40 space-y-2 overflow-y-auto border-t pt-2 text-xs">
-            {notes.slice(0, 5).map((n) => (
-              <li key={n.id}>
-                <p className="text-foreground/75">{new Date(n.created_at).toLocaleString()}</p>
-                <p className="text-foreground">{n.content}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </form>
-
-      {/* Quick assign action */}
-      <form onSubmit={handleAssignAction} className="space-y-2">
-        <Label className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
-          <Target className="h-3.5 w-3.5" /> Assign Action Item
-        </Label>
-        <Input
-          value={actionTitle}
-          onChange={(e) => setActionTitle(e.target.value)}
-          placeholder="e.g. Schedule transition planning meeting"
-          maxLength={200}
-        />
-        <div className="flex items-center gap-2">
-          <Select
-            value={actionPriority}
-            onValueChange={(v) => setActionPriority(v as "low" | "medium" | "high")}
-          >
-            <SelectTrigger className="w-full sm:w-[130px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="low">Low</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="ml-auto flex gap-2">
-            <Button type="submit" size="sm" disabled={savingAction || !actionTitle.trim()}>
-              {savingAction ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Assign
-            </Button>
-          </div>
-        </div>
-      </form>
     </div>
   );
 }

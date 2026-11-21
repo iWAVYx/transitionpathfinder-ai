@@ -156,10 +156,10 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
 
   async function reload() {
     const [s, d, g, e] = await Promise.all([
-      fetchStudent({ data: { id: studentId } }).catch(() => null),
+      fetchStudent({ data: { id: studentId,expected_viewer_id:viewerId } }).catch(() => null),
       fetchDocs({ data: { student_id: studentId } }).catch(() => ({ documents: [] })),
       fetchGoals({ data: { student_id: studentId,expected_viewer_id:viewerId } }).then(result=>({...result,loadFailed:false})).catch(() => ({goals:[],loadFailed:true})),
-      fetchCanEdit({ data: { student_id: studentId } }).catch(() => ({ canEdit: false })),
+      fetchCanEdit({ data: { student_id: studentId,expected_viewer_id:viewerId } }).catch(() => ({ canEdit: false })),
     ]);
     if (!active.current) return;
     setStudent(s);

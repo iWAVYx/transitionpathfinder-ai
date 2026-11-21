@@ -1,3 +1,4 @@
+import { useCaseloadRead } from "@/hooks/use-caseload-read";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useMemo, useState } from "react";
@@ -10,10 +11,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  listCaseloadNotes,
-  type CaseloadNoteRow,
-} from "@/lib/educator.functions";
+import { listCaseloadNotes, type CaseloadNoteRow } from "@/lib/educator.functions";
 
 export const Route = createFileRoute("/_authenticated/educator/notes")({
   head: () => ({
@@ -35,39 +33,31 @@ export const Route = createFileRoute("/_authenticated/educator/notes")({
 
 function EducatorNotesPage() {
   const load = useServerFn(listCaseloadNotes);
-  const [notes, setNotes] = useState<CaseloadNoteRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: { notes },
+    loading,
+    error: loadError,
+    reload,
+  } = useCaseloadRead(load, { notes: [] as CaseloadNoteRow[] });
   const [q, setQ] = useState("");
-
-  useEffect(() => {
-    load()
-      .then(({ notes }) => setNotes(notes))
-      .finally(() => setLoading(false));
-  }, [load]);
 
   const filtered = useMemo(() => {
     if (!q.trim()) return notes;
     const needle = q.trim().toLowerCase();
     return notes.filter(
       (n) =>
-        n.content.toLowerCase().includes(needle) ||
-        n.student_name.toLowerCase().includes(needle),
+        n.content.toLowerCase().includes(needle) || n.student_name.toLowerCase().includes(needle),
     );
   }, [notes, q]);
 
   return (
     <SiteShell>
-      <section
-        data-testid="educator-notes-page"
-        className="mx-auto max-w-4xl px-4 py-8"
-      >
+      <section data-testid="educator-notes-page" className="mx-auto max-w-4xl px-4 py-8">
         <Breadcrumbs trail={[{ label: "Case Notes" }]} />
         <header className="mt-4 mb-6">
           <div className="flex items-center gap-3">
             <NotebookPen className="h-7 w-7 text-primary" />
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Case Notes
-            </h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Case Notes</h1>
           </div>
           <p className="mt-2 text-muted-foreground">
             Recent notes across your caseload. Open a student to add a new note.
@@ -84,7 +74,14 @@ function EducatorNotesPage() {
           />
         </div>
 
-        {loading ? (
+        {loadError ? (
+          <div role="alert" className="rounded-xl border p-4 text-sm">
+            Saved notes could not be fully loaded.{" "}
+            <Button variant="outline" onClick={() => void reload()}>
+              Refresh
+            </Button>
+          </div>
+        ) : loading ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading notes…
           </div>
@@ -95,9 +92,7 @@ function EducatorNotesPage() {
             cta={{ label: "Open caseload", to: "/caseload" }}
           />
         ) : filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No notes match "{q}".
-          </p>
+          <p className="text-sm text-muted-foreground">No notes match "{q}".</p>
         ) : (
           <ul className="space-y-3">
             {filtered.map((n) => (
@@ -117,9 +112,7 @@ function EducatorNotesPage() {
                     </span>
                   </div>
                 </div>
-                <p className="mt-2 whitespace-pre-wrap text-sm">
-                  {n.content}
-                </p>
+                <p className="mt-2 whitespace-pre-wrap text-sm">{n.content}</p>
               </li>
             ))}
           </ul>

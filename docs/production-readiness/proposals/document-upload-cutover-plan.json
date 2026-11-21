@@ -348,7 +348,7 @@
     },
     {
       "path": "src/routes/_authenticated/students.$studentId.tsx",
-      "sha256": "13cd54c035ccc4063383607003dc1167194e8cedd1a7a7684718f42ee41fdae1"
+      "sha256": "4a0c72318aee67e92a539852e056ce52e6f72e66221d85a9f7a34be4c12a412f"
     },
     {
       "path": "tests/unit/student-summary-reader.test.ts",
@@ -608,7 +608,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "1d8ef2d60c15d769bb89da7de471b149a201381d25f320f7b22bc7ee2846435c"
+      "sha256": "763a37810a4a07699e9e9d6cb3131c04b5ab1600568cc1b5dc4937337a154d1f"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
@@ -668,7 +668,7 @@
     },
     {
       "path": "src/lib/caseload.functions.ts",
-      "sha256": "f5547196656bbe6fbb57e0e35ef11320eafcee4cb3e21f8a714aaaecb8c7951a"
+      "sha256": "6d80409961b8f47942d037f8c80e77b47986c8ff7f5386ebf073e5b69b798b38"
     },
     {
       "path": "src/lib/district-admin.functions.ts",
@@ -676,7 +676,7 @@
     },
     {
       "path": "src/lib/educator.functions.ts",
-      "sha256": "983ef8026f89a16bec8a5f06fda964048409e65956d0115e5488ba4f4dac6769"
+      "sha256": "15b1ea212cd9fb0d10bf71cd9aacc5a1e3aee8229c3f3267472d86f187975cfc"
     },
     {
       "path": "src/lib/next-best-action.functions.ts",
@@ -692,7 +692,7 @@
     },
     {
       "path": "src/lib/students.functions.ts",
-      "sha256": "979858ecd0913d03ecf7dc11d351539671941b98b3bbef0d14972f96049c3b85"
+      "sha256": "bfa1a105e11b45f51ce83134ef99b2fcc4eea58ab7d5497a05ab025143292982"
     },
     {
       "path": "src/routes/_authenticated/action-items.tsx",
@@ -700,7 +700,7 @@
     },
     {
       "path": "src/routes/_authenticated/educator.action-items.tsx",
-      "sha256": "c50b52933975517b136be2ae8bb2c5193f2e72532cc14be37311a251d3578664"
+      "sha256": "833bb005d0f7799672ccd59586c7007411d3df1e3abf173e7c3c3b4171878b26"
     },
     {
       "path": "src/routes/_authenticated/family.action-items.tsx",
@@ -881,6 +881,54 @@
     {
       "path": "docs/database-proposals/planning-record-write/README.md",
       "sha256": "f571f2c6f58840f97d54ac10a6bc54bebc18530c7f1e032ea78be3ebb6c9a934"
+    },
+    {
+      "path": "src/lib/caseload-records.server.ts",
+      "sha256": "2854ac6adeaa586f240ed3ac043bc290572b5e31caa24e0de385d6561056e67c"
+    },
+    {
+      "path": "src/hooks/use-caseload-read.ts",
+      "sha256": "9475e0071216676facee3befdee21b623d3b6523114932f2a93bd7f990853b1e"
+    },
+    {
+      "path": "src/components/students/CaseloadQuickTools.tsx",
+      "sha256": "aff207620c697600b62748726f147dab7d299f20b94849d23de29527c291015a"
+    },
+    {
+      "path": "src/components/dashboard/LiveEducatorWorkspaceOverview.tsx",
+      "sha256": "a4cf7115385446e092b74b911f64d6c289e2a33c124697263ddb424d1fc96e4d"
+    },
+    {
+      "path": "src/routes/_authenticated/caseload.tsx",
+      "sha256": "3754250d0ae28e54ff01f2eda0b2d5ce6956a06159fd7dbde079d412750f6962"
+    },
+    {
+      "path": "src/routes/_authenticated/educator.notes.tsx",
+      "sha256": "a1a510368c8e31bcaf87bc68b8cb700a984ac27b54d3c08662f14bccbc733e80"
+    },
+    {
+      "path": "src/routes/_authenticated/educator.readiness-gaps.tsx",
+      "sha256": "ae8153f776214e171ed6633db6937c5f99467891a639acd9d378ef9abb23bcb1"
+    },
+    {
+      "path": "tests/unit/caseload-read-boundaries.test.ts",
+      "sha256": "2913c94d57cf5ec7df822d401474b533146cdc06690b92f65b94c4d0b98bc380"
+    },
+    {
+      "path": "tests/unit/caseload-read-lifetime.test.tsx",
+      "sha256": "81b35fe2cd7d3afa5b7151263483eda3ea5e298ed9baf813017e822ffaa0d2a2"
+    },
+    {
+      "path": "tests/unit/caseload-quick-tools.test.tsx",
+      "sha256": "882666bc650a495e1a970730ab2465cca0251b626c9716218497661c3a245c66"
+    },
+    {
+      "path": "tests/unit/caseload-write-api.test.ts",
+      "sha256": "5b28264d1f223c5bec5db9f050dcfba80dd218a5a69766ba011edbfa8582df92"
+    },
+    {
+      "path": "docs/production-readiness/proposals/caseload-reader-review.md",
+      "sha256": "26b81ad7d96a1f1c3eb97f695ddcb6110618baf8c7c55ce17afe0376a7e7921c"
     }
   ],
   "batch": {
@@ -1485,7 +1533,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 219,
+    "declared_entries_checked": 231,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

@@ -1,3 +1,4 @@
+import {readStudentProfile,studentCapability,CASELOAD_UNAVAILABLE} from "./caseload-records.server";
 import{deletePlanningRecordAtomically}from"./planning-record-delete.server";
 import {readPlanningRecords} from "./planning-records.server";
 import {createPlanningRecordAtomically,updateGoalStatusAtomically} from "./planning-record-write.server";
@@ -73,40 +74,14 @@ export const listStudents = createServerFn({ method: "GET" })
     }
   });
 
-export const getStudent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: row, error } = await supabase
-      .from("students")
-      .select("*")
-      .eq("id", data.id)
-      .maybeSingle();
-    if (error || !row) throw new Error("Student not found.");
-    return row as Student;
-  });
+export const getStudent=createServerFn({method:"POST"}).middleware([requireSupabaseAuth])
+ .validator((i:unknown)=>z.object({id:z.string().uuid(),...viewerIntentSchema.shape}).parse(i))
+ .handler(async({data,context})=>readStudentProfile(context.supabase,context.userId,data) as unknown as Promise<Student>);
 
-/**
- * Returns whether the current user can edit the given student (owner,
- * editor-collaborator, or platform admin). Mirrors the SQL `can_edit_student`
- * helper used by RLS, letting the UI hide write affordances for viewers.
- */
-export const canEditStudent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: row, error } = await supabase.rpc("can_edit_student", {
-      _user_id: userId,
-      _student_id: data.student_id,
-    });
-    if (error) {
-      console.error("canEditStudent failed", error);
-      return { canEdit: false };
-    }
-    return { canEdit: !!row };
-  });
+/** Current explicit access only; the Owner/admin role is not student editing proof. */
+export const canEditStudent=createServerFn({method:"POST"}).middleware([requireSupabaseAuth])
+ .validator((i:unknown)=>z.object({student_id:z.string().uuid(),...viewerIntentSchema.shape}).parse(i))
+ .handler(async({data,context})=>{assertExpectedViewer(data,context.userId);try{return{canEdit:await studentCapability(context.supabase,context.userId,data.student_id)};}catch{throw Error(CASELOAD_UNAVAILABLE);}});
 
 export const createStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
