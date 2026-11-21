@@ -107,3 +107,18 @@ it("does not retry uncertain status change", async () => {
   );
   expect(api.update).toHaveBeenCalledOnce();
 });
+
+import {addRecommendationToCalendar,addRecommendationToNextMeetingPrep} from '../../src/lib/recommendation-actions.functions';
+function recommendationDb(){
+ const meetings:any={data:[{id:id(4),student_id:id(2),scheduled_at:'2100-01-01T12:00:00Z',status:'upcoming'}],error:null};
+ const inserts:any[]=[];let alter=(row:any)=>({data:row,error:null} as any);const filters:any[]=[];
+ const db={from:vi.fn((table:string)=>{let fields:any;const q:any={select:()=>q,eq:(...args:any[])=>{filters.push(args);return q;},gte:()=>q,order:()=>q,limit:async()=>meetings,insert:(value:any)=>{fields=value;inserts.push({table,fields});return q;},single:async()=>alter({...fields})};return q;})};
+ return{db,meetings,inserts,filters,setResult:(fn:typeof alter)=>{alter=fn;}};
+}
+for(const [name,fn] of [['calendar',addRecommendationToCalendar],['meeting prep',addRecommendationToNextMeetingPrep]] as const){
+ it(`${name} confirms exact saved identity and content`,async()=>{const s=recommendationDb();const result=await(fn as any)({data,context:{...context,supabase:s.db}});expect(result.ok).toBe(true);expect(s.inserts).toHaveLength(1);expect(s.inserts[0].fields).toMatchObject({id:id(3),student_id:id(2)});if(name==='calendar')expect(s.inserts[0].fields.owner_user_id).toBe(id(1));else{expect(s.inserts[0].fields.category).toBe('follow_up');expect(s.filters).toContainEqual(['status','upcoming']);expect(result.prep_item_id).toBe(id(3));}});
+ for(const defect of ['empty','error','wrong-id','wrong-student','wrong-content'])it(`${name} rejects ${defect} without retry`,async()=>{const s=recommendationDb();s.setResult(row=>defect==='empty'?{data:null,error:null}:defect==='error'?{data:row,error:{}}:{data:{...row,[defect==='wrong-id'?'id':defect==='wrong-student'?'student_id':name==='calendar'?'title':'content']:'other'},error:null});await expect((fn as any)({data,context:{...context,supabase:s.db}})).rejects.toThrow("couldn't confirm");expect(s.inserts).toHaveLength(1);});
+ it(`${name} rejects departed account before reads or writes`,async()=>{const s=recommendationDb();await expect((fn as any)({data:{...data,expected_viewer_id:id(8)},context:{...context,supabase:s.db}})).rejects.toThrow('sign-in changed');expect(s.db.from).not.toHaveBeenCalled();});
+}
+for(const defect of ['cancelled','foreign-student','past-date','bad-id'])it(`does not add preparation to ${defect} meeting`,async()=>{const s=recommendationDb(),m=s.meetings.data[0];if(defect==='cancelled')m.status='cancelled';else if(defect==='foreign-student')m.student_id=id(8);else if(defect==='past-date')m.scheduled_at='2000-01-01T12:00:00Z';else m.id='bad';await expect((addRecommendationToNextMeetingPrep as any)({data,context:{...context,supabase:s.db}})).rejects.toThrow();expect(s.inserts).toHaveLength(0);});
+it('distinguishes no upcoming meeting from an unavailable read',async()=>{const s=recommendationDb();s.meetings.data=[];expect((await(addRecommendationToNextMeetingPrep as any)({data,context:{...context,supabase:s.db}})).reason).toBe('no_upcoming_meeting');s.meetings.data=null;await expect((addRecommendationToNextMeetingPrep as any)({data,context:{...context,supabase:s.db}})).rejects.toThrow('check your upcoming meetings');expect(s.inserts).toHaveLength(0);});

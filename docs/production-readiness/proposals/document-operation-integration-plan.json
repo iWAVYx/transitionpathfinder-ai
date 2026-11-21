@@ -587,7 +587,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "e47091ff9d0d0b914aa9058280d29ae42f2809b75bd499baae6ccd637722b564"
+      "sha256": "1cc8b2e2a76b24693884fa961c295da06d56ee371b56c7af64979c458576ebbe"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -659,7 +659,7 @@
     },
     {
       "path": "src/lib/recommendation-actions.functions.ts",
-      "sha256": "1831e0b82b0e33260da6d32b1d23e0e1cd503d1aa29b2e2a9ca76b415c8c9d60"
+      "sha256": "e4afb0ba095f3fc5a9452f5f066ff7748507aebd2ec86c6022aca78bf984a41f"
     },
     {
       "path": "src/lib/school-admin.functions.ts",
@@ -907,19 +907,19 @@
     },
     {
       "path": "src/lib/student-lifecycle.server.ts",
-      "sha256": "511209362c264b4c873685046e579da046e597114b3dde313d1ad40979975df8"
+      "sha256": "1271f54479c07486c81421246d1b1efb67b166957b1e7a386b6b4f8648f5dfb9"
     },
     {
       "path": "tests/unit/student-lifecycle-receipts.test.ts",
-      "sha256": "f4229317706d2e4e23b2c0ef8c99ef35aeab63e6f5b8ffe880d6c95019667cef"
+      "sha256": "787fafbfb620d63193d732c724f1463a738e49898839efa3cba5ed513320c894"
     },
     {
       "path": "tests/unit/remaining-planning-save-paths.test.ts",
-      "sha256": "c263d59432c0a0eaec2d58775af16e62885ed6a10ae8bd796b72b154212a6925"
+      "sha256": "10cbfb1e0ff174bf837df72f96a06a2d801ad3fd1a79b456f8cae885c231f127"
     },
     {
       "path": "docs/production-readiness/proposals/student-lifecycle-save-path-review.md",
-      "sha256": "c41cc3f3c2383d6a9527130ff0bc084722d5f4250be90f1daeb136c415206140"
+      "sha256": "5f26719ba7d157a12a8cdea747420a63065c567825b7df8b16939699b2ccac22"
     },
     {
       "path": "tests/unit/student-lifecycle-page.test.tsx",
@@ -939,15 +939,27 @@
     },
     {
       "path": "src/routes/_authenticated/students.index.tsx",
-      "sha256": "a3a4282a7035f018fe43fb5d4c5c2db4e9db2505bf564f72d054c7817ec9be8c"
+      "sha256": "d7ec2e83625abef2d77472d6a8ccd61091aab143dd45a59b59ed49afbfa478bf"
     },
     {
       "path": "tests/unit/license-activation-contract.test.ts",
-      "sha256": "a64ed627a9f2e2b1dcd05528dbfe2d1afcaf84f732362a72630cf029fb7b1ca8"
+      "sha256": "bff6f3e977622450361274e4e70768cf19b8c0d145f9e6613aed9c441e126aed"
     },
     {
       "path": "tests/unit/student-list-completeness.test.ts",
       "sha256": "b6eba84165d45621452204fe1ea1c9366e83ab34a29f5134f716c88337113eed"
+    },
+    {
+      "path": "docs/database-proposals/student-creation-atomicity/create-student.review.sql",
+      "sha256": "b19004bfa832121e318af16d37261c692a1a53178775c021841c168cb7190c9f"
+    },
+    {
+      "path": "tests/database/student-creation-atomicity.test.mjs",
+      "sha256": "326daebe3132ec1aff1a541d447bd0c5d6eafb4d2e8fb5fa7aa8df0bc5be7d17"
+    },
+    {
+      "path": "tests/database/run-student-creation-atomicity-schema.mjs",
+      "sha256": "ce86ed30bb7511321ce142e057eb3cf93d8f657a24be025c0debdba6143cff02"
     }
   ],
   "adapter_contract": {
@@ -1856,7 +1868,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 236,
+    "declared_entries_checked": 239,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

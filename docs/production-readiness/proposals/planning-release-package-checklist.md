@@ -19,9 +19,12 @@ Known findings are attached to their source families in [the machine-readable in
 - [x] Reject mismatched self-profile replies and unavailable creator accounts; confirm student, relationship and optional license responses before reporting setup success.
 - [x] Require owner, loaded revision and an actual deleted student receipt; reject zero-row success.
 - [x] Guard student-list/onboarding submissions against departed contexts and uncertain repeated writes; expose list-load failure.
-- [ ] Make non-self student creation/relationship/license setup atomic and reconcile partial or uncertain outcomes across reloads.
-- [ ] Finish deletion cascade/storage/provider and competing dependent-write review.
-- [ ] Review composed meeting/channel saves, extracted-goal bulk saves and trusted writers; finish recommendation calendar/prep receipts.
+- [x] Make non-self student creation/relationship/license setup atomic with caller RLS, profile locking and exact receipts; separate fourteenth draft passes 27 local/28 native cases and full-schema replay.
+- [ ] Persist/reconcile uncertain creation intent and onboarding completion across reloads.
+- [x] Inventory all 143 reachable student foreign-key dependencies in the complete schema and verify creator-relationship deletion cascades in actual Family/Educator/Student smoke. Correct deletion wording to avoid promising full erasure.
+- [ ] Finish coordinated retained-record/restrictive-reference/storage/provider deletion and competing dependent-write review.
+- [x] Confirm exact recommendation calendar/prep receipts; use valid follow-up categories and reject cancelled, foreign or past meetings.
+- [ ] Review composed meeting/channel saves, extracted-goal bulk saves and trusted writers; hold recommendation parent/authority proof through commit.
 
 [Scope and limitations](student-lifecycle-save-path-review.md). These checked application components do not close the lifecycle transaction work, whole P1, or hosted acceptance.
 
@@ -48,7 +51,7 @@ The eight goal/action endpoint entries remain **review-required** until those da
 
 ## Verified Review-Draft Order
 
-The 225 canonical migrations and 41 prior control drafts remain separate from these thirteen source/disposable-verified drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
+The 225 canonical migrations and 41 prior control drafts remain separate from these fourteen source/disposable-verified drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
 
 1. Retire the legacy admin document override — `document-admin-grant-retirement/retire-admin-document-grants.review.sql`.
 2. Bind document grants to their actual parent — `document-permission-parent/bind-document-permission-parent.review.sql`.
@@ -63,10 +66,11 @@ The 225 canonical migrations and 41 prior control drafts remain separate from th
 11. Atomic normal action updates — `action-completion-atomicity/atomic-action-update.review.sql` (verified source/disposable component; one authenticated-only RPC and one private timestamp trigger helper).
 12. Current-proof normal goal/action deletion — `planning-record-delete/atomic-planning-delete.review.sql` (source/disposable verified; one authenticated-only RPC, no new triggers or changed table grants).
 13. Normal goal/action creation and goal-status saves — `planning-record-write/atomic-planning-write.review.sql` (source/disposable verified; two authenticated RPCs and a private goal revision helper/trigger).
+14. Atomic student/creator-relationship/license setup — `student-creation-atomicity/create-student.review.sql` (source/disposable verified; one authenticated-only SECURITY INVOKER RPC, preserving existing policies/grants/routines/triggers).
 
 Paths above are relative to `docs/database-proposals/`. Their tested order and hashes are collected from the fresh disposable installation. The packaging collector snapshots the routine catalog **after the 225 + 41 baseline and before the first separate draft**, preserves all 56 original installer/catalog stage scripts, runs all existing separate-draft verifiers, then captures the final catalog.
 
-The first-nine routine catalogue remains scoped historical evidence. The fresh tenth-draft full-schema verifier confirms an unchanged before/after routine/policy/grant/catalog snapshot; the eleventh draft separately verifies its two new routines, one new trigger and unchanged existing catalogue. The twelfth draft adds one deletion RPC without changing existing routines/triggers. The thirteenth adds two creation/status RPCs and one private goal-revision helper/trigger while preserving all existing routines/policies/grants/data. Final combined canonical packaging remains open.
+The first-nine routine catalogue remains scoped historical evidence. The fresh tenth-draft full-schema verifier confirms an unchanged before/after routine/policy/grant/catalog snapshot; the eleventh draft separately verifies its two new routines, one new trigger and unchanged existing catalogue. The twelfth draft adds one deletion RPC without changing existing routines/triggers. The thirteenth adds two creation/status RPCs and one private goal-revision helper/trigger while preserving all existing routines/policies/grants/data. The fourteenth adds one caller-RLS student-setup transaction and preserves the existing catalogue. Final combined canonical packaging remains open.
 
 ## Workstream 4.1 Packaging Gates
 

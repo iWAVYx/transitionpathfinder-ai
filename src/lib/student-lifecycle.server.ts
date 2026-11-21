@@ -53,105 +53,112 @@ type Input = Intent & {
   date_of_birth?: string;
   notes?: string;
 };
-/** Caller-RLS operations, NOT a transaction across student, relationship and license.
- * Never retry or compensate automatically after an uncertain/partial write. */
+const setupReceipt = z
+  .object({
+    schema: z.literal("student-setup-v1"),
+    actor_id: z.string().uuid(),
+    request_id: z.string().uuid(),
+    account_role: z.string().min(1),
+    account_email: z.string().email(),
+    organization_id: z.string().uuid().nullable(),
+    self_profile: z.boolean(),
+    row: student,
+    relationship_kind: z.enum(["guardian", "team"]).nullable(),
+    relationship: z.record(z.string(), z.unknown()).nullable(),
+    license_attached: z.boolean().nullable(),
+  })
+  .strict();
+/** One caller-RLS transaction for student, relationship and optional license.
+ * Never fall back to raw inserts or retry after an uncertain response. */
 export async function createStudentWithReceipt(
   client: Client,
   actor: string,
   input: Input,
 ): Promise<Student> {
   assertExpectedViewer(input, actor);
-  const profileResult = await client
-    .from("profiles")
-    .select("id, primary_role, email, organization_id")
-    .eq("id", actor)
-    .maybeSingle();
-  const parsed = z
-    .object({
-      id: z.literal(actor),
-      primary_role: z.string().min(1),
-      email: z.string().email(),
-      organization_id: z.string().uuid().nullable(),
-    })
-    .safeParse(profileResult.data);
-  if (profileResult.error !== null || !parsed.success)
-    throw Error("We couldn't check your account details. Refresh before adding a student.");
-  const profile = parsed.data;
-  if (profile.primary_role === "student") return ensureSelfProfile(client, actor, input);
-  const guardians = new Set(["parent", "guardian"]),
-    team = new Set([
-      "educator",
-      "teacher",
-      "case_manager",
-      "administrator",
-      "school_admin",
-      "admin",
-    ]);
-  const fields = {
-    id: input.request_id ?? crypto.randomUUID(),
-    owner_id: actor,
-    first_name: input.first_name,
-    last_name: input.last_name ?? null,
-    grade_band: input.grade_band ?? null,
-    school: input.school ?? null,
-    date_of_birth: input.date_of_birth ?? null,
-    notes: input.notes ?? null,
-    organization_id: profile.organization_id,
-  };
+  const { request_id, expected_viewer_id, ...fields } = input,
+    request = request_id ?? crypto.randomUUID();
   try {
-    const result = await client.from("students").insert(fields).select("*").single();
+    const result = await client.rpc("create_student_with_setup", {
+      _expected_viewer_id: actor,
+      _request_id: request,
+      _fields: fields,
+    });
     if (result.error !== null) throw Error();
-    const row = student.parse(result.data);
-    if (row.student_user_id !== null || Object.entries(fields).some(([k, v]) => row[k] !== v))
+    const receipt = setupReceipt.parse(result.data),
+      row = receipt.row;
+    if (
+      receipt.actor_id !== actor ||
+      receipt.request_id !== request ||
+      receipt.self_profile !== (receipt.account_role === "student")
+    )
       throw Error();
-    const relation = guardians.has(profile.primary_role)
-      ? {
-          table: "student_guardians",
-          fields: {
-            student_id: row.id,
-            guardian_user_id: actor,
-            guardian_email: profile.email,
-            relationship: profile.primary_role,
-            is_primary: true,
-            verified: true,
-          },
-        }
-      : team.has(profile.primary_role)
-        ? {
-            table: "student_team_members",
-            fields: {
-              student_id: row.id,
-              member_user_id: actor,
-              member_email: profile.email,
-              role_on_team:
-                profile.primary_role === "administrator" ? "school_admin" : profile.primary_role,
-              organization_id: profile.organization_id,
-              status: "active",
-            },
-          }
-        : null;
-    if (relation) {
-      const saved = await client.from(relation.table).insert(relation.fields).select("*").single();
+    if (receipt.self_profile) {
       if (
-        saved.error !== null ||
-        !saved.data ||
-        Object.entries(relation.fields).some(([k, v]) => saved.data[k] !== v) ||
-        !z.string().uuid().safeParse(saved.data.id).success
+        row.student_user_id !== actor ||
+        receipt.relationship !== null ||
+        receipt.relationship_kind !== null ||
+        receipt.license_attached !== null
       )
         throw Error();
+      return row;
     }
-    if (guardians.has(profile.primary_role)) {
-      const license = await client.rpc("attach_my_pathway_license_to_student", {
-        _student_id: row.id,
-      });
-      if (license.error !== null || typeof license.data !== "boolean")
-        throw Error(); /* false means no reserved seat, not a failed attachment. */
-    }
+    const expected = {
+      id: request,
+      owner_id: actor,
+      student_user_id: null,
+      first_name: input.first_name.trim(),
+      last_name: input.last_name ?? null,
+      grade_band: input.grade_band ?? null,
+      school: input.school ?? null,
+      date_of_birth: input.date_of_birth ?? null,
+      notes: input.notes ?? null,
+      organization_id: receipt.organization_id,
+    };
+    if (Object.entries(expected).some(([k, v]) => row[k] !== v)) throw Error();
+    const guardian = ["parent", "guardian"].includes(receipt.account_role),
+      team = [
+        "educator",
+        "teacher",
+        "case_manager",
+        "administrator",
+        "school_admin",
+        "admin",
+      ].includes(receipt.account_role);
+    if (receipt.relationship_kind !== (guardian ? "guardian" : team ? "team" : null)) throw Error();
+    if (guardian || team) {
+      const relation = receipt.relationship;
+      if (!relation || !z.string().uuid().safeParse(relation.id).success) throw Error();
+      const expectedRelation = guardian
+        ? {
+            student_id: request,
+            guardian_user_id: actor,
+            guardian_email: receipt.account_email,
+            relationship: receipt.account_role,
+            is_primary: true,
+            verified: true,
+          }
+        : {
+            student_id: request,
+            member_user_id: actor,
+            member_email: receipt.account_email,
+            role_on_team:
+              receipt.account_role === "administrator" ? "school_admin" : receipt.account_role,
+            organization_id: receipt.organization_id,
+            status: "active",
+          };
+      if (Object.entries(expectedRelation).some(([k, v]) => relation[k] !== v)) throw Error();
+    } else if (receipt.relationship !== null) throw Error();
+    if (
+      guardian ? typeof receipt.license_attached !== "boolean" : receipt.license_attached !== null
+    )
+      throw Error();
     return row;
   } catch {
     throw Error(STUDENT_SAVE_UNCONFIRMED);
   }
 }
+
 /** Exact owner/version predicate and returned row; existing RLS/cascades remain authoritative.
  * This proves only the deleted student receipt, not external-storage cleanup. */
 export async function deleteStudentWithReceipt(

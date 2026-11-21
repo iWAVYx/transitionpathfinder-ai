@@ -84,7 +84,38 @@ function setup(role = "parent") {
   };
   return { client, results, inserts, predicates };
 }
-describe("student creation receipts", () => {
+function atomic(role = "parent") {
+  const s = setup(role),
+    guardian = ["parent", "guardian"].includes(role),
+    team = [
+      "educator",
+      "teacher",
+      "case_manager",
+      "administrator",
+      "school_admin",
+      "admin",
+    ].includes(role);
+  const receipt: any = {
+    schema: "student-setup-v1",
+    actor_id: actor,
+    request_id: record,
+    account_role: role,
+    account_email: "sample@example.test",
+    organization_id: null,
+    self_profile: role === "student",
+    row: { ...row, ...(role === "student" ? { student_user_id: actor } : {}) },
+    relationship_kind: guardian ? "guardian" : team ? "team" : null,
+    relationship: guardian
+      ? s.results.student_guardians.data
+      : team
+        ? s.results.student_team_members.data
+        : null,
+    license_attached: guardian ? false : null,
+  };
+  s.client.rpc.mockResolvedValue({ data: receipt, error: null });
+  return { ...s, receipt };
+}
+describe("atomic student setup receipts", () => {
   for (const role of [
     "parent",
     "guardian",
@@ -94,67 +125,85 @@ describe("student creation receipts", () => {
     "administrator",
     "school_admin",
     "admin",
+    "district_admin",
+    "partner",
+    "student",
   ])
-    it(`confirms ${role} creator relationship`, async () => {
-      const s = setup(role);
-      expect(await createStudentWithReceipt(s.client, actor, input)).toMatchObject(row);
-      expect(s.inserts).toHaveLength(2);
-      expect(s.inserts[0].fields.owner_id).toBe(actor);
+    it(`validates ${role} transaction`, async () => {
+      const s = atomic(role);
+      await createStudentWithReceipt(s.client, actor, input);
+      expect(s.client.rpc).toHaveBeenCalledExactlyOnceWith("create_student_with_setup", {
+        _expected_viewer_id: actor,
+        _request_id: record,
+        _fields: { first_name: "Sample" },
+      });
+      expect(s.client.from).not.toHaveBeenCalled();
     });
-  it("accepts no reserved license as a successful optional attachment check", async () => {
-    const s = setup();
-    await createStudentWithReceipt(s.client, actor, input);
-    expect(s.client.rpc).toHaveBeenCalledExactlyOnceWith("attach_my_pathway_license_to_student", {
-      _student_id: record,
-    });
-  });
-  for (const defect of ["error", "missing", "wrong-actor", "missing-email"])
-    it(`stops ${defect} account before insert`, async () => {
-      const s = setup();
-      if (defect === "error") s.results.profiles.error = {};
-      else if (defect === "missing") s.results.profiles.data = null;
-      else if (defect === "wrong-actor") s.results.profiles.data.id = id(8);
-      else s.results.profiles.data.email = null;
+  for (const field of ["actor_id", "request_id", "schema"])
+    it(`rejects wrong ${field}`, async () => {
+      const s = atomic();
+      s.receipt[field] = id(8);
       await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow();
-      expect(s.inserts).toHaveLength(0);
+      expect(s.client.rpc).toHaveBeenCalledOnce();
     });
   for (const field of ["id", "owner_id", "first_name", "student_user_id", "organization_id"])
-    it(`rejects incorrect saved ${field} without follow-up writes`, async () => {
-      const s = setup();
-      s.results.students.data[field] = id(8);
-      await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow(
-        "some information may already be saved",
-      );
-      expect(s.inserts).toHaveLength(1);
-      expect(s.client.rpc).not.toHaveBeenCalled();
+    it(`rejects contradictory saved ${field}`, async () => {
+      const s = atomic();
+      s.receipt.row[field] = id(8);
+      await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow();
+      expect(s.client.from).not.toHaveBeenCalled();
     });
-  for (const defect of ["error", "empty", "wrong-student", "wrong-member"])
-    it(`does not hide ${defect} relationship result`, async () => {
-      const s = setup();
-      if (defect === "error") s.results.student_guardians.error = {};
-      else if (defect === "empty") s.results.student_guardians.data = null;
-      else
-        s.results.student_guardians.data[
-          defect === "wrong-student" ? "student_id" : "guardian_user_id"
-        ] = id(8);
+  for (const field of [
+    "id",
+    "student_id",
+    "guardian_user_id",
+    "guardian_email",
+    "relationship",
+    "is_primary",
+    "verified",
+  ])
+    it(`rejects contradictory relationship ${field}`, async () => {
+      const s = atomic();
+      s.receipt.relationship[field] = field === "id" ? "bad" : id(8);
+      await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow();
+    });
+  for (const value of [null, "true", 1])
+    it(`requires literal license state ${value}`, async () => {
+      const s = atomic();
+      s.receipt.license_attached = value;
+      await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow();
+    });
+  it("preserves licensed organization in student and team", async () => {
+    const s = atomic("educator");
+    s.receipt.organization_id = id(7);
+    s.receipt.row.organization_id = id(7);
+    s.receipt.relationship.organization_id = id(7);
+    expect((await createStudentWithReceipt(s.client, actor, input)).organization_id).toBe(id(7));
+  });
+  it("rejects missing relationship", async () => {
+    const s = atomic();
+    s.receipt.relationship = null;
+    await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow();
+  });
+  it("rejects wrong self identity", async () => {
+    const s = atomic("student");
+    s.receipt.row.student_user_id = id(8);
+    await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow();
+  });
+  for (const result of [
+    { data: null, error: null },
+    { data: {}, error: null },
+    { data: null, error: { code: "42501" } },
+  ])
+    it("does not retry or use raw inserts after unconfirmed transaction", async () => {
+      const s = atomic();
+      s.client.rpc.mockResolvedValue(result as never);
       await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow(
         "Check your student list",
       );
-      expect(s.inserts).toHaveLength(2);
-      expect(s.client.rpc).not.toHaveBeenCalled();
+      expect(s.client.rpc).toHaveBeenCalledOnce();
+      expect(s.client.from).not.toHaveBeenCalled();
     });
-  it("rejects failed license without automatic compensation/retry", async () => {
-    const s = setup();
-    s.client.rpc.mockResolvedValue({ data: null, error: {} } as never);
-    await expect(createStudentWithReceipt(s.client, actor, input)).rejects.toThrow();
-    expect(s.client.rpc).toHaveBeenCalledOnce();
-    expect(s.inserts).toHaveLength(2);
-  });
-  it("student uses canonical self RPC and creates no secondary row", async () => {
-    const s = setup("student");
-    expect((await createStudentWithReceipt(s.client, actor, input)).student_user_id).toBe(actor);
-    expect(s.inserts).toHaveLength(0);
-  });
 });
 describe("self profile identity", () => {
   for (const defect of ["error", "empty", "foreign", "malformed"])
@@ -215,12 +264,3 @@ for (const fn of [createStudentWithReceipt, ensureSelfProfile, deleteStudentWith
     expect(s.client.from).not.toHaveBeenCalled();
     expect(s.client.rpc).not.toHaveBeenCalled();
   });
-
-it("preserves the validated licensed organization in both student and team receipt", async () => {
-  const s = setup("educator");
-  s.results.profiles.data.organization_id = id(7);
-  s.results.students.data.organization_id = id(7);
-  s.results.student_team_members.data.organization_id = id(7);
-  await createStudentWithReceipt(s.client, actor, input);
-  expect(s.inserts.map((v) => v.fields.organization_id)).toEqual([id(7), id(7)]);
-});

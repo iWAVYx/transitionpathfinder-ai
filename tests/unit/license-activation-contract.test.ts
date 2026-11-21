@@ -100,7 +100,8 @@ describe("school and district license activation contract", () => {
 
   it("carries the licensed organization into newly created student records", () => {
     expect(migration).toContain("v_profile.organization_id");
-    expect(source("src/lib/student-lifecycle.server.ts")).toContain("organization_id: profile.organization_id");
+    expect(source("src/lib/student-lifecycle.server.ts")).toContain("organization_id: receipt.organization_id");
+    expect(source("docs/database-proposals/student-creation-atomicity/create-student.review.sql")).toContain("profile.organization_id");
     expect(studentFunctions).toContain("createStudentWithReceipt");
   });
 });

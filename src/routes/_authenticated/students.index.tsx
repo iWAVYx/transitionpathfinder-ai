@@ -86,7 +86,7 @@ function StudentsPage() {
 
 
   async function handleDelete(student: Student) {
-    if (!confirm("Remove this student and linked records? This cannot be undone.")) return;
+    if (!confirm("Remove this student profile? This does not delete every saved report or uploaded file. This cannot be undone.")) return;
     if(!lifetime.begin())return;
     setSubmitting(true);
     try{await remove({data:{id:student.id,expected_updated_at:student.updated_at,expected_viewer_id:lifetime.viewerId}});if(lifetime.current())await reload();}
