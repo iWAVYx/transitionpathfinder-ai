@@ -608,11 +608,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "70fc7555db0c6dc689bff23fef6fe64279d2eb26244d693b0d7bad7343557d23"
+      "sha256": "957098855a7beb09a0bf109a925a6047c61cad2717dcc7bb5ffac775808eddfc"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "cdae229f663a5774b78487538705922898feff8855f5041716f1499f108d4cfa"
+      "sha256": "01d0148299a9e9c8c6bd37d56b6ace33b32cff54f5219edf6a604ac1c8fadc5e"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -692,7 +692,7 @@
     },
     {
       "path": "src/lib/students.functions.ts",
-      "sha256": "a0bc91babb554373316dbf9cb1e43223af1771757575d123ae8041f97c611549"
+      "sha256": "9eab99c5062301e1c99943a74f4fa4eb632699c3e7ca7c02032534b22b567846"
     },
     {
       "path": "src/routes/_authenticated/action-items.tsx",
@@ -849,6 +849,10 @@
     {
       "path": "docs/database-proposals/planning-record-delete/README.md",
       "sha256": "975201aa3f8c916d83b615816dc3b287f73c57994441c0495bf923e21e62f16c"
+    },
+    {
+      "path": "tests/unit/planning-goal-status-intent.test.ts",
+      "sha256": "599c93d552487a5202f04f79708b155439a72be076c264eb6161eb92cd4c59d0"
     }
   ],
   "batch": {
@@ -1453,7 +1457,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 211,
+    "declared_entries_checked": 212,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,
