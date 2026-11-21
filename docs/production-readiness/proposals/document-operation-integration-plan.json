@@ -1003,11 +1003,11 @@
     },
     {
       "path": "docs/database-proposals/student-lifecycle-recovery/student-lifecycle.review.sql",
-      "sha256": "c15c4da38a9f345533dd0778c53ea7532d87e65be772a6ff00c99d077e11ea94"
+      "sha256": "84cb5efade62528970a30e13267a94ed5071b6170e107e368092d076abe91f9a"
     },
     {
       "path": "tests/database/student-lifecycle-recovery.test.mjs",
-      "sha256": "2bff334ed3cc0c7766e1853e6feb2ba94733e01cc0c19d954d704a724830b400"
+      "sha256": "8624cb791f13dc848081f2a8ba080cdafb81f699b404e0ed44307a7f235467e3"
     },
     {
       "path": "tests/database/run-student-lifecycle-recovery-schema.mjs",

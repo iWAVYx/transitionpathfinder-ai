@@ -48,7 +48,7 @@ BEGIN
   RAISE EXCEPTION 'Account changed. Sign in again before checking this request.' USING ERRCODE='42501';
  END IF;
  -- Match the writer lock order: student, then lifecycle receipt. No PII returned.
- SELECT owner_id INTO current_owner FROM public.students WHERE id=_request_id FOR SHARE;
+ SELECT owner_id INTO current_owner FROM public.students WHERE id=_request_id AND owner_id=actor FOR SHARE;
  SELECT * INTO receipt FROM public.student_lifecycle_receipts
   WHERE student_id=_request_id AND original_owner_id=actor;
  IF NOT FOUND THEN state:='unconfirmed';
