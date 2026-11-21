@@ -4,6 +4,7 @@ import { render, screen, fireEvent, cleanup, waitFor, act } from "@testing-libra
 import { it, expect, vi, beforeEach, afterEach } from "vitest";
 const api = vi.hoisted(() => ({
   viewer: "00000000-0000-4000-8000-000000000001",
+  close: vi.fn(),
   recover: vi.fn(),
   list: vi.fn(),
   create: vi.fn(),
@@ -26,6 +27,7 @@ vi.mock("@/components/empty/IllustratedEmptyState", () => ({
   IllustratedEmptyState: ({ title }: any) => <p>{title}</p>,
 }));
 vi.mock("@/lib/students.functions", () => ({
+  closeStudentCreationRequest: api.close,
   readStudentCreationOutcome: api.recover,
   listStudents: api.list,
   createStudent: api.create,
@@ -183,5 +185,62 @@ it("changed account cannot clear a late recovered profile", async () => {
   view.rerender(<Page />);
   await act(async () => finish({ status: "present", student_id: row.id }));
   expect(screen.queryByText("Continue With Saved Profile")).toBeNull();
+  expect(localStorage.getItem(`tf:student-creation:v1:${row.owner_id}`)).not.toBeNull();
+});
+
+it("only server-confirmed closure clears an unknown request and permits a fresh creation", async () => {
+  localStorage.setItem(pendingKey(), JSON.stringify(intent));
+  api.recover.mockResolvedValue({ status: "unconfirmed" });
+  api.close.mockResolvedValue({ status: "closed" });
+  api.create.mockResolvedValue({ id: "new" });
+  render(<Page />);
+  fireEvent.click(await screen.findByText("Check Saved Setup"));
+  fireEvent.click(await screen.findByText("Close This Setup Request"));
+  await screen.findByText("Save student");
+  expect(api.close).toHaveBeenCalledExactlyOnceWith({
+    data: { expected_viewer_id: api.viewer, request_id: row.id, kind: "linked" },
+  });
+  expect(localStorage.getItem(pendingKey())).toBeNull();
+  fireEvent.change(screen.getByRole("textbox", { name: "First name *" }), {
+    target: { value: "Fictional" },
+  });
+  fireEvent.click(screen.getByText("Save student"));
+  await waitFor(() => expect(api.create).toHaveBeenCalledOnce());
+  expect(api.create.mock.calls[0][0].data.request_id).not.toBe(row.id);
+});
+it("committed creation discovered during closure keeps the marker and offers its saved profile", async () => {
+  localStorage.setItem(pendingKey(), JSON.stringify(intent));
+  api.recover.mockResolvedValue({ status: "unconfirmed" });
+  api.close.mockResolvedValue({ status: "present", student_id: row.id });
+  render(<Page />);
+  fireEvent.click(await screen.findByText("Check Saved Setup"));
+  fireEvent.click(await screen.findByText("Close This Setup Request"));
+  await screen.findByText("Continue With Saved Profile");
+  expect(localStorage.getItem(pendingKey())).not.toBeNull();
+  expect(api.create).not.toHaveBeenCalled();
+});
+it("lost closure reply does not clear the marker or authorize another creation", async () => {
+  localStorage.setItem(pendingKey(), JSON.stringify(intent));
+  api.recover.mockResolvedValue({ status: "unconfirmed" });
+  api.close.mockRejectedValue(Error("lost"));
+  render(<Page />);
+  fireEvent.click(await screen.findByText("Check Saved Setup"));
+  fireEvent.click(await screen.findByText("Close This Setup Request"));
+  await screen.findByText(/couldn't confirm that the setup request was closed/);
+  expect(localStorage.getItem(pendingKey())).not.toBeNull();
+  expect(api.create).not.toHaveBeenCalled();
+  expect((screen.getByText("Add student") as HTMLButtonElement).disabled).toBe(true);
+});
+it("an account change cannot clear the old account marker after closure", async () => {
+  localStorage.setItem(pendingKey(), JSON.stringify(intent));
+  api.recover.mockResolvedValue({ status: "unconfirmed" });
+  let finish: (v: any) => void = () => {};
+  api.close.mockImplementation(() => new Promise((resolve) => (finish = resolve)));
+  const view = render(<Page />);
+  fireEvent.click(await screen.findByText("Check Saved Setup"));
+  fireEvent.click(await screen.findByText("Close This Setup Request"));
+  api.viewer = "00000000-0000-4000-8000-000000000099";
+  view.rerender(<Page />);
+  await act(async () => finish({ status: "closed" }));
   expect(localStorage.getItem(`tf:student-creation:v1:${row.owner_id}`)).not.toBeNull();
 });

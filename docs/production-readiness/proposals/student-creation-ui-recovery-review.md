@@ -21,7 +21,7 @@ The existing **draft16** database recovery function remains a deployment prerequ
 ## Remaining Work
 
 - [ ] Hosted/browser acceptance on the exact reviewed release after separately authorized rollout; include full-application two-tab and account-switching journeys. The isolated real-browser storage/lock check already passes.
-- [ ] A trusted resolution path for truly unconfirmed/removed requests. No browser reset or new UUID is offered as proof that a failed-looking request never committed.
+- [x] Source/local linked-request resolution now uses a permanent server closure before clearing its marker; see [draft17 checklist](student-request-resolution-review.md). Self-profile and ownership-retired cases remain blocked for separate handling.
 - [ ] Cross-device/origin recovery: browser-local markers cannot coordinate another device, another staging hostname or cleared browsing data. Do not label this global server idempotency.
 - [ ] Full atomic profile/role completion and confirmation across every onboarding role. Current source surfaces role errors and preserves the pending creation request; its existing profile/role operations remain separate statements.
 - [ ] Actual document/storage/provider deletion cleanup and the twelve retained/soft-reference tables remain on the [lifecycle checklist](student-lifecycle-recovery-review.md).

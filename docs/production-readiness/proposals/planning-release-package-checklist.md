@@ -110,3 +110,13 @@ Hosted/provider acceptance remains under Workstreams 3/7. Staging rollout and ma
 - [ ] Canonical packaging and separately authorized hosted rollout/acceptance.
 
 See [component checklist](student-lifecycle-recovery-review.md). The preceding fifteen drafts retain their own historical proofs; this sixteenth draft now has its own passing full-schema proof on exact source613d9045 (run44947295433).
+
+## Separate Draft 17 — Unknown Requests and Exact Student Cleanup
+
+- [x] Explicit server closure fences late linked-student creation; the UI clears only a confirmed closure.
+- [x] Atomic cleanup of student activity, notifications and saved partner associations; shared directory records remain.
+- [x] Nine soft-reference guards and two existing conversation/history cascade corrections preserve unresolved content and retention choices.
+- [x] Exact native/full-schema evidence:80 local/91 native cases and225+41+17 replay;6,985 application tests,125 final focused checks and the isolated build pass.
+- [ ] Self-profile/ownership-retired outcomes, external cleanup, historical orphan disposition and authorized hosted acceptance.
+
+See [scoped checklist](student-request-resolution-review.md). This remains a separate review draft; no canonical migration or hosted installation is claimed.

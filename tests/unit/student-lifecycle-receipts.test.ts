@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import {
+  closeCreationRequest,
   readCreationOutcome,
   createStudentWithReceipt,
   deleteStudentWithReceipt,
@@ -375,3 +376,125 @@ it("changed account is rejected before recovery reads", async () => {
   expect(s.client.rpc).not.toHaveBeenCalled();
   expect(s.client.from).not.toHaveBeenCalled();
 });
+
+it("requires an exact closure receipt before allowing marker retirement", async () => {
+  const s = setup();
+  s.client.rpc.mockResolvedValue({
+    data: {
+      schema: "student-request-closure-v1",
+      actor_id: actor,
+      request_id: record,
+      status: "closed",
+    } as any,
+    error: null,
+  });
+  await expect(closeCreationRequest(s.client, actor, recoveryInput)).resolves.toEqual({
+    status: "closed",
+  });
+  expect(s.client.from).not.toHaveBeenCalled();
+  expect(s.inserts).toEqual([]);
+});
+for (const patch of [
+  { actor_id: id(9) },
+  { request_id: id(9) },
+  { status: "missing" },
+  { schema: "wrong" },
+  { extra: true },
+])
+  it("rejects contradictory closure " + JSON.stringify(patch), async () => {
+    const s = setup();
+    s.client.rpc.mockResolvedValue({
+      data: {
+        schema: "student-request-closure-v1",
+        actor_id: actor,
+        request_id: record,
+        status: "closed",
+        ...patch,
+      } as any,
+      error: null,
+    });
+    await expect(closeCreationRequest(s.client, actor, recoveryInput)).rejects.toThrow("couldn");
+  });
+it("present closure result rechecks current owned profile rather than retiring the marker", async () => {
+  const s = setup();
+  s.client.rpc
+    .mockResolvedValueOnce({
+      data: {
+        schema: "student-request-closure-v1",
+        actor_id: actor,
+        request_id: record,
+        status: "present",
+      } as any,
+      error: null,
+    })
+    .mockResolvedValueOnce({
+      data: {
+        schema: "student-creation-outcome-v1",
+        actor_id: actor,
+        request_id: record,
+        status: "present",
+      } as any,
+      error: null,
+    });
+  await expect(closeCreationRequest(s.client, actor, recoveryInput)).resolves.toEqual({
+    status: "present",
+    student_id: record,
+  });
+  expect(s.predicates).toEqual([
+    ["id", record],
+    ["owner_id", actor],
+  ]);
+});
+it("lost closure response is never silently retried", async () => {
+  const s = setup();
+  s.client.rpc.mockRejectedValue(Error("lost"));
+  await expect(closeCreationRequest(s.client, actor, recoveryInput)).rejects.toThrow(
+    "Keep it saved",
+  );
+  expect(s.client.rpc).toHaveBeenCalledOnce();
+});
+it("stale viewer cannot close a request", async () => {
+  const s = setup();
+  await expect(closeCreationRequest(s.client, id(9), recoveryInput)).rejects.toThrow();
+  expect(s.client.rpc).not.toHaveBeenCalled();
+});
+
+for (const [constraint, phrase] of [
+  ["message_threads_student_cleanup_fk", "Conversation retention"],
+  ["form_responses_student_cleanup_fk", "saved planning content"],
+  ["ppt_meeting_preps_student_cleanup_fk", "saved planning content"],
+  ["student_voice_responses_student_cleanup_fk", "saved planning content"],
+  ["document_upload_operation_bindings_student_cleanup_fk", "Document processing records"],
+  ["documents_student_id_fkey", "Uploaded documents"],
+  ["meetings_student_cleanup_guard", "Meeting notes"],
+])
+  it("explains " + constraint + " without exposing database internals", async () => {
+    const s = setup();
+    s.results.students = {
+      data: null,
+      error: { code: "23001", message: `private details constraint "${constraint}"` },
+    };
+    await expect(
+      deleteStudentWithReceipt(s.client, actor, {
+        id: record,
+        expected_viewer_id: actor,
+        expected_updated_at: stamp,
+      }),
+    ).rejects.toThrow(phrase);
+  });
+
+for (const constraint of ["channels_student_id_fkey", "student_channel_removals_student_id_fkey"])
+  it("explains retained channel history blocker " + constraint, async () => {
+    const s = setup();
+    s.results.students = {
+      data: null,
+      error: { code: "23503", message: `constraint "${constraint}"` },
+    };
+    await expect(
+      deleteStudentWithReceipt(s.client, actor, {
+        id: record,
+        expected_viewer_id: actor,
+        expected_updated_at: stamp,
+      }),
+    ).rejects.toThrow("Conversation retention");
+  });

@@ -1,4 +1,4 @@
-import {readCreationOutcome,ensureSelfProfile,createStudentWithReceipt,deleteStudentWithReceipt} from "./student-lifecycle.server";
+import {closeCreationRequest,readCreationOutcome,ensureSelfProfile,createStudentWithReceipt,deleteStudentWithReceipt} from "./student-lifecycle.server";
 import {readStudentProfile,studentCapability,CASELOAD_UNAVAILABLE} from "./caseload-records.server";
 import{deletePlanningRecordAtomically}from"./planning-record-delete.server";
 import {readPlanningRecords} from "./planning-records.server";
@@ -86,6 +86,10 @@ export const createStudent = createServerFn({ method: "POST" })
 export const readStudentCreationOutcome=createServerFn({method:"POST"}).middleware([requireSupabaseAuth])
  .validator((i:unknown)=>z.object({expected_viewer_id:z.string().uuid(),request_id:z.string().uuid(),kind:z.enum(['linked','self'])}).parse(i))
  .handler(async({data,context})=>readCreationOutcome(context.supabase,context.userId,data));
+
+export const closeStudentCreationRequest=createServerFn({method:"POST"}).middleware([requireSupabaseAuth])
+ .validator((i:unknown)=>z.object({expected_viewer_id:z.string().uuid(),request_id:z.string().uuid(),kind:z.literal('linked')}).parse(i))
+ .handler(async({data,context})=>closeCreationRequest(context.supabase,context.userId,data));
 
 export const deleteStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

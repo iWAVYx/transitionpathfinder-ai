@@ -43,3 +43,5 @@ The full-schema check identified thirteen UUID `student_id` columns without stud
 Meeting records now have a restrictive reference; existing orphan meetings require a separate read-only inventory before constraint validation. None of these rows were read or changed on staging or production.
 
 Application integration and scoped verification are tracked in [Add Student/onboarding recovery](student-creation-ui-recovery-review.md); hosted acceptance and unresolved-outcome handling remain separate.
+
+Draft17 follow-through: the activity/notification and saved-partner association rows above now have atomic cleanup; nine existing soft-reference categories have protective guards. Two older channel/history cascades are also corrected. [Current completed/remaining checklist](student-request-resolution-review.md). External cleanup and chat retention decisions are still open.

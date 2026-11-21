@@ -423,6 +423,16 @@ function OnboardingPage() {
       <section className="mx-auto max-w-3xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
         <StudentCreationRecovery
           recovery={recovery}
+          onClose={
+            recovery.intent?.origin === "onboarding" && recovery.intent.kind === "linked"
+              ? () =>
+                  void recovery.closePending().then((status) => {
+                    if (status === "closed" && lifetime.current()) {
+                      lifetime.confirmRead();
+                    }
+                  })
+              : undefined
+          }
           onContinue={
             recovery.intent?.origin === "onboarding" && !submitting
               ? () => void handleFinish({ preventDefault() {} } as FormEvent)

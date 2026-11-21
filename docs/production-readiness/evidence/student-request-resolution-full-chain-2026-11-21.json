@@ -1,0 +1,109 @@
+{
+  "schema": "student-request-resolution-full-schema-v1",
+  "source_commit": "ceb9e9895bd3996c62c976d476c4e072113333a6",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 17,
+  "native_full_chain_installed": true,
+  "smoke": [
+    {
+      "role": "parent",
+      "unknown_request_closed": true,
+      "delayed_create_rejected": true,
+      "present_profile_preserved": true,
+      "three_exact_cleanup_categories": true,
+      "other_student_and_shared_partner_preserved": true,
+      "rolled_back": true
+    },
+    {
+      "role": "educator",
+      "unknown_request_closed": true,
+      "delayed_create_rejected": true,
+      "present_profile_preserved": true,
+      "three_exact_cleanup_categories": true,
+      "other_student_and_shared_partner_preserved": true,
+      "rolled_back": true
+    }
+  ],
+  "guards": [
+    {
+      "table_name": "document_apply_completion_receipts",
+      "confdeltype": "r",
+      "convalidated": false
+    },
+    {
+      "table_name": "document_registration_completion_receipts",
+      "confdeltype": "r",
+      "convalidated": false
+    },
+    {
+      "table_name": "document_summary_completion_receipts",
+      "confdeltype": "r",
+      "convalidated": false
+    },
+    {
+      "table_name": "document_summary_operation_bindings",
+      "confdeltype": "r",
+      "convalidated": false
+    },
+    {
+      "table_name": "document_upload_operation_bindings",
+      "confdeltype": "r",
+      "convalidated": false
+    },
+    {
+      "table_name": "feed_events",
+      "confdeltype": "c",
+      "convalidated": false
+    },
+    {
+      "table_name": "form_responses",
+      "confdeltype": "r",
+      "convalidated": false
+    },
+    {
+      "table_name": "in_app_notifications",
+      "confdeltype": "c",
+      "convalidated": false
+    },
+    {
+      "table_name": "message_threads",
+      "confdeltype": "r",
+      "convalidated": false
+    },
+    {
+      "table_name": "ppt_meeting_preps",
+      "confdeltype": "r",
+      "convalidated": false
+    },
+    {
+      "table_name": "student_saved_partners",
+      "confdeltype": "c",
+      "convalidated": false
+    },
+    {
+      "table_name": "student_voice_responses",
+      "confdeltype": "r",
+      "convalidated": false
+    }
+  ],
+  "chat_guards": [
+    {
+      "conrelid": "21311",
+      "conname": "channels_student_id_fkey",
+      "convalidated": true,
+      "confdeltype": "r"
+    },
+    {
+      "conrelid": "22422",
+      "conname": "student_channel_removals_student_id_fkey",
+      "convalidated": true,
+      "confdeltype": "r"
+    }
+  ],
+  "prior_proof_sha256": "42a910c32f02532dc85d15e6aa6ae24ae92cb4890ec0fb93690e621243c6c3d7",
+  "draft_sha256": "4b267abb3e3313bf1d5706d17c8010ab1dd9849fdf5d6a69d0e23b373376ef26",
+  "hosted_applied": false,
+  "external_cleanup_complete": false,
+  "chat_retention_changed": false
+}

@@ -10,6 +10,7 @@ const api = vi.hoisted(() => ({
   complete: vi.fn(),
   create: vi.fn(),
   self: vi.fn(),
+  close: vi.fn(),
   recover: vi.fn(),
   navigate: vi.fn(),
   error: vi.fn(),
@@ -34,6 +35,7 @@ vi.mock("@/lib/profile.functions", () => ({
 vi.mock("@/lib/students.functions", () => ({
   createStudent: api.create,
   ensureOwnStudentProfile: api.self,
+  closeStudentCreationRequest: api.close,
   readStudentCreationOutcome: api.recover,
 }));
 vi.mock("@/lib/access-codes.functions", () => ({ getMyActivatedLicenseRole: api.license }));
@@ -167,4 +169,30 @@ it("initial creation records intent before request and resumes after completion 
   fireEvent.click(await screen.findByText("Continue With Saved Profile"));
   await waitFor(() => expect(api.navigate).toHaveBeenCalled());
   expect(api.create).toHaveBeenCalledOnce();
+});
+
+for (const role of ["parent", "educator"])
+  it(
+    "closes unresolved " + role + " request without creating or finishing setup automatically",
+    async () => {
+      seed(role);
+      api.recover.mockResolvedValue({ status: "unconfirmed" });
+      api.close.mockResolvedValue({ status: "closed" });
+      render(<Page />);
+      fireEvent.click(await screen.findByText("Check Saved Setup"));
+      fireEvent.click(await screen.findByText("Close This Setup Request"));
+      await waitFor(() => expect(localStorage.getItem(key())).toBeNull());
+      expect(api.create).not.toHaveBeenCalled();
+      expect(api.complete).not.toHaveBeenCalled();
+    },
+  );
+it("never offers linked-request closure for an unresolved Student self profile", async () => {
+  seed("student");
+  api.recover.mockResolvedValue({ status: "unconfirmed" });
+  render(<Page />);
+  fireEvent.click(await screen.findByText("Check Saved Setup"));
+  await waitFor(() => expect(api.recover).toHaveBeenCalled());
+  expect(screen.queryByText("Close This Setup Request")).toBeNull();
+  expect(api.close).not.toHaveBeenCalled();
+  expect(localStorage.getItem(key())).not.toBeNull();
 });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { readStudentCreationOutcome } from "@/lib/students.functions";
+import { closeStudentCreationRequest, readStudentCreationOutcome } from "@/lib/students.functions";
 import {
   readCreationIntent,
   saveCreationIntent,
@@ -15,6 +15,7 @@ export function useStudentCreationRecovery(
   available: boolean,
 ) {
   const read = useServerFn(readStudentCreationOutcome);
+  const close = useServerFn(closeStudentCreationRequest);
   const [state, setState] = useState<{
     viewer?: string;
     ready: boolean;
@@ -83,6 +84,32 @@ export function useStudentCreationRecovery(
       if (current()) setState((s) => ({ ...s, error: RECOVERY_UNAVAILABLE }));
     }
   };
+  const closePending = async () => {
+    try {
+      return await locked(async () => {
+        const intent = pending();
+        if (!intent || intent.kind !== "linked") throw Error(RECOVERY_UNAVAILABLE);
+        const result = await close({
+          data: { expected_viewer_id: viewer!, request_id: intent.requestId, kind: "linked" },
+        });
+        if (!current() || pending()?.requestId !== intent.requestId)
+          throw Error(RECOVERY_UNAVAILABLE);
+        if (result.status === "closed") {
+          clear(intent);
+          return "closed" as const;
+        }
+        setState({ viewer, ready: true, intent, error: null, status: result.status });
+        return result.status;
+      });
+    } catch {
+      if (current())
+        setState((s) => ({
+          ...s,
+          error:
+            "We couldn't confirm that the setup request was closed. Keep it saved and check again.",
+        }));
+    }
+  };
   const visible = state.viewer === viewer ? state : { ready: false, intent: null, error: null };
-  return { ...visible, locked, pending, reserve, clear, inspect, check };
+  return { ...visible, locked, pending, reserve, clear, inspect, check, closePending };
 }

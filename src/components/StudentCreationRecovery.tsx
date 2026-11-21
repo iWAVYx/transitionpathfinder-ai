@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 export function StudentCreationRecovery({
   recovery,
   onContinue,
+  onClose,
 }: {
   recovery: {
     ready: boolean;
@@ -11,6 +12,7 @@ export function StudentCreationRecovery({
     check: () => Promise<void>;
   };
   onContinue?: () => void;
+  onClose?: () => void;
 }) {
   if (!recovery.intent && !recovery.error) return null;
   return (
@@ -26,11 +28,24 @@ export function StudentCreationRecovery({
       <Button type="button" variant="outline" onClick={() => void recovery.check()}>
         Check Saved Setup
       </Button>
-      {recovery.status === "present" && onContinue && (
+      {!recovery.error && recovery.status === "present" && onContinue && (
         <Button type="button" onClick={onContinue}>
           Continue With Saved Profile
         </Button>
       )}
+      {!recovery.error &&
+        onClose &&
+        (recovery.status === "unconfirmed" || recovery.status === "removed") && (
+          <div className="space-y-2">
+            <p>
+              Close the earlier request before starting again. This prevents it from finishing later
+              and does not delete a saved profile.
+            </p>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Close This Setup Request
+            </Button>
+          </div>
+        )}
     </div>
   );
 }

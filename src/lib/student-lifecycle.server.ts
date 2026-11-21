@@ -161,6 +161,52 @@ export async function createStudentWithReceipt(
 
 export const STUDENT_REMOVAL_BLOCKED =
   "This student still has linked records or document work that must be resolved before the profile can be removed.";
+function studentRemovalExplanation(error: unknown): string {
+  const message =
+    error && typeof error === "object" && "message" in error && typeof error.message === "string"
+      ? error.message
+      : "";
+  const reasons: Array<[string[], string]> = [
+    [
+      [
+        "message_threads_student_cleanup_fk",
+        "channels_student_id_fkey",
+        "student_channel_removals_student_id_fkey",
+      ],
+      "This student still has conversations. Conversation retention must be resolved before the profile can be removed.",
+    ],
+    [
+      [
+        "form_responses_student_cleanup_fk",
+        "ppt_meeting_preps_student_cleanup_fk",
+        "student_voice_responses_student_cleanup_fk",
+      ],
+      "This student still has saved planning content. Its retention must be resolved before the profile can be removed.",
+    ],
+    [
+      [
+        "document_apply_completion_receipts_student_cleanup_fk",
+        "document_registration_completion_receipts_student_cleanup_fk",
+        "document_summary_completion_receipts_student_cleanup_fk",
+        "document_summary_operation_bindings_student_cleanup_fk",
+        "document_upload_operation_bindings_student_cleanup_fk",
+      ],
+      "Document processing records must be reconciled before this student profile can be removed.",
+    ],
+    [
+      ["documents_student_id_fkey"],
+      "Uploaded documents need safe cleanup before this student profile can be removed.",
+    ],
+    [
+      ["meetings_student_cleanup_guard"],
+      "Meeting notes must be resolved before this student profile can be removed.",
+    ],
+  ];
+  return (
+    reasons.find(([names]) => names.some((name) => message.includes('"' + name + '"')))?.[1] ??
+    STUDENT_REMOVAL_BLOCKED
+  );
+}
 class StudentRemovalBlocked extends Error {}
 /** Exact owner/version predicate and returned row; existing RLS/cascades remain authoritative.
  * This proves only the deleted student receipt, not external-storage cleanup. */
@@ -185,7 +231,7 @@ export async function deleteStudentWithReceipt(
       "code" in result.error &&
       (result.error.code === "23503" || result.error.code === "23001")
     )
-      throw new StudentRemovalBlocked(STUDENT_REMOVAL_BLOCKED);
+      throw new StudentRemovalBlocked(studentRemovalExplanation(result.error));
     if (
       result.error !== null ||
       !result.data ||
@@ -251,5 +297,38 @@ export async function readCreationOutcome(
     return { status: "present" as const, student_id: row.id };
   } catch {
     throw Error(failure);
+  }
+}
+
+/** Closing an unresolved linked request reserves its old identity permanently.
+ * A committed creation is returned for reconciliation, never deleted or replayed. */
+export async function closeCreationRequest(
+  client: Client,
+  actor: string,
+  input: Intent & { request_id: string },
+) {
+  assertExpectedViewer(input, actor);
+  try {
+    const result = await client.rpc("close_student_creation_request", {
+      _expected_viewer_id: actor,
+      _request_id: input.request_id,
+    });
+    if (result.error !== null) throw Error();
+    const receipt = z
+      .object({
+        schema: z.literal("student-request-closure-v1"),
+        actor_id: z.literal(actor),
+        request_id: z.literal(input.request_id),
+        status: z.enum(["closed", "present", "unconfirmed"]),
+      })
+      .strict()
+      .parse(result.data);
+    if (receipt.status === "present")
+      return readCreationOutcome(client, actor, { ...input, kind: "linked" });
+    return { status: receipt.status };
+  } catch {
+    throw Error(
+      "We couldn't confirm that this setup request was closed. Keep it saved and check again.",
+    );
   }
 }

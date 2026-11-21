@@ -121,7 +121,7 @@ function StudentsPage() {
   async function handleDelete(student: Student) {
     if (
       !confirm(
-        "Remove this student profile? This does not delete every saved report or uploaded file. This cannot be undone.",
+        "Remove this student profile, its activity, notifications and saved partner links? This does not erase every report or file. Unresolved documents, planning content or conversations can block removal. This cannot be undone.",
       )
     )
       return;
@@ -188,6 +188,18 @@ function StudentsPage() {
 
         <StudentCreationRecovery
           recovery={recovery}
+          onClose={
+            recovery.intent?.origin === "students" && recovery.intent.kind === "linked"
+              ? () =>
+                  void recovery.closePending().then((status) => {
+                    if (status === "closed" && lifetime.current()) {
+                      lifetime.confirmRead();
+                      setError(null);
+                      setShowForm(true);
+                    }
+                  })
+              : undefined
+          }
           onContinue={
             recovery.intent?.origin === "students"
               ? () =>
