@@ -1,0 +1,53 @@
+{
+  "schema": "meeting-completion-full-schema-v1",
+  "source_commit": "e13ab315ef55adfabd19055a5ed0c13b24ede41d",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 15,
+  "native_full_chain_installed": true,
+  "prior_schema_stages": 56,
+  "new_routines": 2,
+  "new_triggers": 1,
+  "existing_catalog_preserved": true,
+  "smoke": [
+    {
+      "role": "parent",
+      "actual_authenticated_completion_followups_linkage_activity": true,
+      "repeat_rejected": true,
+      "rolled_back": true
+    },
+    {
+      "role": "educator",
+      "actual_authenticated_completion_followups_linkage_activity": true,
+      "repeat_rejected": true,
+      "rolled_back": true
+    },
+    {
+      "role": "student",
+      "actual_authenticated_completion_followups_linkage_activity": true,
+      "repeat_rejected": true,
+      "rolled_back": true
+    }
+  ],
+  "prior_proof_sha256": "45db9d026f18df2912fa0bcf601497aefe3db26f5939d3f3059f71ab4ffb8ff0",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/meeting-completion-atomicity/complete-meeting.review.sql",
+      "sha256": "4136b892329ae2afd79ace4b59937ea3f6d0b0b0217420bbfd4e0f9f3825f71a"
+    },
+    {
+      "path": "tests/database/meeting-completion-atomicity.test.mjs",
+      "sha256": "768b32daac6614e96a189dd86c0cf097859275f8271f11b3a04218e4904f8a31"
+    },
+    {
+      "path": "tests/database/run-meeting-completion-atomicity-schema.mjs",
+      "sha256": "189fdf571e0138ca92b31ce345354fa7ab824bc5f4417b348b58d66df32b7627"
+    },
+    {
+      "path": ".github/workflows/meeting-completion-atomicity-review.yml",
+      "sha256": "6a440d959f9b94dc8a0b1d82e0365aa366d296e32d661e1f1a457a0a30985c03"
+    }
+  ],
+  "hosted_applied": false,
+  "whole_p1_complete": false
+}

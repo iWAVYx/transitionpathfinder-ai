@@ -28,6 +28,18 @@ Known findings are attached to their source families in [the machine-readable in
 
 [Scope and limitations](student-lifecycle-save-path-review.md). These checked application components do not close the lifecycle transaction work, whole P1, or hosted acceptance.
 
+## P1 Meeting Save Batch — November 21
+
+- [x] Make meeting completion, follow-up creation/linkage and activity one verified transaction; reject stale/repeated completion.
+- [x] Verify held editing authority across 28 cross-role removal races, competing completions and cached-client access loss (28 local/59 native cases; full schema replay).
+- [x] Require exact loaded revisions and saved receipts for normal meeting-field edits; prevent the status-only completion bypass.
+- [x] Guard field/completion submissions, current-account document rendering, uncertain results and explicit saved-record reloads; expose failed child reads.
+- [x] Explain restrictive student-deletion references without leaking database identifiers or promising full cleanup.
+- [ ] Implement durable creation-outcome recovery with deletion tombstones; reconcile onboarding completion separately.
+- [ ] Complete coordinated student deletion and remaining creation/template/channel/bulk/trusted save transactions.
+
+[Exact scope and remaining actions](meeting-save-review.md). These closures do not mark all meeting writers, student lifecycle or Workstream5 complete.
+
 ## P1 Goals and Actions — November 21 Components
 
 - [x] Confirm exact creation/update/deletion replies, actor/student identities and supplied loaded revisions before reporting success; no service fallback or write retries.
@@ -51,7 +63,7 @@ The eight goal/action endpoint entries remain **review-required** until those da
 
 ## Verified Review-Draft Order
 
-The 225 canonical migrations and 41 prior control drafts remain separate from these fourteen source/disposable-verified drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
+The 225 canonical migrations and 41 prior control drafts remain separate from these fifteen source/disposable-verified drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
 
 1. Retire the legacy admin document override — `document-admin-grant-retirement/retire-admin-document-grants.review.sql`.
 2. Bind document grants to their actual parent — `document-permission-parent/bind-document-permission-parent.review.sql`.
@@ -67,6 +79,7 @@ The 225 canonical migrations and 41 prior control drafts remain separate from th
 12. Current-proof normal goal/action deletion — `planning-record-delete/atomic-planning-delete.review.sql` (source/disposable verified; one authenticated-only RPC, no new triggers or changed table grants).
 13. Normal goal/action creation and goal-status saves — `planning-record-write/atomic-planning-write.review.sql` (source/disposable verified; two authenticated RPCs and a private goal revision helper/trigger).
 14. Atomic student/creator-relationship/license setup — `student-creation-atomicity/create-student.review.sql` (source/disposable verified; one authenticated-only SECURITY INVOKER RPC, preserving existing policies/grants/routines/triggers).
+15. Atomic meeting completion/follow-ups/activity — `meeting-completion-atomicity/complete-meeting.review.sql` (source/disposable verified; one authenticated-only RPC, one private revision helper and one revision trigger).
 
 Paths above are relative to `docs/database-proposals/`. Their tested order and hashes are collected from the fresh disposable installation. The packaging collector snapshots the routine catalog **after the 225 + 41 baseline and before the first separate draft**, preserves all 56 original installer/catalog stage scripts, runs all existing separate-draft verifiers, then captures the final catalog.
 

@@ -612,7 +612,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "1cc8b2e2a76b24693884fa961c295da06d56ee371b56c7af64979c458576ebbe"
+      "sha256": "6e87e9fc1996b7ffa38dd63c434027d282941015091a8e19896d717b1114e396"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -932,11 +932,11 @@
     },
     {
       "path": "src/lib/student-lifecycle.server.ts",
-      "sha256": "1271f54479c07486c81421246d1b1efb67b166957b1e7a386b6b4f8648f5dfb9"
+      "sha256": "dae219a3009b62a229384419e446f30772a4ceff9f5136080ca340b841377fcd"
     },
     {
       "path": "tests/unit/student-lifecycle-receipts.test.ts",
-      "sha256": "787fafbfb620d63193d732c724f1463a738e49898839efa3cba5ed513320c894"
+      "sha256": "ea70b357513afce2302a568415aace14e3b9987d5555abf1620a26ff6e29e040"
     },
     {
       "path": "tests/unit/remaining-planning-save-paths.test.ts",
@@ -985,6 +985,46 @@
     {
       "path": "tests/database/run-student-creation-atomicity-schema.mjs",
       "sha256": "ce86ed30bb7511321ce142e057eb3cf93d8f657a24be025c0debdba6143cff02"
+    },
+    {
+      "path": "src/lib/meeting-writes.server.ts",
+      "sha256": "dfc572a10670f1402382efd187dcac652044aa473bd12b79e1eafc93be8e1917"
+    },
+    {
+      "path": "docs/database-proposals/meeting-completion-atomicity/complete-meeting.review.sql",
+      "sha256": "4136b892329ae2afd79ace4b59937ea3f6d0b0b0217420bbfd4e0f9f3825f71a"
+    },
+    {
+      "path": "tests/database/meeting-completion-atomicity.test.mjs",
+      "sha256": "768b32daac6614e96a189dd86c0cf097859275f8271f11b3a04218e4904f8a31"
+    },
+    {
+      "path": "tests/database/run-meeting-completion-atomicity-schema.mjs",
+      "sha256": "189fdf571e0138ca92b31ce345354fa7ab824bc5f4417b348b58d66df32b7627"
+    },
+    {
+      "path": "tests/unit/meeting-write-api.test.ts",
+      "sha256": "ca7c70f448051b0209f767d7edc3e4b611e38c512b365a441692d127aaf78e79"
+    },
+    {
+      "path": "tests/unit/meeting-write-receipts.test.ts",
+      "sha256": "94e90ebacc2dbf7ff6339f8406df57718e03a6fa1404c75ddd95655c13cab5d9"
+    },
+    {
+      "path": "docs/production-readiness/proposals/meeting-save-review.md",
+      "sha256": "b73ee71d1ce3fbea9685bc209295785d6d1f5f84c923dea81e4abc7e3c6e6901"
+    },
+    {
+      "path": "src/lib/meetings.functions.ts",
+      "sha256": "01bbd0ec3809deb1b5030b530c3cafd346ed9c65176bdb7554aaeacaa2500458"
+    },
+    {
+      "path": "src/routes/_authenticated/meetings.$meetingId.tsx",
+      "sha256": "28100b834c3dd9c91ee1190ce3b6014510eb97159d2c637e2b737a04868938bc"
+    },
+    {
+      "path": "tests/unit/meeting-document-context.test.tsx",
+      "sha256": "c8accb75769a4b5e6bfc97847e0f0a150bb1ca80a67a7cccc8ccbdd42b4b6636"
     }
   ],
   "batch": {
@@ -1589,7 +1629,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 245,
+    "declared_entries_checked": 255,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

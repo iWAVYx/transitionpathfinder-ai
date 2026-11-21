@@ -159,6 +159,8 @@ export async function createStudentWithReceipt(
   }
 }
 
+export const STUDENT_REMOVAL_BLOCKED="This student still has linked records or document work that must be resolved before the profile can be removed.";
+class StudentRemovalBlocked extends Error {}
 /** Exact owner/version predicate and returned row; existing RLS/cascades remain authoritative.
  * This proves only the deleted student receipt, not external-storage cleanup. */
 export async function deleteStudentWithReceipt(
@@ -176,6 +178,7 @@ export async function deleteStudentWithReceipt(
       .eq("updated_at", input.expected_updated_at)
       .select("id, owner_id, updated_at")
       .single();
+    if(result.error && typeof result.error === "object" && "code" in result.error && result.error.code === "23503")throw new StudentRemovalBlocked(STUDENT_REMOVAL_BLOCKED);
     if (
       result.error !== null ||
       !result.data ||
@@ -186,7 +189,8 @@ export async function deleteStudentWithReceipt(
     )
       throw Error();
     return { ok: true as const, deleted_id: input.id };
-  } catch {
+  } catch(error) {
+    if(error instanceof StudentRemovalBlocked)throw error;
     throw Error(STUDENT_DELETE_UNCONFIRMED);
   }
 }

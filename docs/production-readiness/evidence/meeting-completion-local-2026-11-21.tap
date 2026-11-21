@@ -1,0 +1,178 @@
+TAP version 13
+# Subtest: completes with current family proof
+ok 1 - completes with current family proof
+  ---
+  duration_ms: 770.560167
+  type: 'test'
+  ...
+# Subtest: completes with current student proof
+ok 2 - completes with current student proof
+  ---
+  duration_ms: 459.545541
+  type: 'test'
+  ...
+# Subtest: completes with current educator proof
+ok 3 - completes with current educator proof
+  ---
+  duration_ms: 460.286
+  type: 'test'
+  ...
+# Subtest: completes with current school proof
+ok 4 - completes with current school proof
+  ---
+  duration_ms: 404.402916
+  type: 'test'
+  ...
+# Subtest: completes with current district proof
+ok 5 - completes with current district proof
+  ---
+  duration_ms: 426.458875
+  type: 'test'
+  ...
+# Subtest: completes with current owner proof
+ok 6 - completes with current owner proof
+  ---
+  duration_ms: 406.469459
+  type: 'test'
+  ...
+# Subtest: rejects unsupported owner
+ok 7 - rejects unsupported owner
+  ---
+  duration_ms: 403.98025
+  type: 'test'
+  ...
+# Subtest: rejects unsupported partner
+ok 8 - rejects unsupported partner
+  ---
+  duration_ms: 412.594833
+  type: 'test'
+  ...
+# Subtest: rejects unsupported outsider
+ok 9 - rejects unsupported outsider
+  ---
+  duration_ms: 408.292292
+  type: 'test'
+  ...
+# Subtest: rejects foreign/stale intent {"parent":"00000000-0000-4000-8000-000000000021"}
+ok 10 - rejects foreign/stale intent {"parent":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 431.193333
+  type: 'test'
+  ...
+# Subtest: rejects foreign/stale intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+ok 11 - rejects foreign/stale intent {"viewer":"00000000-0000-4000-8000-000000000003"}
+  ---
+  duration_ms: 404.389667
+  type: 'test'
+  ...
+# Subtest: rejects foreign/stale intent {"version":"2020-01-01T00:00:00Z"}
+ok 12 - rejects foreign/stale intent {"version":"2020-01-01T00:00:00Z"}
+  ---
+  duration_ms: 400.126584
+  type: 'test'
+  ...
+# Subtest: rejects foreign/stale intent {"id":"00000000-0000-4000-8000-000000000099"}
+ok 13 - rejects foreign/stale intent {"id":"00000000-0000-4000-8000-000000000099"}
+  ---
+  duration_ms: 399.704167
+  type: 'test'
+  ...
+# Subtest: suppressed meetings write rolls back every side effect
+ok 14 - suppressed meetings write rolls back every side effect
+  ---
+  duration_ms: 398.609
+  type: 'test'
+  ...
+# Subtest: suppressed action_items write rolls back every side effect
+ok 15 - suppressed action_items write rolls back every side effect
+  ---
+  duration_ms: 453.190125
+  type: 'test'
+  ...
+# Subtest: suppressed meeting_action_items write rolls back every side effect
+ok 16 - suppressed meeting_action_items write rolls back every side effect
+  ---
+  duration_ms: 418.419583
+  type: 'test'
+  ...
+# Subtest: suppressed feed_events write rolls back every side effect
+ok 17 - suppressed feed_events write rolls back every side effect
+  ---
+  duration_ms: 402.855041
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"created_by":"00000000-0000-4000-8000-000000000008"}
+ok 18 - rejects invalid patch {"created_by":"00000000-0000-4000-8000-000000000008"}
+  ---
+  duration_ms: 403.254834
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"student_id":"00000000-0000-4000-8000-000000000021"}
+ok 19 - rejects invalid patch {"student_id":"00000000-0000-4000-8000-000000000021"}
+  ---
+  duration_ms: 399.008125
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"status":"cancelled"}
+ok 20 - rejects invalid patch {"status":"cancelled"}
+  ---
+  duration_ms: 406.496292
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"summary":42}
+ok 21 - rejects invalid patch {"summary":42}
+  ---
+  duration_ms: 444.764083
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"summary":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ok 22 - rejects invalid patch {"summary":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ---
+  duration_ms: 427.869458
+  type: 'test'
+  ...
+# Subtest: rejects invalid patch {"next_meeting_date":"bad"}
+ok 23 - rejects invalid patch {"next_meeting_date":"bad"}
+  ---
+  duration_ms: 410.442625
+  type: 'test'
+  ...
+# Subtest: preserves recorded fields and accepts explicit clearing
+ok 24 - preserves recorded fields and accepts explicit clearing
+  ---
+  duration_ms: 402.895708
+  type: 'test'
+  ...
+# Subtest: repeat cannot duplicate promoted actions or activity
+ok 25 - repeat cannot duplicate promoted actions or activity
+  ---
+  duration_ms: 404.779375
+  type: 'test'
+  ...
+# Subtest: cancelled meeting cannot be completed
+ok 26 - cancelled meeting cannot be completed
+  ---
+  duration_ms: 402.838042
+  type: 'test'
+  ...
+# Subtest: RPC denies anon
+ok 27 - RPC denies anon
+  ---
+  duration_ms: 407.840916
+  type: 'test'
+  ...
+# Subtest: RPC denies service_role
+ok 28 - RPC denies service_role
+  ---
+  duration_ms: 401.657541
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 12055.096541

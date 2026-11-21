@@ -1,3 +1,4 @@
+import {usePlanningLifetime} from "@/hooks/use-planning-lifetime";
 import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { MeetingDocumentStyles } from "@/components/documents/MeetingDocumentStyles";
 import { toTitleCase } from "@/lib/title-case";
@@ -47,6 +48,9 @@ export const Route = createFileRoute("/_authenticated/meetings/$meetingId")({
 
 function MeetingDetailPage() {
   const { meetingId } = Route.useParams();
+  const lifetime=usePlanningLifetime(meetingId);
+  const [saving,setSaving]=useState(false);
+  const [writeError,setWriteError]=useState<string|null>(null);
   const get = useServerFn(getMeeting);
   const update = useServerFn(updateMeeting);
   const complete = useServerFn(completeMeeting);
@@ -70,25 +74,29 @@ function MeetingDetailPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement | null>(null);
   const loadSequence = useRef(0);
+  const loadedViewer=useRef<string|undefined>(undefined);
   const activeMeetingId = useRef(meetingId);
   activeMeetingId.current = meetingId;
 
   const reload = () => {
     // A completed action from the previous page must not reload its old record.
-    if (meetingId !== activeMeetingId.current) return Promise.resolve();
+    if (meetingId !== activeMeetingId.current || !lifetime.current()) return Promise.resolve();
     const sequence = ++loadSequence.current;
-    return get({ data: { id: meetingId } })
+    return get({ data: { id: meetingId,expected_viewer_id:lifetime.viewerId } })
       .then((r) => {
-        if (sequence !== loadSequence.current || meetingId !== activeMeetingId.current) return;
+        if (sequence !== loadSequence.current || meetingId !== activeMeetingId.current || !lifetime.current()) return;
         if (r.meeting.id !== meetingId) throw new Error("The meeting returned does not match this page. Please reopen it.");
+        loadedViewer.current=lifetime.viewerId;
         setMeeting(r.meeting);
         setAgenda(r.agenda);
         setQuestions(r.questions);
         setActions(r.actions);
         setLoadError(null);
+        setWriteError(null);
+        lifetime.confirmRead();
       })
       .catch((err) => {
-        if (sequence !== loadSequence.current || meetingId !== activeMeetingId.current) return;
+        if (sequence !== loadSequence.current || meetingId !== activeMeetingId.current || !lifetime.current()) return;
         setLoadError(err instanceof Error ? err.message : "Couldn't load this meeting.");
       });
   };
@@ -101,32 +109,39 @@ function MeetingDetailPage() {
     setActions([]);
     setLoadError(null);
     setPulling(false);
+    setSaving(false);
+    setWriteError(null);
     reload();
     listTpl()
       .then((r) => { if (!cancelled) setTemplates(r.templates); })
       .catch(() => {});
     return () => { cancelled = true; loadSequence.current += 1; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [meetingId]);
+  }, [meetingId,lifetime.viewerId,lifetime.available]);
 
-  const saveField = async (
-    field: "student_voice" | "family_concerns" | "teacher_notes" | "summary" | "decisions" | "documents_to_update",
-    value: string,
-  ) => {
-    if (!meeting || meeting.id !== activeMeetingId.current) return;
-    setMeeting({ ...meeting, [field]: value });
-    await update({ data: { id: meeting.id, [field]: value } as never });
+  const savePatch=async(patch:Record<string,unknown>)=>{
+    if(!meeting||meeting.id!==activeMeetingId.current||!lifetime.begin())return false;
+    setSaving(true);setWriteError(null);
+    try{const result=await update({data:{id:meeting.id,student_id:meeting.student_id,expected_updated_at:meeting.updated_at,expected_viewer_id:lifetime.viewerId,...patch} as never});
+      if(!lifetime.current()||meeting.id!==activeMeetingId.current)return false;
+      setMeeting(current=>current?.id===meeting.id?{...current,updated_at:result.meeting.updated_at,status:result.meeting.status}:current);return true;
+    }catch(err){if(lifetime.current()){lifetime.markUncertain();setWriteError(err instanceof Error?err.message:"Meeting update could not be confirmed.");}return false;}
+    finally{lifetime.finish();if(lifetime.current())setSaving(false);}
   };
-
-  const saveNextMeetingDate = async (value: string) => {
-    if (!meeting || meeting.id !== activeMeetingId.current) return;
-    const next = value || null;
-    setMeeting({ ...meeting, next_meeting_date: next });
-    await update({ data: { id: meeting.id, next_meeting_date: next } });
-  };
+  const saveField=async(field:"student_voice"|"family_concerns"|"teacher_notes"|"summary"|"decisions"|"documents_to_update",value:string)=>{await savePatch({[field]:value});};
+  const saveNextMeetingDate=async(value:string)=>{if(!meeting)return;const next=value||null;setMeeting({...meeting,next_meeting_date:next});await savePatch({next_meeting_date:next});};
+  async function handleComplete(){
+    if(!meeting||meeting.id!==activeMeetingId.current||!lifetime.begin())return;
+    setSaving(true);setWriteError(null);
+    try{const result=await complete({data:{id:meeting.id,student_id:meeting.student_id,expected_updated_at:meeting.updated_at,expected_viewer_id:lifetime.viewerId}});
+      if(!lifetime.current()||meeting.id!==activeMeetingId.current)return;
+      setMeeting(result.meeting);toast.success(result.promoted?`Meeting completed. ${result.promoted} follow-up${result.promoted===1?"":"s"} added to action items.`:"Meeting completed.");await reload();
+    }catch(err){if(lifetime.current()){lifetime.markUncertain();setWriteError(err instanceof Error?err.message:"Meeting completion could not be confirmed.");}}
+    finally{lifetime.finish();if(lifetime.current())setSaving(false);}
+  }
 
   function handlePrint() {
-    window.print();
+    if(!saving&&!lifetime.uncertain)window.print();
   }
 
   async function pullFromProfile() {
@@ -140,7 +155,7 @@ function MeetingDetailPage() {
         family_priorities?: string | null;
         support_needs_summary?: string | null;
       };
-      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current || !lifetime.current()) return;
       const patch: Partial<Pick<Meeting, "student_voice" | "family_concerns" | "teacher_notes">> = {};
       if (!meeting.student_voice && extra.student_voice_statement) {
         patch.student_voice = extra.student_voice_statement;
@@ -155,12 +170,12 @@ function MeetingDetailPage() {
         toast.info("Nothing new to pull — fields already filled or profile is empty.");
         return;
       }
-      await update({ data: { id: meeting.id, ...patch } as never });
-      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
-      setMeeting({ ...meeting, ...patch });
+      if(!await savePatch(patch))return;
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current || !lifetime.current()) return;
+      setMeeting(current=>current?.id===meeting.id?{...current,...patch}:current);
       toast.success("Pulled from student profile.");
     } catch (err) {
-      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current || !lifetime.current()) return;
       toast.error(err instanceof Error ? err.message : "Could not pull from profile.");
     } finally {
       if (meeting.id === activeMeetingId.current && sequence === loadSequence.current) setPulling(false);
@@ -180,7 +195,7 @@ function MeetingDetailPage() {
     );
   }
 
-  if (!meeting || meeting.id !== meetingId) {
+  if (!meeting || meeting.id !== meetingId || loadedViewer.current!==lifetime.viewerId) {
     return (
       <SiteShell>
         <p className="mx-auto max-w-3xl p-10 text-sm text-muted-foreground">Loading…</p>
@@ -218,25 +233,18 @@ function MeetingDetailPage() {
             </p>
           </div>
           <div className="print:hidden flex flex-wrap gap-2">
-            <Button variant="outline" onClick={pullFromProfile} disabled={pulling}>
+            <Button variant="outline" onClick={pullFromProfile} disabled={pulling||saving||lifetime.uncertain||!lifetime.available}>
               <Wand2 className="h-4 w-4" />
               {pulling ? "Pulling…" : "Pull from profile"}
             </Button>
-            <Button variant="outline" onClick={handlePrint}>
+            <Button variant="outline" onClick={handlePrint} disabled={saving||lifetime.uncertain||!lifetime.available}>
               <Printer className="h-4 w-4" />
               Export summary
             </Button>
             {meeting.status === "upcoming" && (
               <Button
-                onClick={async () => {
-                  const res = await complete({ data: { id: meeting.id } });
-                  toast.success(
-                    res.promoted > 0
-                      ? `Meeting completed. ${res.promoted} follow-up${res.promoted === 1 ? "" : "s"} added to action items.`
-                      : "Meeting completed.",
-                  );
-                  reload();
-                }}
+                onClick={handleComplete}
+                disabled={saving||lifetime.uncertain||!lifetime.available}
               >
                 <CheckSquare className="h-4 w-4" />
                 Complete & promote follow-ups
@@ -245,6 +253,8 @@ function MeetingDetailPage() {
           </div>
         </div>
 
+        {saving && <p role="status" className="mt-4 text-sm">Saving meeting…</p>}
+        {writeError && <div role="alert" className="mt-4 text-sm text-destructive">{writeError}<Button variant="outline" onClick={()=>void reload()}>Reload saved meeting and discard unsaved changes</Button></div>}
         <div data-meeting-content className="mt-8 grid gap-6 lg:grid-cols-3">
           {/* Agenda */}
           <div className="lg:col-span-2 rounded-2xl border bg-card p-5 shadow-soft">
@@ -390,6 +400,7 @@ function MeetingDetailPage() {
               Student Voice
             </h3>
             <textarea
+                disabled={saving||lifetime.uncertain||!lifetime.available}
               rows={3}
               aria-label="Student voice"
               value={meeting.student_voice ?? ""}
@@ -402,6 +413,7 @@ function MeetingDetailPage() {
 
             <h3 className="mt-6 font-display text-base">Family Concerns</h3>
             <textarea
+                disabled={saving||lifetime.uncertain||!lifetime.available}
               rows={3}
               aria-label="Family concerns"
               value={meeting.family_concerns ?? ""}
@@ -414,6 +426,7 @@ function MeetingDetailPage() {
 
             <h3 className="mt-6 font-display text-base">Educator Notes</h3>
             <textarea
+                disabled={saving||lifetime.uncertain||!lifetime.available}
               rows={3}
               aria-label="Educator Notes"
               value={meeting.teacher_notes ?? ""}
@@ -528,6 +541,7 @@ function MeetingDetailPage() {
             <label data-meeting-summary-field className="text-sm sm:col-span-2">
               <span className="mb-1 block font-medium">What We Discussed</span>
               <textarea
+                disabled={saving||lifetime.uncertain||!lifetime.available}
                 rows={3}
                 value={meeting.summary ?? ""}
                 onChange={(e) => setMeeting({ ...meeting, summary: e.target.value })}
@@ -540,6 +554,7 @@ function MeetingDetailPage() {
             <label data-meeting-summary-field className="text-sm">
               <span className="mb-1 block font-medium">Decisions Made</span>
               <textarea
+                disabled={saving||lifetime.uncertain||!lifetime.available}
                 rows={3}
                 value={meeting.decisions ?? ""}
                 onChange={(e) => setMeeting({ ...meeting, decisions: e.target.value })}
@@ -552,6 +567,7 @@ function MeetingDetailPage() {
             <label data-meeting-summary-field className="text-sm">
               <span className="mb-1 block font-medium">Documents to Update</span>
               <textarea
+                disabled={saving||lifetime.uncertain||!lifetime.available}
                 rows={3}
                 value={meeting.documents_to_update ?? ""}
                 onChange={(e) => setMeeting({ ...meeting, documents_to_update: e.target.value })}
@@ -565,6 +581,7 @@ function MeetingDetailPage() {
               <span className="mb-1 block font-medium">Next Meeting Date</span>
               <input
                 type="date"
+                disabled={saving||lifetime.uncertain||!lifetime.available}
                 value={meeting.next_meeting_date ?? ""}
                 onChange={(e) => saveNextMeetingDate(e.target.value)}
                 className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
