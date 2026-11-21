@@ -18,14 +18,14 @@ const constraintSql="SELECT conrelid::text,conname,contype,convalidated,pg_get_c
 const dataActionSql="SELECT md5(coalesce(jsonb_agg(to_jsonb(a)ORDER BY id)::text,'[]'))AS actions,(SELECT md5(coalesce(jsonb_agg(to_jsonb(g)ORDER BY id)::text,'[]'))FROM public.goals g)AS goals,(SELECT md5(coalesce(jsonb_agg(to_jsonb(f)ORDER BY id)::text,'[]'))FROM public.feed_events f)AS events,(SELECT md5(coalesce(jsonb_agg(to_jsonb(r)ORDER BY id)::text,'[]'))FROM public.pathway_reports r)AS reports FROM public.action_items a";
 const privilegeSql="SELECT r.role,p.privilege,has_table_privilege(r.role,'public.action_items',p.privilege)AS allowed FROM unnest(ARRAY['anon','authenticated','service_role'])r(role)CROSS JOIN unnest(ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER'])p(privilege)ORDER BY 1,2";
 try{
- await db.connect();const before=await snapshot();const constraintsBefore=(await db.query(constraintSql)).rows;
+ await db.connect();const before=await snapshot();const constraintsBefore=(await db.query(constraintSql)).rows;const chatBefore=(await db.query("SELECT conrelid::text,conname,convalidated,confdeltype FROM pg_constraint WHERE conrelid IN('public.channels'::regclass,'public.student_channel_removals'::regclass) AND confrelid='public.students'::regclass AND contype='f' ORDER BY 1")).rows;
  const draft='docs/database-proposals/student-request-resolution/resolve-and-cleanup.review.sql';await db.query(readFileSync(draft,'utf8'));const after=await snapshot();
  for(const key of ['policies','tables','data'])assert.deepEqual(after[key],before[key]);
  assert.deepEqual(after.procedures.filter(p=>p.proname!=='close_student_creation_request'),before.procedures);
  assert.deepEqual(after.columns.filter(c=>c.attname!=='creation_closed'),before.columns);
  const oldIndexes=new Set(before.indexes.map(i=>i.indexrelid)),oldTriggers=new Set(before.triggers.map(t=>t.oid));
- assert.deepEqual(after.indexes.filter(i=>oldIndexes.has(i.indexrelid)),before.indexes);assert.deepEqual(after.triggers.filter(t=>oldTriggers.has(t.oid)),before.triggers);
- const constraintsAfter=(await db.query(constraintSql)).rows;assert.deepEqual(constraintsAfter.filter(c=>!c.conname.endsWith('_student_cleanup_fk')),constraintsBefore);
+ assert.deepEqual(after.indexes.filter(i=>oldIndexes.has(i.indexrelid)),before.indexes);const removedChatConstraintOids=new Set(before.triggers.filter(t=>t.tgconstraint!=='0'&&!after.triggers.some(a=>a.oid===t.oid)).map(t=>t.tgconstraint));assert.equal(removedChatConstraintOids.size,2);assert.deepEqual(after.triggers.filter(t=>oldTriggers.has(t.oid)),before.triggers.filter(t=>!removedChatConstraintOids.has(t.tgconstraint)));
+ const constraintsAfter=(await db.query(constraintSql)).rows;const isChat=c=>chatBefore.some(old=>old.conrelid===c.conrelid&&old.conname===c.conname);assert.deepEqual(constraintsAfter.filter(c=>!c.conname.endsWith('_student_cleanup_fk')&&!isChat(c)),constraintsBefore.filter(c=>!isChat(c)));const chatAfter=(await db.query("SELECT conrelid::text,conname,convalidated,confdeltype FROM pg_constraint WHERE conrelid IN('public.channels'::regclass,'public.student_channel_removals'::regclass) AND confrelid='public.students'::regclass AND contype='f' ORDER BY 1")).rows;assert.deepEqual(chatAfter,chatBefore.map(c=>({...c,confdeltype:'r'})));
  const guards=(await db.query("SELECT conrelid::regclass::text AS table_name,confdeltype,convalidated FROM pg_constraint WHERE conname LIKE '%_student_cleanup_fk' ORDER BY 1")).rows;
  assert.equal(guards.length,12);assert.equal(guards.filter(g=>g.confdeltype==='c').length,3);assert.equal(guards.filter(g=>g.confdeltype==='r').length,9);assert.ok(guards.every(g=>g.convalidated===false));
  const smoke=[];
@@ -57,6 +57,6 @@ try{
   }finally{await db.query('ROLLBACK');}
  }
  assert.deepEqual(await snapshot(),after);
- writeFileSync(directory+'/full-chain.json',JSON.stringify({schema:'student-request-resolution-full-schema-v1',source_commit:process.env.GITHUB_SHA,canonical_count:225,prior_review_drafts:41,separate_review_drafts:17,native_full_chain_installed:true,smoke,guards,prior_proof_sha256:sha(readFileSync(priorPath)),draft_sha256:sha(readFileSync(draft)),hosted_applied:false,external_cleanup_complete:false,chat_retention_changed:false},null,2)+'\n');
+ writeFileSync(directory+'/full-chain.json',JSON.stringify({schema:'student-request-resolution-full-schema-v1',source_commit:process.env.GITHUB_SHA,canonical_count:225,prior_review_drafts:41,separate_review_drafts:17,native_full_chain_installed:true,smoke,guards,chat_guards:chatAfter,prior_proof_sha256:sha(readFileSync(priorPath)),draft_sha256:sha(readFileSync(draft)),hosted_applied:false,external_cleanup_complete:false,chat_retention_changed:false},null,2)+'\n');
  console.log('Full schema: unknown request closure, exact cleanup, preserved unrelated records and guarded retained content passed.');
 }finally{await db.end();}

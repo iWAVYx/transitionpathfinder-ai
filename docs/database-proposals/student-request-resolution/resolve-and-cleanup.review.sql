@@ -62,6 +62,27 @@ ALTER TABLE public.ppt_meeting_preps ADD CONSTRAINT ppt_meeting_preps_student_cl
 ALTER TABLE public.student_voice_responses ADD CONSTRAINT student_voice_responses_student_cleanup_fk
  FOREIGN KEY(student_id) REFERENCES public.students(id) ON DELETE RESTRICT NOT VALID;
 
+-- Existing Transition Channel cascades can erase messages, attachments and
+-- retained-history grants. Preserve both channels and recorded removal choices
+-- until an explicit conversation-retention cleanup protocol has completed.
+DO $chat_guard$
+DECLARE relation text;dependency record;n integer;
+BEGIN
+ FOREACH relation IN ARRAY ARRAY['channels','student_channel_removals'] LOOP
+  SELECT count(*) INTO n FROM pg_constraint WHERE conrelid=to_regclass('public.'||relation)
+   AND confrelid='public.students'::regclass AND contype='f';
+  IF n<>1 THEN RAISE EXCEPTION 'Expected exactly one conversation/student reference.';END IF;
+  SELECT * INTO dependency FROM pg_constraint WHERE conrelid=to_regclass('public.'||relation)
+   AND confrelid='public.students'::regclass AND contype='f';
+  IF dependency.confdeltype<>'c' OR dependency.conkey<>ARRAY[(SELECT attnum FROM pg_attribute WHERE attrelid=to_regclass('public.'||relation) AND attname='student_id')]::smallint[]
+   OR dependency.confkey<>ARRAY[(SELECT attnum FROM pg_attribute WHERE attrelid='public.students'::regclass AND attname='id')]::smallint[] THEN
+   RAISE EXCEPTION 'Unexpected conversation reference baseline.';END IF;
+  EXECUTE format('ALTER TABLE public.%I DROP CONSTRAINT %I',relation,dependency.conname);
+  EXECUTE format('ALTER TABLE public.%I ADD CONSTRAINT %I FOREIGN KEY(student_id) REFERENCES public.students(id) ON DELETE RESTRICT NOT VALID',relation,dependency.conname);
+  IF dependency.convalidated THEN EXECUTE format('ALTER TABLE public.%I VALIDATE CONSTRAINT %I',relation,dependency.conname);END IF;
+ END LOOP;
+END;$chat_guard$;
+
 -- Ensure each new reference has a usable leading-column index without duplicating
 -- an existing one. No index grants or table policies are changed.
 DO $indexes$
