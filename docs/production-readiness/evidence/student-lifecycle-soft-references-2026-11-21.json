@@ -1,0 +1,58 @@
+{
+  "softReferences": [
+    {
+      "table_name": "document_apply_completion_receipts",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "document_registration_completion_receipts",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "document_summary_completion_receipts",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "document_summary_operation_bindings",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "document_upload_operation_bindings",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "feed_events",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "form_responses",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "in_app_notifications",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "message_threads",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "ppt_meeting_preps",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "student_lifecycle_receipts",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "student_saved_partners",
+      "column_name": "student_id"
+    },
+    {
+      "table_name": "student_voice_responses",
+      "column_name": "student_id"
+    }
+  ],
+  "scope": "Column inventory, not deletion permission. Ledger tombstones intentionally have no cascading FK; other entries need per-record review.",
+  "hosted_read": false
+}

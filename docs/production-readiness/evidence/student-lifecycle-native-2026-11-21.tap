@@ -1,0 +1,292 @@
+TAP version 13
+# Subtest: caller RLS retained for parent
+ok 1 - caller RLS retained for parent
+  ---
+  duration_ms: 117.839289
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for guardian
+ok 2 - caller RLS retained for guardian
+  ---
+  duration_ms: 168.581927
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for educator
+ok 3 - caller RLS retained for educator
+  ---
+  duration_ms: 80.864805
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for teacher
+ok 4 - caller RLS retained for teacher
+  ---
+  duration_ms: 81.900347
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for case_manager
+ok 5 - caller RLS retained for case_manager
+  ---
+  duration_ms: 78.500575
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for administrator
+ok 6 - caller RLS retained for administrator
+  ---
+  duration_ms: 78.380832
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for school_admin
+ok 7 - caller RLS retained for school_admin
+  ---
+  duration_ms: 75.874937
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for admin
+ok 8 - caller RLS retained for admin
+  ---
+  duration_ms: 83.479798
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for district_admin
+ok 9 - caller RLS retained for district_admin
+  ---
+  duration_ms: 77.749541
+  type: 'test'
+  ...
+# Subtest: caller RLS retained for partner
+ok 10 - caller RLS retained for partner
+  ---
+  duration_ms: 77.549287
+  type: 'test'
+  ...
+# Subtest: self setup reuses canonical identity without secondary student or relationship
+ok 11 - self setup reuses canonical identity without secondary student or relationship
+  ---
+  duration_ms: 78.546493
+  type: 'test'
+  ...
+# Subtest: rejects foreign owner without partial rows
+ok 12 - rejects foreign owner without partial rows
+  ---
+  duration_ms: 72.565403
+  type: 'test'
+  ...
+# Subtest: rejects foreign organization without partial rows
+ok 13 - rejects foreign organization without partial rows
+  ---
+  duration_ms: 71.682852
+  type: 'test'
+  ...
+# Subtest: rejects blank name without partial rows
+ok 14 - rejects blank name without partial rows
+  ---
+  duration_ms: 75.73127
+  type: 'test'
+  ...
+# Subtest: rejects wrong type without partial rows
+ok 15 - rejects wrong type without partial rows
+  ---
+  duration_ms: 71.343388
+  type: 'test'
+  ...
+# Subtest: rejects oversize name without partial rows
+ok 16 - rejects oversize name without partial rows
+  ---
+  duration_ms: 71.463135
+  type: 'test'
+  ...
+# Subtest: rejects bad grade without partial rows
+ok 17 - rejects bad grade without partial rows
+  ---
+  duration_ms: 76.147934
+  type: 'test'
+  ...
+# Subtest: rejects invalid date without partial rows
+ok 18 - rejects invalid date without partial rows
+  ---
+  duration_ms: 74.146044
+  type: 'test'
+  ...
+# Subtest: rejects stale actor before writes
+ok 19 - rejects stale actor before writes
+  ---
+  duration_ms: 75.201697
+  type: 'test'
+  ...
+# Subtest: missing profile does not become Parent
+ok 20 - missing profile does not become Parent
+  ---
+  duration_ms: 77.081896
+  type: 'test'
+  ...
+# Subtest: student_guardians failure rolls back all setup writes
+ok 21 - student_guardians failure rolls back all setup writes
+  ---
+  duration_ms: 78.786945
+  type: 'test'
+  ...
+# Subtest: student_team_members failure rolls back all setup writes
+ok 22 - student_team_members failure rolls back all setup writes
+  ---
+  duration_ms: 78.510481
+  type: 'test'
+  ...
+# Subtest: license_calls failure rolls back all setup writes
+ok 23 - license_calls failure rolls back all setup writes
+  ---
+  duration_ms: 75.875388
+  type: 'test'
+  ...
+# Subtest: contradictory relationship trigger rolls back inserted student
+ok 24 - contradictory relationship trigger rolls back inserted student
+  ---
+  duration_ms: 75.957558
+  type: 'test'
+  ...
+# Subtest: repeated request cannot duplicate student or relationship
+ok 25 - repeated request cannot duplicate student or relationship
+  ---
+  duration_ms: 80.066413
+  type: 'test'
+  ...
+# Subtest: does not bypass existing student insert policy
+ok 26 - does not bypass existing student insert policy
+  ---
+  duration_ms: 76.584347
+  type: 'test'
+  ...
+# Subtest: fixed path, invoker authority and authenticated-only grant
+ok 27 - fixed path, invoker authority and authenticated-only grant
+  ---
+  duration_ms: 76.509168
+  type: 'test'
+  ...
+# Subtest: competing same-request creation commits one complete setup
+ok 28 - competing same-request creation commits one complete setup
+  ---
+  duration_ms: 115.863167
+  type: 'test'
+  ...
+# Subtest: lost creation reply can be reconciled without creating another profile
+ok 29 - lost creation reply can be reconciled without creating another profile
+  ---
+  duration_ms: 77.872079
+  type: 'test'
+  ...
+# Subtest: unknown request is unconfirmed, never permission to retry
+ok 30 - unknown request is unconfirmed, never permission to retry
+  ---
+  duration_ms: 76.242743
+  type: 'test'
+  ...
+# Subtest: stale viewer cannot read an outcome
+ok 31 - stale viewer cannot read an outcome
+  ---
+  duration_ms: 72.585909
+  type: 'test'
+  ...
+# Subtest: another account cannot discover existence or tombstones
+ok 32 - another account cannot discover existence or tombstones
+  ---
+  duration_ms: 78.181983
+  type: 'test'
+  ...
+# Subtest: removal retains identity tombstone and blocks same-ID resurrection
+ok 33 - removal retains identity tombstone and blocks same-ID resurrection
+  ---
+  duration_ms: 74.336021
+  type: 'test'
+  ...
+# Subtest: rolled-back removal does not mark the profile removed
+ok 34 - rolled-back removal does not mark the profile removed
+  ---
+  duration_ms: 77.726829
+  type: 'test'
+  ...
+# Subtest: failed setup leaves no receipt and same request can commit once repaired
+ok 35 - failed setup leaves no receipt and same request can commit once repaired
+  ---
+  duration_ms: 77.688742
+  type: 'test'
+  ...
+# Subtest: documents blocks student removal without losing metadata or tombstone state
+ok 36 - documents blocks student removal without losing metadata or tombstone state
+  ---
+  duration_ms: 75.780067
+  type: 'test'
+  ...
+# Subtest: meetings blocks student removal without losing metadata or tombstone state
+ok 37 - meetings blocks student removal without losing metadata or tombstone state
+  ---
+  duration_ms: 75.560295
+  type: 'test'
+  ...
+# Subtest: ownership transfer does not expose the current profile to original creator
+ok 38 - ownership transfer does not expose the current profile to original creator
+  ---
+  duration_ms: 78.284318
+  type: 'test'
+  ...
+# Subtest: direct caller cannot forge, delete, or read lifecycle receipts
+ok 39 - direct caller cannot forge, delete, or read lifecycle receipts
+  ---
+  duration_ms: 74.592861
+  type: 'test'
+  ...
+# Subtest: recovery exposes identity and status only, never a student snapshot
+ok 40 - recovery exposes identity and status only, never a student snapshot
+  ---
+  duration_ms: 73.325422
+  type: 'test'
+  ...
+# Subtest: lifecycle helper is not directly callable and recovery excludes anon/service
+ok 41 - lifecycle helper is not directly callable and recovery excludes anon/service
+  ---
+  duration_ms: 72.538574
+  type: 'test'
+  ...
+# Subtest: legacy profile deletion also leaves a tombstone
+ok 42 - legacy profile deletion also leaves a tombstone
+  ---
+  duration_ms: 76.411022
+  type: 'test'
+  ...
+# Subtest: student ID cannot change around the permanent identity reservation
+ok 43 - student ID cannot change around the permanent identity reservation
+  ---
+  duration_ms: 75.958711
+  type: 'test'
+  ...
+# Subtest: outcome waits for an actual deletion commit
+ok 44 - outcome waits for an actual deletion commit
+  ---
+  duration_ms: 112.058149
+  type: 'test'
+  ...
+# Subtest: outcome waits for an actual deletion rollback
+ok 45 - outcome waits for an actual deletion rollback
+  ---
+  duration_ms: 109.910212
+  type: 'test'
+  ...
+# Subtest: foreign outcome lookup does not lock another owner profile
+ok 46 - foreign outcome lookup does not lock another owner profile
+  ---
+  duration_ms: 89.386701
+  type: 'test'
+  ...
+# Subtest: ownership removal permanently retires recovery visibility, including re-addition and deletion
+ok 47 - ownership removal permanently retires recovery visibility, including re-addition and deletion
+  ---
+  duration_ms: 78.390594
+  type: 'test'
+  ...
+1..47
+# tests 47
+# suites 0
+# pass 47
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3916.367443

@@ -17,10 +17,27 @@
 - [ ] Design approved document/storage/provider cleanup and its failure recovery. The new restrict safeguards prevent unsafe deletion; they do **not** perform cleanup. Archived documents still block deletion.
 - [ ] Review remaining soft references and retained reports/intakes/licenses. No cascade or guard should be bypassed to force removal. Preserve the existing 143-edge inventory as historical evidence, not an updated deletion forecast.
 - [ ] Decide lifecycle-receipt retention during account erasure. Minimal original-owner identifiers remain after student deletion; no claim of complete personal-data erasure.
-- [ ] Complete native/disposable full-schema verification, then reviewed canonical packaging and separately authorized staging rollout/acceptance. Production and PR merge remain separate gates.
+- [x] Native/disposable full-schema verification: 43 local and47 native cases, including observed concurrent deletion commit/rollback and cross-account non-blocking; full225+41+16 replay passes.
+- [ ] Reviewed canonical packaging and separately authorized staging rollout/acceptance. Production and PR merge remain separate gates.
 
 ## Validation Boundary
 
 The new SQL is a **separate review draft**, not a canonical or hosted migration. Disposable tests cover old atomic-setup cases plus lost replies, rollback, tombstones, raw-ID reuse, ownership changes, privilege restrictions, document/meeting blockers and native concurrent deletion outcome reads. Full-schema replay retains the preceding fifteen drafts and records remaining student-ID soft references. Verification results are recorded separately; preparing a workflow is not a passing result.
 
 The current UI still has its existing in-session uncertainty guard. This batch does not claim cross-refresh UI recovery or complete student cleanup. No hosted records, AI calls, publication, deployment, merge or production changes are authorized by this draft.
+
+Verified final source: `613d9045`, exact push run44947295433, attempt1. All6,915 unit tests/409 files,50 focused receipt tests,51 readiness/role contracts,72 release/security contracts, TypeScript and the environment-file-free staging build pass. [Evidence](../evidence/student-lifecycle-verified-2026-11-21.json) · [remaining soft references](../evidence/student-lifecycle-soft-references-2026-11-21.json).
+
+## Deletion Follow-Through Inventory
+
+The full-schema check identified thirteen UUID `student_id` columns without student foreign keys after this draft: the new lifecycle receipt is intentionally retained; these **twelve existing tables** still need explicit handling. This inventory supplements the foreign-key inventory and does not authorize deletion.
+
+| Remaining records | Required closure |
+| --- | --- |
+| `document_apply_completion_receipts`, `document_registration_completion_receipts`, `document_summary_completion_receipts`, `document_summary_operation_bindings`, `document_upload_operation_bindings` | Reconcile active/uncertain work and exact source identities; apply reviewed retention/cleanup without freeing unresolved capacity or losing receipts. |
+| `feed_events`, `in_app_notifications` | Define exact student-scoped removal/redaction and verify no unrelated activity or notifications change. |
+| `form_responses`, `ppt_meeting_preps`, `student_voice_responses` | Establish treatment of saved private content and verify access plus exact cleanup/retention. |
+| `message_threads` | Preserve the separate explicit chat-history retention choice; student deletion must not silently decide it. |
+| `student_saved_partners` | Remove only the student's saved associations; retain shared partner directory records. |
+
+Meeting records now have a restrictive reference; existing orphan meetings require a separate read-only inventory before constraint validation. None of these rows were read or changed on staging or production.

@@ -587,7 +587,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "e3346de91621b30cff5fdd1beaa5f514ba45a1282bc76d942468348c01f5e3df"
+      "sha256": "99ba10878a60d349899958eff2efc0c854424b443b31092d1d28d78cee669e98"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -1015,7 +1015,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-lifecycle-recovery-review.md",
-      "sha256": "97f18dacc362796de8d10186af4fe7f782d042b2c0d857069229f5c488afef05"
+      "sha256": "0a9a68b7d4782a996a7208a955d2d6266b92956952bb036a15e09b5a8b77e102"
     }
   ],
   "adapter_contract": {

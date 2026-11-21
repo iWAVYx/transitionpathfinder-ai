@@ -1,0 +1,41 @@
+{
+  "schema": "student-lifecycle-full-schema-v1",
+  "source_commit": "613d90459a3028db286bc1b92d416fe034ba861c",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 16,
+  "native_full_chain_installed": true,
+  "smoke": [
+    {
+      "role": "parent",
+      "creation_reconciled": true,
+      "deletion_tombstone": true,
+      "recreation_rejected": true,
+      "rolled_back": true
+    },
+    {
+      "role": "educator",
+      "creation_reconciled": true,
+      "deletion_tombstone": true,
+      "recreation_rejected": true,
+      "rolled_back": true
+    }
+  ],
+  "constraints": [
+    {
+      "child": "documents",
+      "confdeltype": "r",
+      "convalidated": true
+    },
+    {
+      "child": "meetings",
+      "confdeltype": "r",
+      "convalidated": false
+    }
+  ],
+  "prior_proof_sha256": "85a60158d2668d1e37551e1bde43c64581a841655b781dea47fe3ad6c73a2672",
+  "draft_sha256": "09774a579fa26b49ba688e3bca5df82fe656fdf8dbc7607e39449c2100af8436",
+  "hosted_applied": false,
+  "ui_recovery_complete": false,
+  "external_cleanup_complete": false
+}
