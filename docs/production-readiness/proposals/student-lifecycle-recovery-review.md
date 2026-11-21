@@ -4,7 +4,7 @@
 
 - [x] Minimal durable lifecycle receipts: original owner, student UUID and timestamps only. Creation receipts commit or roll back with the existing caller-RLS setup transaction; no student fields or documents are copied.
 - [x] Permanent deletion tombstones prevent the same student UUID being recreated through setup or raw inserts. Student ID changes cannot bypass the reservation. Existing profiles acquire a tombstone on deletion; historical deletions before installation cannot be reconstructed.
-- [x] Account-bound outcome read distinguishes **present**, **removed**, and **unconfirmed**. Other accounts receive no existence signal. Transferred ownership is unconfirmed. A present identity is not a claim that all original setup fields are unchanged or that onboarding finished.
+- [x] Account-bound outcome read distinguishes **present**, **removed**, and **unconfirmed**. Other accounts receive no existence signal. Ownership changes permanently retire recovery visibility, including after re-addition or deletion. A present identity is not a claim that all original setup fields are unchanged or that onboarding finished.
 - [x] Replace the document/student cascade with a restrictive foreign key. This closes a route around paused permanent document deletion that could discard metadata while leaving files behind. No bytes, jobs or restrictive operation records are deleted.
 - [x] Add a restrictive student reference for meetings, preserving meeting notes and children until coordinated cleanup is reviewed. The constraint is initially NOT VALID so existing orphaned meetings are not silently removed; it enforces new references/deletions immediately.
 - [x] Recognize both foreign-key and RESTRICT error codes in the existing plain-language removal explanation.

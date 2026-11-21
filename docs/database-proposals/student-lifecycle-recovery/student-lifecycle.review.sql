@@ -22,6 +22,11 @@ BEGIN
   RETURN NEW;
  ELSIF TG_OP='UPDATE' THEN
   IF NEW.id IS DISTINCT FROM OLD.id THEN RAISE EXCEPTION 'Student identity cannot be replaced.' USING ERRCODE='23514';END IF;
+  IF NEW.owner_id IS DISTINCT FROM OLD.owner_id THEN
+   -- Retire recovery visibility permanently after ownership changes, even if
+   -- ownership later returns. The UUID reservation itself remains intact.
+   UPDATE public.student_lifecycle_receipts SET original_owner_id=NULL WHERE student_id=OLD.id;
+  END IF;
   RETURN NEW;
  ELSIF TG_OP='DELETE' THEN
   -- Includes pre-installation students without pretending their creation was tracked.
@@ -35,7 +40,7 @@ END;$body$;
 REVOKE ALL ON FUNCTION public.record_student_lifecycle() FROM PUBLIC,anon,authenticated,service_role;
 CREATE TRIGGER student_lifecycle_created BEFORE INSERT ON public.students
  FOR EACH ROW EXECUTE FUNCTION public.record_student_lifecycle();
-CREATE TRIGGER student_lifecycle_identity BEFORE UPDATE OF id ON public.students
+CREATE TRIGGER student_lifecycle_identity BEFORE UPDATE OF id,owner_id ON public.students
  FOR EACH ROW EXECUTE FUNCTION public.record_student_lifecycle();
 CREATE TRIGGER student_lifecycle_removed AFTER DELETE ON public.students
  FOR EACH ROW EXECUTE FUNCTION public.record_student_lifecycle();
